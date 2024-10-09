@@ -2,12 +2,12 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Badge,Box} from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { useCart } from './cartContext';
-import CartDrawer from './cartDrawer';
-import SimpleBottomNavigation from './bottombutton';
-import Breadcrumb from './breadcrumb';
+import { useCart } from './CartContext';
+import CartDrawer from './CartDrawer';
+import SimpleBottomNavigation from './Bottombutton';
+import Breadcrumb from './Breadcrumb';
 
-const layout = ({ children }) => {
+const Layout = ({ children }) => {
   const { cart, setIsCartOpen } = useCart();
 
   return (
@@ -38,4 +38,4 @@ const layout = ({ children }) => {
   );
 };
 
-export default layout;
+export default Layout;

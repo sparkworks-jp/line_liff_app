@@ -13,7 +13,7 @@ import {
   Divider
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useCart } from './cartContext';
+import { useCart } from './CartContext';
 
 const CartDrawer = () => {
   const { cart, removeFromCart, isCartOpen, setIsCartOpen } = useCart();

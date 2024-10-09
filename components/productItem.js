@@ -23,7 +23,7 @@
 // export default ProductItem;
 import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Button } from '@mui/material';
-import { useCart } from './cartContext';
+import { useCart } from './CartContext';
 
 const ProductItem = ({ product }) => {
   const { addToCart } = useCart();
