@@ -3,8 +3,8 @@
 import "../styles/globals.css";
 import { useState, useEffect } from "react";
 import liff from "@line/liff";
-import Layout from "../components/Layout";
-import { CartProvider } from './shoppingCart/cartContext';
+import Layout from "../components/layout";
+import { CartProvider } from '../components/cartContext';
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);

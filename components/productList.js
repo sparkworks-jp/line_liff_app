@@ -1,5 +1,5 @@
-import ProductItem from './ProductItem';
-import styles from '../../styles/ProductList.module.css';
+import ProductItem from './productItem';
+import styles from '../styles/ProductList.module.css';
 
 const ProductList = ({ products }) => {
   return (

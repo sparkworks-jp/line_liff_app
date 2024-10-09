@@ -1,21 +1,40 @@
-import Link from 'next/link';
+
+import React from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Badge,Box} from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useCart } from './cartContext';
+import CartDrawer from './cartDrawer';
+import SimpleBottomNavigation from './bottombutton';
+import Breadcrumb from './breadcrumb';
 
 const Layout = ({ children }) => {
+  const { cart, setIsCartOpen } = useCart();
+
   return (
-    <div>
-      <nav>
-      <Link href="/">
-          <a>Home</a>
-        </Link>
-        <Link href="/shop/shop">
-          <a>Shop</a>
-        </Link>
-        <Link href="/cart/cart">
-          <a>Cart</a>
-        </Link>
-      </nav>
-      <main>{children}</main>
-    </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <AppBar position="static">
+        <Toolbar variant="dense">
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            My Shop
+          </Typography>
+          <IconButton color="inherit" onClick={() => setIsCartOpen(true)}>
+            <Badge badgeContent={cart.reduce((sum, item) => sum + item.quantity, 0)} color="secondary">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Box sx={{ marginTop: '8px' }}>
+        <Breadcrumb />
+      </Box>
+      <Box component="main" sx={{ flexGrow: 1 , pb: '30px' }}>
+        {children}
+      </Box>
+      <CartDrawer />
+      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000 }}>
+        <SimpleBottomNavigation />
+      </Box>
+    </Box>
   );
 };
 

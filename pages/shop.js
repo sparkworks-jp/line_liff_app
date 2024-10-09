@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import ProductList from '../manage/ProductList';
-import styles from '../../styles/Shop.module.css';
+import ProductList from '../components/productList';
+import styles from '../styles/Shop.module.css';
 
 const coffeeProducts = [
   { id: 1, name: 'Espresso', price: 250, image: '/espresso.jpg', isNew: true },
@@ -18,7 +18,3 @@ export default function Shop() {
     </div>
   );
 }
-
-// export default function Shop() {
-//   return <div>This is the shop page</div>;
-// }
