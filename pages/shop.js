@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ProductList from '../components/ProductList';
 import styles from '../styles/Shop.module.css';
-
+ 
 const coffeeProducts = [
   { id: 1, name: 'Espresso', price: 250, image: '/espresso.jpg', isNew: true },
   { id: 2, name: 'Latte', price: 340, image: '/latte.jpg', isNew: false },

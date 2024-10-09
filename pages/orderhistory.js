@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Container, List, ListItem, ListItemText, Divider } from '@mui/material';
-
+ 
 // 模拟订单数据
 const orders = [
   { id: 1, date: '2023-05-01', items: 'コーヒー x2, サンドイッチ x1', total: '¥1,500' },

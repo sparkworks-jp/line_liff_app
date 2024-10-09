@@ -6,7 +6,7 @@ import { useCart } from '../components/CartContext';
 import CartDrawer from '../components/CartDrawer';
 import SimpleBottomNavigation from '../components/Bottombutton';
 import Breadcrumb from '../components/Breadcrumb';
-
+ 
 const Layout = ({ children }) => {
   const { cart, setIsCartOpen } = useCart();
 
