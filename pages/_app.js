@@ -3,7 +3,7 @@
 import "../styles/globals.css";
 import { useState, useEffect } from "react";
 import liff from "@line/liff";
-import Layout from "../components/layout";
+import Layout from "../components/Layout";
 import { CartProvider } from '../components/cartContext';
 
 function MyApp({ Component, pageProps }) {

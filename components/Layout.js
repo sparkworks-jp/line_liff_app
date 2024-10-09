@@ -7,7 +7,7 @@ import CartDrawer from './cartDrawer';
 import SimpleBottomNavigation from './bottombutton';
 import Breadcrumb from './breadcrumb';
 
-const Layout = ({ children }) => {
+const layout = ({ children }) => {
   const { cart, setIsCartOpen } = useCart();
 
   return (
@@ -38,4 +38,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout;
+export default layout;
