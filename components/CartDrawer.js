@@ -10,6 +10,7 @@ import {
   Typography,
   Box,
   Button,
+  Chip,
   Divider
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -43,39 +44,7 @@ const CartDrawer = () => {
         <Typography variant="h6" gutterBottom>Cart</Typography>
         <List sx={{ flexGrow: 1, overflow: 'auto' }}>
           {cart.map((item) => (
-            // <React.Fragment key={item.id}>
-            //   <ListItem alignItems="flex-start">
-            //     <ListItemAvatar>
-            //       <Avatar src={item.image} alt={item.name} variant="square" />
-            //     </ListItemAvatar>
-            //     <ListItemText 
-            //       primary={item.name} 
-            //       secondary={
-            //         <React.Fragment>
-            //           <Typography variant="body2" color="text.primary">
-            //             ${item.price} x {item.quantity}
-            //           </Typography>
-            //           {item.flavorOptions && Object.entries(item.flavorOptions).map(([key, value]) => 
-            //             value && <Chip key={key} label={key} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
-            //           )}
-            //         </React.Fragment>
-            //       }
-            //     />
-            //     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-            //       <IconButton size="small" onClick={() => handleQuantityChange(item.id, 1)}>
-            //         <AddIcon fontSize="small" />
-            //       </IconButton>
-            //       <Typography variant="body2">{item.quantity}</Typography>
-            //       <IconButton size="small" onClick={() => handleQuantityChange(item.id, -1)}>
-            //         <RemoveIcon fontSize="small" />
-            //       </IconButton>
-            //     </Box>
-            //     <IconButton edge="end" aria-label="delete" onClick={() => removeFromCart(item.id)}>
-            //       <DeleteIcon />
-            //     </IconButton>
-            //   </ListItem>
-            //   <Divider variant="inset" component="li" />
-            // </React.Fragment>
+
             <React.Fragment key={item.id}>
               <ListItem
                 alignItems="center"
