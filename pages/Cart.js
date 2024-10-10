@@ -5,7 +5,6 @@ import Link from 'next/link';
  
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity } = useContext(CartContext);
-
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (

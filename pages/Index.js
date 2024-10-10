@@ -5,7 +5,7 @@ import styles from '../styles/Home.module.css';
 
 export default function Home({ userProfile }) {
   return (
-    <div className={styles.container}>
+    <div className={styles.container}>X
       <Head> 
         <title>Coffee Shop</title>
       </Head>

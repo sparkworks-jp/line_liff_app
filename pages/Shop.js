@@ -1,12 +1,8 @@
 import { useState } from 'react';
 import ProductList from '../components/ProductList';
 import styles from '../styles/Shop.module.css';
- 
-const coffeeProducts = [
-  { id: 1, name: 'Espresso', price: 250, image: '/espresso.jpg', isNew: true },
-  { id: 2, name: 'Latte', price: 340, image: '/latte.jpg', isNew: false },
-  { id: 3, name: 'Cappuccino', price: 340, image: '/cappuccino.jpg', isNew: false },
-];
+import { coffeeProducts } from '../data/coffeeProducts';
+
 
 export default function Shop() {
   const [products] = useState(coffeeProducts);

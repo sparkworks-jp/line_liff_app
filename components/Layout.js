@@ -2,10 +2,10 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Badge,Box} from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { useCart } from '../components/CartContext';
-import CartDrawer from '../components/CartDrawer';
-import SimpleBottomNavigation from '../components/Bottombutton';
-import Breadcrumb from '../components/Breadcrumb';
+import { useCart } from './CartContext';
+import CartDrawer from './CartDrawer';
+import SimpleBottomNavigation from './Bottombutton';
+import Breadcrumb from './Breadcrumb';
  
 const Layout = ({ children }) => {
   const { cart, setIsCartOpen } = useCart();
