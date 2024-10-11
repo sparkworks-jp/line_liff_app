@@ -7,7 +7,7 @@ import CartDrawer from './CartDrawer';
 import SimpleBottomNavigation from './Bottombutton';
 import Breadcrumb from './Breadcrumb';
  
-const Layout = ({ children }) => {
+const Layout = ({ children,userProfile,userId }) => {
   const { cart, setIsCartOpen } = useCart();
 
   return (
@@ -15,7 +15,14 @@ const Layout = ({ children }) => {
       <AppBar position="static">
         <Toolbar variant="dense">
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            My Shop
+            My Shop          {userId && <p>欢迎，{userId}</p>}
+
+          </Typography>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            {userId && <p>欢迎，{userId}</p>}
+          </Typography>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          {userProfile && <p>欢迎，{userProfile.displayName}</p>}
           </Typography>
           <IconButton color="inherit" onClick={() => setIsCartOpen(true)}>
             <Badge badgeContent={cart.reduce((sum, item) => sum + item.quantity, 0)} color="secondary">
