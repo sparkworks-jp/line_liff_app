@@ -1,44 +1,4 @@
-// import React from 'react';
-// import { Card, CardContent, CardMedia, Typography, Button } from '@mui/material';
-// import { useCart } from './CartContext';
-
-// const ProductPage = ({ product }) => {
-//   const { addToCart } = useCart();
-
-//   return (
-//     <Card sx={{ maxWidth: 600, margin: 'auto', mt: 3 }}>
-//       <CardMedia
-//         component="img"
-//         height="300"
-//         image={product.image}
-//         alt={product.name}
-//       />
-//       <CardContent>
-//         <Typography gutterBottom variant="h4" component="div">
-//           {product.name}
-//         </Typography>
-//         <Typography variant="h6" color="text.secondary" gutterBottom>
-//           ¥{product.price}
-//         </Typography>
-//         <Button 
-//           variant="contained" 
-//           color="primary" 
-//           onClick={() => addToCart(product)}
-//           sx={{ mt: 2 }}
-//         >
-//           Add to Cart
-//         </Button>
-//       </CardContent>
-//     </Card>
-//   );
-// };
-
-// export default ProductPage;
-
-
-
-
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import Grid from '@mui/material/Grid2';
 import { 
   Card, 
