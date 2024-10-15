@@ -20,6 +20,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 const CartDrawer = () => {
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } = useCart();
 
+  console.log('Current cart state:', cart);  // 输出当前购物车状态
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const handleQuantityChange = (itemId, change) => {

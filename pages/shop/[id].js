@@ -10,7 +10,10 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (id) {
+      console.log('Fetched product id:', id);  // 打印获取的商品ID
+
       const fetchedProduct = getProductById(id);
+      console.log('Fetched product:', fetchedProduct);  // 打印获取的商品
       setProduct(fetchedProduct);
     }
   }, [id]);

@@ -38,10 +38,16 @@ const Product= ({ product }) => {
 
   const handleAddToCart = () => {
     const productToAdd = {
-      ...product,
+      // ...product,
+      id: product.id,  
+      name: product.name,
+      image: product.image,
+      price: product.price,
       flavorOptions,
       quantity
     };
+    console.log('Adding product to cart:', productToAdd);  // 输出添加到购物车的商品
+
     addToCart(productToAdd);
   };
 
