@@ -11,7 +11,7 @@ export default function Home({ userProfile }) {
       </Head>
       <div className={styles.home}>
         <h1 className={styles.title}>スパークタイムズカフェへようこそ</h1>
-        {userProfile && <p style={{color: 'white'}}>Hello, {userProfile.displayName}!</p>}
+        {/* {userProfile && <p style={{color: 'white'}}>Hello, {userProfile.displayName}!</p>} */}
         <Link href="/shop">
           <a className={styles.button}>注文開始</a>
         </Link>

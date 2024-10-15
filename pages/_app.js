@@ -45,9 +45,9 @@ function MyApp({ Component, pageProps }) {
       });
   }, []);
 
-console.log("user id",userId)
-console.log("user name",userName)
-console.log("user profile",userProfile)
+// console.log("user id",userId)
+// console.log("user name",userName)
+// console.log("user profile",userProfile)
 
 
   return (
