@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 export const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
@@ -37,16 +37,19 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   // 初期化時に localStorage からカートを読み込む
-    useEffect(() => {
+  useEffect(() => {
+    // 检查是否处于浏览器环境，确保只在客户端执行
+    if (typeof window !== 'undefined') {
       const initialCart = loadCartFromLocalStorage();
       setCart(initialCart);
-    }, []);
-    // カートが更新されたとき、localStorage に保存する
-    useEffect(() => {
-      if (cart.length > 0) {
-        saveCartToLocalStorage(cart);
-      }
-    }, [cart]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && cart.length > 0) {
+      saveCartToLocalStorage(cart);
+    }
+  }, [cart]);
 
   const addToCart = (product) => {
     console.log('Adding to cart:', product); 
