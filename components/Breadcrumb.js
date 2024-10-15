@@ -16,8 +16,10 @@ const pathConfig = {
 
 const DynamicBreadcrumbs = () => {
   const router = useRouter();
-  const pathSegments = router.asPath.split('/').filter(segment => segment);
-
+  // const pathSegments = router.asPath.split('/').filter(segment => segment);
+  const currentUrl = new URL(router.asPath, window.location.origin);
+  const pathSegments = currentUrl.pathname.split('/').filter(segment => segment);
+  
   const breadcrumbsItems = [
     { href: '/', ...pathConfig.home },
     ...pathSegments.map((segment, index) => ({
