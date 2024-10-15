@@ -16,21 +16,18 @@ const pathConfig = {
 
 const DynamicBreadcrumbs = () => {
   const router = useRouter();
-  // const pathSegments = router.asPath.split('/').filter(segment => segment);
-
-  if (typeof window === 'undefined') {
-    return null; 
-  }
-  const { pathname } = router;
-  const pathSegments = pathname.split('/').filter(segment => segment);
+  const pathSegments = router.asPath.split('/').filter(segment => segment);
 
   const breadcrumbsItems = [
     { href: '/', ...pathConfig.home },
-    ...pathSegments.map((segment, index) => ({
-      href: `/${pathSegments.slice(0, index + 1).join('/')}`,
-      label: pathConfig[segment]?.label || segment.charAt(0).toUpperCase() + segment.slice(1),
-      icon: pathConfig[segment]?.icon,
-    }))
+    ...pathSegments.map((segment, index) => {
+      const shortLabel = segment.length > 20 ? segment.slice(0, 20) + '...' : segment;
+      return {
+        href: `/${pathSegments.slice(0, index + 1).join('/')}`,
+        label: pathConfig[segment]?.label || shortLabel.charAt(0).toUpperCase() + shortLabel.slice(1),
+        icon: pathConfig[segment]?.icon,
+      };
+    })
   ];
 
   return (
