@@ -17,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useCart } from './CartContext';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import axios from 'axios';
 const CartDrawer = () => {
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } = useCart();
 
@@ -33,22 +34,31 @@ const CartDrawer = () => {
 
 
   const handlePlaceOrder = async () => {
-    const User = localStorage.getItem("user");
-    const userInfo = User ? JSON.parse(User) : null;
-    console.log("User:", userInfo);
-    console.log("userId:", userInfo.userId);
-
-    const userId = User.userId;  
-    const orderData = {
-      userId: userId,
-      cart: cart,
-      total: total,
-    };
-
+    // const User = localStorage.getItem("user");
+    // const userInfo = User ? JSON.parse(User) : null;
+    // const userId = User.userId;  
+    // const orderData = {
+    //   userId: userInfo.userId,
+    //   userName:userInfo.userName,
+    //   cart: cart,
+    //   total: total,
+    // };
+    // const orderData = {
+    //   userId:"Uf1e196438ad2e407c977f1ede4a39580",
+    //   userName:"testName",
+    //   cart: cart,
+    //   total: total,
+    // };, orderData
+    
     try {
-      // 发送 POST 请求到 AWS Lambda
-      // const response = await axios.post('https://your-api-gateway-url.amazonaws.com/prod/order', orderData);
-      // console.log("Order placed successfully:", response.data);
+      const response = await axios.post('https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/');
+      console.log("Order placed successfully:", response.data);
+    
+      const data = response.data;
+      if(data.resultInfo.code == "SUCCESS") {
+          console.log(data.data.url);
+          router.push(data.data.url);
+      }
     } catch (error) {
       console.error("Error placing order:", error);
     }
