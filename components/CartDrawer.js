@@ -31,6 +31,25 @@ const CartDrawer = () => {
     }
   };
 
+
+  const handlePlaceOrder = async () => {
+    const User = localStorage.getItem("user");
+
+    const userId = User.userId;  // 从你的用户信息获取用户ID
+    const orderData = {
+      userId: userId,
+      cart: cart,
+      total: total,
+    };
+
+    try {
+      // 发送 POST 请求到 AWS Lambda
+      const response = await axios.post('https://your-api-gateway-url.amazonaws.com/prod/order', orderData);
+      console.log("Order placed successfully:", response.data);
+    } catch (error) {
+      console.error("Error placing order:", error);
+    }
+  };
   return (
 
     <Drawer
@@ -98,7 +117,7 @@ const CartDrawer = () => {
             Total: ${total.toFixed(2)}
           </Typography>
         </Box>
-        <Button variant="contained" color="primary" fullWidth>
+        <Button variant="contained" color="primary" fullWidth onClick={handlePlaceOrder}>
           注文
         </Button>
       </Box>
