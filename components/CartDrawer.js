@@ -34,9 +34,9 @@ const CartDrawer = () => {
 
   const handlePlaceOrder = async () => {
     const User = localStorage.getItem("user");
-    console.log("User:", User);
-
-    console.log("userId:", User.userId);
+    const userInfo = User ? JSON.parse(User) : null;
+    console.log("User:", userInfo);
+    console.log("userId:", userInfo.userId);
 
     const userId = User.userId;  
     const orderData = {

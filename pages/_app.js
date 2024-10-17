@@ -28,7 +28,7 @@ function MyApp({ Component, pageProps }) {
             setUserName(displayName);
             setUserProfile(profile)
             console.log("profile", profile);
-            localStorage.setItem("user", profile);
+            localStorage.setItem("user", JSON.stringify(profile)); 
           }).catch(err => console.error('Error getting profile:', err));
         } else {
           liff.login();
