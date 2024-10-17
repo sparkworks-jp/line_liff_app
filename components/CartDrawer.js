@@ -34,8 +34,11 @@ const CartDrawer = () => {
 
   const handlePlaceOrder = async () => {
     const User = localStorage.getItem("user");
+    console.log("User:", User);
 
-    const userId = User.userId;  // 从你的用户信息获取用户ID
+    console.log("userId:", User.userId);
+
+    const userId = User.userId;  
     const orderData = {
       userId: userId,
       cart: cart,
@@ -44,8 +47,8 @@ const CartDrawer = () => {
 
     try {
       // 发送 POST 请求到 AWS Lambda
-      const response = await axios.post('https://your-api-gateway-url.amazonaws.com/prod/order', orderData);
-      console.log("Order placed successfully:", response.data);
+      // const response = await axios.post('https://your-api-gateway-url.amazonaws.com/prod/order', orderData);
+      // console.log("Order placed successfully:", response.data);
     } catch (error) {
       console.error("Error placing order:", error);
     }
