@@ -18,9 +18,10 @@ import { useCart } from './CartContext';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 const CartDrawer = () => {
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } = useCart();
-
+  const router = useRouter();
   console.log('Current cart state:', cart);  // 输出当前购物车状态
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -49,15 +50,15 @@ const CartDrawer = () => {
     //   cart: cart,
     //   total: total,
     // };, orderData
-    
+
     try {
       const response = await axios.post('https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/');
       console.log("Order placed successfully:", response.data);
-    
+
       const data = response.data;
-      if(data.resultInfo.code == "SUCCESS") {
-          console.log(data.data.url);
-          router.push(data.data.url);
+      if (data.resultInfo.code == "SUCCESS") {
+        console.log(data.data.url);
+        router.push(data.data.url);
       }
     } catch (error) {
       console.error("Error placing order:", error);
