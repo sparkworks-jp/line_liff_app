@@ -35,26 +35,28 @@ const CartDrawer = () => {
 
 
   const handlePlaceOrder = async () => {
-    // const User = localStorage.getItem("user");
-    // const userInfo = User ? JSON.parse(User) : null;
-    // const userId = User.userId;  
-    // const orderData = {
-    //   userId: userInfo.userId,
-    //   userName:userInfo.userName,
-    //   cart: cart,
-    //   total: total,
-    // };
-    // const orderData = {
-    //   userId:"Uf1e196438ad2e407c977f1ede4a39580",
-    //   userName:"testName",
-    //   cart: cart,
-    //   total: total,
-    // };, orderData
+    const User = localStorage.getItem("user");
+    const userInfo = User ? JSON.parse(User) : null;
+    const orderData = {
+      userId: userInfo.userId,
+      userName:userInfo.userName,
+      cart: cart,
+      total: total,
+    };
+    console.log("orderData:", orderData);
+    console.log("userId:", userInfo.userId);
 
     try {
-      const response = await axios.post('https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/');
+      const response = await axios.post(
+        'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
+        orderData, 
+        {
+          headers: {
+            'Content-Type': 'application/json', 
+          },
+        }
+      );      
       console.log("Order placed successfully:", response.data);
-
       const data = response.data;
       if (data.resultInfo.code == "SUCCESS") {
         console.log(data.data.url);
