@@ -50,11 +50,11 @@ const CartDrawer = () => {
       const response = await axios.post(
         'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
         orderData, 
-        {
-          headers: {
-            'Content-Type': 'application/json', 
-          },
-        }
+        // {
+        //   headers: {
+        //     'Content-Type': 'application/json', 
+        //   },
+        // }
       );      
       console.log("Order placed successfully:", response.data);
       const data = response.data;
