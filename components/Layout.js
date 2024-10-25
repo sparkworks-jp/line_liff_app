@@ -15,25 +15,28 @@ const Layout = ({ children, userProfile, userId }) => {
       <AppBar position="static">
         <Toolbar variant="dense">
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            My Shop
+            ショップ
             {userId && userProfile?.displayName && (
-              <p>欢迎，{userProfile.displayName}</p>
+              <p>いらっしゃいませ，{userProfile.displayName}</p>
             )}
           </Typography>
 
           <IconButton color="inherit" onClick={() => setIsCartOpen(true)}>
-            <Badge badgeContent={cart.reduce((sum, item) => sum + item.quantity, 0)} color="secondary">
+            <Badge badgeContent={cart.reduce((sum, item) => sum + item.quantity, 0)} color="warning">
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Box sx={{ marginTop: '8px' }}>
+
+      <Box sx={{ paddingLeft: 2, marginTop: '8px' }}>
         <Breadcrumb />
       </Box>
+
       <Box component="main" sx={{ flexGrow: 1, pb: '30px' }}>
         {children}
       </Box>
+
       <CartDrawer />
       <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000 }}>
         <SimpleBottomNavigation />

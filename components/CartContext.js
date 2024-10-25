@@ -79,6 +79,8 @@ export const CartProvider = ({ children }) => {
     setIsCartOpen(true);
   };
 
+
+
   const removeFromCart = (productId) => {
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
   };
@@ -90,6 +92,13 @@ export const CartProvider = ({ children }) => {
       )
     );
   };
+  const updateCartItem = (productId, quantity) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item
+      )
+    );
+  };
 
   return (
     <CartContext.Provider value={{ 
@@ -97,6 +106,7 @@ export const CartProvider = ({ children }) => {
       addToCart, 
       removeFromCart, 
       updateQuantity, 
+      updateCartItem,
       isCartOpen, 
       setIsCartOpen 
     }}>

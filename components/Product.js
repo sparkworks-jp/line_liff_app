@@ -17,7 +17,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useCart } from './CartContext';
 
 const Product= ({ product }) => {
-  const { addToCart } = useCart();
+  const { addToCart, updateCartItem, cart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [flavorOptions, setFlavorOptions] = useState({
     extraShot: false,
@@ -33,7 +33,9 @@ const Product= ({ product }) => {
   };
 
   const handleQuantityChange = (change) => {
-    setQuantity(prevQuantity => Math.max(1, prevQuantity + change));
+    const newQuantity = Math.max(1, quantity + change);
+    setQuantity(newQuantity);
+    updateCartItem(product.id, newQuantity);
   };
 
   const handleAddToCart = () => {
@@ -72,7 +74,7 @@ const Product= ({ product }) => {
         <Typography variant="h6" color="text.secondary" gutterBottom>
           ¥{product.price}
         </Typography>
-        <Box mt={2} mb={2}>
+        {/* <Box mt={2} mb={2}>
           <Typography variant="subtitle1" gutterBottom>
             Flavor Options:
           </Typography>
@@ -98,7 +100,8 @@ const Product= ({ product }) => {
               </Grid>
             </Grid>
           </FormGroup>
-        </Box>
+        </Box> */}
+
         <Grid container justifyContent="center" spacing={2}>
 
         <Box display="flex" alignItems="center" mt={2} mb={2}>
