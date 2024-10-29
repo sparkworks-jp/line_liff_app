@@ -39,7 +39,7 @@ const Layout = ({ children, userProfile, userId }) => {
         <Breadcrumb />
       </Box>
 
-      <Box component="main" sx={{ flexGrow: 1, pb: '30px' }}>
+      <Box component="main" sx={{ flexGrow: 1, pb: '56px'}}>
         {children}
       </Box>
 
