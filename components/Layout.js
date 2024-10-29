@@ -7,8 +7,10 @@ import CartDrawer from './CartDrawer';
 import SimpleBottomNavigation from './Bottombutton';
 import Breadcrumb from './Breadcrumb';
 
+
 const Layout = ({ children, userProfile, userId }) => {
-  const { cart, setIsCartOpen } = useCart();
+  const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } = useCart();
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -20,7 +22,11 @@ const Layout = ({ children, userProfile, userId }) => {
               <p>いらっしゃいませ，{userProfile.displayName}</p>
             )}
           </Typography>
-
+        <Box sx={{ mt: 2, mb: 2 }}>
+          <Typography variant="subtitle1" align="right">
+            合計: ${total.toFixed(2)}
+          </Typography>
+        </Box>
           <IconButton color="inherit" onClick={() => setIsCartOpen(true)}>
             <Badge badgeContent={cart.reduce((sum, item) => sum + item.quantity, 0)} color="warning">
               <ShoppingCartIcon />
