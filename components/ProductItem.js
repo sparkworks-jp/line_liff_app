@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid2';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { motion, AnimatePresence } from 'framer-motion';
+import { styled } from '@mui/system';
 
 const ProductItem = ({ product }) => {
   const { addToCart, updateCartItem, cart, removeFromCart, isCartInitialized } = useCart();
@@ -14,8 +15,8 @@ const ProductItem = ({ product }) => {
   const [quantity, setQuantity] = useState(quantityInCart || 0);
   const [bubbleVisible, setBubbleVisible] = useState(false);
   const [bubbleKey, setBubbleKey] = useState(0);
-  const [randomSymbol, setRandomSymbol] = useState("✨"); 
-  const symbols = ["✨", "🌟", "🥧", "🎂","🍩"," 🍪","🍬","🍡","🍯","🥧","🥠"];
+  const [randomSymbol, setRandomSymbol] = useState("✨");
+  const symbols = ["✨", "🌟", "🥧", "🎂", "🍩", " 🍪", "🍬", "🍡", "🍯", "🥧", "🥠"];
 
   useEffect(() => {
     if (isCartInitialized) {
@@ -42,8 +43,8 @@ const ProductItem = ({ product }) => {
     }
 
     const randomIndex = Math.floor(Math.random() * symbols.length);
-    setRandomSymbol(symbols[randomIndex]); 
-    setBubbleKey(prevKey => prevKey + 1); 
+    setRandomSymbol(symbols[randomIndex]);
+    setBubbleKey(prevKey => prevKey + 1);
     setBubbleVisible(true);
     setTimeout(() => setBubbleVisible(false), 800);
   };
@@ -84,9 +85,9 @@ const ProductItem = ({ product }) => {
           <AnimatePresence>
             {bubbleVisible && (
               <motion.div
-                key={bubbleKey} 
+                key={bubbleKey}
                 initial={{ opacity: 1, x: -10, y: 65, scale: 0.5, rotate: 0 }}
-                animate={{ x: 50, y: -100, opacity: 0, scale: 1, rotate: 36 }} 
+                animate={{ x: 50, y: -100, opacity: 0, scale: 1, rotate: 36 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8 }}
                 style={{
@@ -98,7 +99,7 @@ const ProductItem = ({ product }) => {
                   pointerEvents: 'none',
                 }}
               >
-                 {randomSymbol}
+                {randomSymbol}
               </motion.div>
             )}
           </AnimatePresence>
@@ -110,10 +111,12 @@ const ProductItem = ({ product }) => {
             variant="h5"
             component="div"
             sx={{
-              // minHeight: '3em', 
+              minHeight: '1.5em', 
               lineHeight: '1.5em',
               overflow: 'hidden',
               fontSize: '0.95rem',
+              whiteSpace: 'nowrap',       
+              textOverflow: 'ellipsis'
             }}
           >
             {product.name}
@@ -132,23 +135,29 @@ const ProductItem = ({ product }) => {
 
           <Grid container justifyContent="center" spacing={2} sx={{ padding: '0px', margin: '0px' }}>
             <Box display="flex" alignItems="center" mt={0.2} mb={1}>
-              <IconButton
+              <CustomIconButton
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   handleUpdateQuantity(-1);
-                }} size="small">
-                <RemoveIcon />
-              </IconButton>
-              <Typography variant="body1" sx={{ mx: 2 }}>{quantity}</Typography>
-              <IconButton
+                }}
+              >
+                <RemoveIcon fontSize="small" />
+              </CustomIconButton>
+
+              <Typography variant="h6" sx={{ mx: 2, fontFamily: 'Comic Sans MS, cursive', color: '#8b4513' }}>
+                {quantity}
+              </Typography>
+
+              <CustomIconButton
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   handleUpdateQuantity(1);
-                }} size="small">
-                <AddIcon />
-              </IconButton>
+                }}
+              >
+                <AddIcon fontSize="small" />
+              </CustomIconButton>
             </Box>
           </Grid>
 
@@ -160,3 +169,20 @@ const ProductItem = ({ product }) => {
 };
 
 export default ProductItem;
+
+
+
+
+const CustomIconButton = styled(IconButton)(({ theme }) => ({
+  width: '35px',
+  height: '35px',
+  borderRadius: '60%',
+  color: '#d2691e',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+  '&:hover': {
+    transform: 'scale(1.1)',
+  },
+  '&:active': {
+    boxShadow: 'inset 0 3px 6px rgba(0, 0, 0, 0.3)',
+  },
+}));

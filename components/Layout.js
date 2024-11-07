@@ -23,7 +23,7 @@ const Layout = ({ children, userProfile, userId }) => {
           </Typography>
         <Box sx={{ mt: 2, mb: 2 }}>
           <Typography variant="subtitle1" align="right">
-            合計: ${total.toFixed(2)}
+            合計:　 {total}　円
           </Typography>
         </Box>
           <IconButton color="inherit" onClick={() => setIsCartOpen(true)}>
