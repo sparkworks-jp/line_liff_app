@@ -76,7 +76,7 @@ export const CartProvider = ({ children }) => {
         return [...prevCart, product];
       }
     });
-    setIsCartOpen(true);
+    // setIsCartOpen(true);
   };
 
 
@@ -93,11 +93,14 @@ export const CartProvider = ({ children }) => {
     );
   };
   const updateCartItem = (productId, quantity) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item
-      )
-    );
+    setCart((prevCart) => {
+      if (quantity === 0) {
+        return prevCart.filter(item => item.id !== productId);
+      }
+      return prevCart.map((item) =>
+        item.id === productId ? { ...item, quantity } : item
+      );
+    });
   };
 
   return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Container, List, ListItem, ListItemText, Divider } from '@mui/material';
 import { useRouter } from 'next/router';
 
@@ -10,9 +10,26 @@ const orders = [
 ];
 
 export default function OrderHistoryPage() {
+  const [orders, setOrders] = useState([]);
 
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/orderlist");
+        if (!response.ok) throw new Error("Failed to fetch orders");
+        const data = await response.json();
+        // console.log(response,response.json());
+        
+        setOrders(data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
   const handleOrderClick = (orderId) => {
     router.push(`/orderhistory/${orderId}`);
   };

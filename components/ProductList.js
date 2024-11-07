@@ -4,6 +4,8 @@ import Grid from '@mui/material/Grid2';
 import ProductItem from './ProductItem';
 
 const ProductList = ({ products }) => {
+
+
   return (
     <Grid container spacing={{ xs: 2, md: 3,lg: 3 }}>
       {products.map(product => (

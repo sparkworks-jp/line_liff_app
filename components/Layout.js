@@ -17,7 +17,6 @@ const Layout = ({ children, userProfile, userId }) => {
       <AppBar position="static">
         <Toolbar variant="dense">
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            ショップ
             {userId && userProfile?.displayName && (
               <p>いらっしゃいませ，{userProfile.displayName}</p>
             )}

@@ -9,7 +9,6 @@ export default function Shop() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Coffee Menu</h1>
       <ProductList products={products} />
     </div>
   );

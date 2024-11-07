@@ -11,89 +11,52 @@ import {
     Divider,
     Link as MuiLink,
     Container,
-    Button,
 
 } from '@mui/material';
-import Stack from '@mui/material/Stack';
-import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from '@mui/material/Grid2';
 
 // 模拟订单详细信息
 const orderDetails = {
     orderId: 'ORD12345678',
     trackingNumber: 'TRK98765432',
-    orderStatus: '01',
+    orderStatus: '発送済み',
     items: [
-        { id: 1, name: 'らせん酥（螺旋酥）', quantity: 2, price: 340, image: '/rasensu.jpg' },
-        { id: 3, name: 'たんこう酥（蛋黄酥）', quantity: 3, price: 500, image: '/tankōsu.png' },
-        { id: 4, name: 'にくまつケーキ（肉松蛋糕）', quantity: 3, price: 500, image: '/nikumatsu.jpg' },
-        { id: 5, name: 'エッグタルト（蛋挞）', quantity: 3, price: 500, image: '/eggutarto.jpg' },
-        { id: 6, name: 'げっぺい（月饼）', quantity: 3, price: 500, image: '/geppei2.jpg' },
-        { id: 7, name: 'ほうり酥（凤梨酥）', quantity: 3, price: 500, image: '/hōrisu.jpg' },
-        { id: 8, name: 'りょくとう餅（绿豆饼）', quantity: 3, price: 500, image: '/ryokutō.jpg' },
-        { id: 9, name: 'なつめに酥（枣泥酥）', quantity: 3, price: 500, image: '/natsumenisu.jpg' },
-        { id: 10, name: 'ゆうご（油果）', quantity: 3, price: 500, image: '/yūgo.jpg' },
-        { id: 11, name: 'ブラウニー（布朗尼）', quantity: 3, price: 500, image: '/buraunī.jpg' },
-        { id: 12, name: 'マカロン（马卡龙）', quantity: 3, price: 500, image: '/makaron.jpg' },
-        { id: 13, name: 'マドレーヌ（玛德琳）', quantity: 3, price: 500, image: '/madorēnu.jpg' },
+        { id: 1, name: '緑豆ケーキ', quantity: 2, price: 340, image: '/images/item1.jpg' },
+        { id: 2, name: 'アーモンドパイ', quantity: 1, price: 250, image: '/images/item2.jpg' },
+        { id: 3, name: '塩漬け卵の月餅', quantity: 3, price: 500, image: '/images/item3.jpg' },
     ],
     totalAmount: '¥2,970',
     discount: '¥100',
     finalAmount: '¥2,870',
-    deliveryFee: '¥1,870',
     orderDate: '2023-05-01',
     estimatedDelivery: '2023-05-05',
     postalCode: '123-4567',
     address: '東京都新宿区西新宿1-1-1',
 };
 
-
-const ORDER_STATUS_MAP = {
-    "01": "作成済み",
-    "02": "支払い待ち",
-    "03": "支払い済み",
-    "04": "発送済み",
-    "05": "完了",
-    "06": "キャンセル",
-};
-
 const OrderDetailPage = () => {
     const router = useRouter();
-    const { orderId } = router.query;
+
     const handleBreadcrumbClick = (event) => {
         event.preventDefault();
-        router.push('/order-history');
+        router.push('/order-history'); // 假设 '/order-history' 是订单历史记录页的路径
     };
-    const shouldShowCancelButton = orderDetails.orderStatus == "01" || orderDetails.orderStatus == "02";
-    const orderStatusText = ORDER_STATUS_MAP[orderDetails.orderStatus] || "不明なステータス";
-    
-    const cancelOrder = async (order_id) => {
-        try {
-            const response = await fetch(`http://127.0.0.1:8000/order/${order_id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: "06" })
-            });
-            if (!response.ok) throw new Error("注文キャンセルに失敗しました");
-            alert("注文がキャンセルされました");
-        } catch (error) {
-            console.error("Error canceling order:", error);
-        }
-    };
+
     return (
         <Container maxWidth="md">
+            {/* 面包屑导航 */}
+
             <Typography variant="h4" gutterBottom>
                 注文詳細
             </Typography>
+
             {/* 订单状态和信息 */}
             <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle1" color="text.secondary">
-                    注文番号　: {orderId}
+                    注文番号　: {orderDetails.orderId}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
-                    注文状況　: {orderStatusText}
+                    配送状況　: {orderDetails.orderStatus}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
                     追跡番号　: {orderDetails.trackingNumber}
@@ -112,18 +75,6 @@ const OrderDetailPage = () => {
                 </Typography>
             </Box>
 
-            {shouldShowCancelButton && (
-                <Stack direction="row" spacing={2}>
-                    <Button size="small" 
-                    variant="outlined" 
-                    color="warning" 
-                    startIcon={<DeleteIcon />} 
-                    onClick={() => cancelOrder(order_id)}
-                    >
-                        注文キャンセル
-                    </Button>
-                </Stack>
-            )}
             {/* 商品列表 */}
             <List>
                 {orderDetails.items.map((item) => (
@@ -151,14 +102,6 @@ const OrderDetailPage = () => {
                     </Typography>
                     <Typography variant="subtitle1" color="text.secondary">
                         {orderDetails.discount}
-                    </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="subtitle1" color="text.secondary">
-                        配送料:
-                    </Typography>
-                    <Typography variant="subtitle1" color="text.secondary">
-                        {orderDetails.deliveryFee}
                     </Typography>
                 </Box>
 
