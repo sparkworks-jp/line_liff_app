@@ -6,7 +6,6 @@ import {
   CardMedia,
   Typography
 } from '@mui/material';
-import { useCart } from './CartContext';
 
 const Product = ({ product }) => {
   const [flavorOptions, setFlavorOptions] = useState({

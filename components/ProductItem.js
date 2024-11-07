@@ -5,13 +5,23 @@ import Link from 'next/link';
 import Grid from '@mui/material/Grid2';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ProductItem = ({ product }) => {
-  const { addToCart, updateCartItem,cart ,removeFromCart} = useCart();
+  const { addToCart, updateCartItem, cart, removeFromCart, isCartInitialized } = useCart();
   const cartItem = cart.find(item => item.id === product.id);
   const quantityInCart = cartItem ? cartItem.quantity : 0;
   const [quantity, setQuantity] = useState(quantityInCart || 0);
+  const [bubbleVisible, setBubbleVisible] = useState(false);
+  const [bubbleKey, setBubbleKey] = useState(0);
+  const [randomSymbol, setRandomSymbol] = useState("✨"); 
+  const symbols = ["✨", "🌟", "🥧", "🎂","🍩"," 🍪","🍬","🍡","🍯","🥧","🥠"];
 
+  useEffect(() => {
+    if (isCartInitialized) {
+      setQuantity(quantityInCart);
+    }
+  }, [cart, isCartInitialized]);
   const handleUpdateQuantity = (change) => {
     const newQuantity = Math.max(0, quantity + change);
     setQuantity(newQuantity);
@@ -30,20 +40,28 @@ const ProductItem = ({ product }) => {
     } else {
       updateCartItem(product.id, newQuantity);
     }
+
+    const randomIndex = Math.floor(Math.random() * symbols.length);
+    setRandomSymbol(symbols[randomIndex]); 
+    setBubbleKey(prevKey => prevKey + 1); 
+    setBubbleVisible(true);
+    setTimeout(() => setBubbleVisible(false), 800);
   };
 
   return (
 
-    <Link href={`/shop/${product.id}`} passHref>
-      <Box component="a" sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-        <Card sx={{
-          width: '100%',
-          position: 'relative', // 确保徽章可以相对定位
-          boxShadow: 3,
-          borderRadius: 6,
-          overflow: 'visible' // 解决图片浮动问题
-        }}>
-          <Box sx={{ position: 'relative' }}>
+    <Box component="a" sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+      <Card sx={{
+        width: '100%',
+        position: 'relative', // 确保徽章可以相对定位
+        boxShadow: 3,
+        borderRadius: 6,
+        overflow: 'visible'// 解决图片浮动问题 
+      }}>
+
+        <Box sx={{ position: 'relative' }}>
+          <Link href={`/shop/${product.id}`} passHref>
+
             <CardMedia
               component="img"
               height="150"
@@ -51,69 +69,93 @@ const ProductItem = ({ product }) => {
               alt={product.name}
               sx={{ borderRadius: '18px 18px 0 0', overflow: 'hidden' }}
             />
-            <Badge
-              badgeContent={quantityInCart}
-              color="warning"
-              sx={{
-                position: 'absolute',
-                top: 4,
-                right: 4,
-                zIndex: 2, // 确保徽章在图片之上
-              }}
-            />
-          </Box>
-          <CardContent sx={{ padding: '10px 20px 4px !important' }}>
-            <Typography
-              gutterBottom
-              variant="h5"
-              component="div"
-              sx={{
-                // minHeight: '3em', 
-                lineHeight: '1.5em',
-                overflow: 'hidden',
-                fontSize: '0.95rem',
-              }}
-            >
-              {product.name}
-            </Typography>
-            <Typography
-              variant="body2" color="text.secondary"
-              sx={{
-                lineHeight: '1em',
-                overflow: 'hidden',
-                marginBottom: '0',
-                fontSize: '0.95rem'
-              }}
-            >
-              ¥{product.price}
-            </Typography>
+          </Link>
 
-            <Grid container justifyContent="center" spacing={2} sx={{ padding: '0px', margin: '0px' }}>
-              <Box display="flex" alignItems="center" mt={0.2} mb={1}>
-                <IconButton 
+          <Badge
+            badgeContent={quantityInCart}
+            color="warning"
+            sx={{
+              position: 'absolute',
+              top: 4,
+              right: 4,
+              zIndex: 2, // 确保徽章在图片之上
+            }}
+          />
+          <AnimatePresence>
+            {bubbleVisible && (
+              <motion.div
+                key={bubbleKey} 
+                initial={{ opacity: 1, x: -10, y: 65, scale: 0.5, rotate: 0 }}
+                animate={{ x: 50, y: -100, opacity: 0, scale: 1, rotate: 36 }} 
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                style={{
+                  position: 'absolute',
+                  top: '80%',
+                  left: 'calc(50% - 10px)',
+                  fontSize: '3rem',
+                  color: 'gold',
+                  pointerEvents: 'none',
+                }}
+              >
+                 {randomSymbol}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+        </Box>
+        <CardContent sx={{ padding: '10px 20px 4px !important' }}>
+          <Typography
+            gutterBottom
+            variant="h5"
+            component="div"
+            sx={{
+              // minHeight: '3em', 
+              lineHeight: '1.5em',
+              overflow: 'hidden',
+              fontSize: '0.95rem',
+            }}
+          >
+            {product.name}
+          </Typography>
+          <Typography
+            variant="body2" color="text.secondary"
+            sx={{
+              lineHeight: '1em',
+              overflow: 'hidden',
+              marginBottom: '0',
+              fontSize: '0.95rem'
+            }}
+          >
+            ¥{product.price}
+          </Typography>
+
+          <Grid container justifyContent="center" spacing={2} sx={{ padding: '0px', margin: '0px' }}>
+            <Box display="flex" alignItems="center" mt={0.2} mb={1}>
+              <IconButton
                 onClick={(e) => {
-                  e.preventDefault(); 
-                  e.stopPropagation(); 
+                  e.preventDefault();
+                  e.stopPropagation();
                   handleUpdateQuantity(-1);
                 }} size="small">
-                  <RemoveIcon />
-                </IconButton>
-                <Typography variant="body1" sx={{ mx: 2 }}>{quantity}</Typography>
-                <IconButton
-                  onClick={(e) => {
-                    e.preventDefault(); 
-                    e.stopPropagation(); 
-                    handleUpdateQuantity(1);
-                  }} size="small">
-                  <AddIcon />
-                </IconButton>
-              </Box>
-            </Grid>
+                <RemoveIcon />
+              </IconButton>
+              <Typography variant="body1" sx={{ mx: 2 }}>{quantity}</Typography>
+              <IconButton
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleUpdateQuantity(1);
+                }} size="small">
+                <AddIcon />
+              </IconButton>
+            </Box>
+          </Grid>
 
-          </CardContent>
-        </Card>
-      </Box>
-    </Link>
+        </CardContent>
+      </Card>
+    </Box>
+
   );
 };
 

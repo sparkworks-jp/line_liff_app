@@ -36,12 +36,15 @@ const loadCartFromLocalStorage = () => {
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCartInitialized, setIsCartInitialized] = useState(false);
+
   // 初期化時に localStorage からカートを読み込む
   useEffect(() => {
     // 检查是否处于浏览器环境，确保只在客户端执行
     if (typeof window !== 'undefined') {
       const initialCart = loadCartFromLocalStorage();
       setCart(initialCart);
+      setIsCartInitialized(true);
     }
   }, []);
 
@@ -76,7 +79,6 @@ export const CartProvider = ({ children }) => {
         return [...prevCart, product];
       }
     });
-    // setIsCartOpen(true);
   };
 
 
@@ -111,7 +113,8 @@ export const CartProvider = ({ children }) => {
       updateQuantity, 
       updateCartItem,
       isCartOpen, 
-      setIsCartOpen 
+      setIsCartOpen,
+      isCartInitialized  
     }}>
       {children}
     </CartContext.Provider>
