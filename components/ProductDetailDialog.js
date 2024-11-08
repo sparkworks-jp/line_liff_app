@@ -20,27 +20,44 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
     <Dialog
       open={open}
       onClose={onClose}
-      fullScreen={isFullscreen} 
+      fullScreen={isFullscreen}
       PaperProps={{
-        component: motion.div, 
-        initial: { scale: 0.1, opacity: 0 }, 
-        animate: { scale: 1.1, opacity: 1 }, 
-        exit: { scale: 0.3, opacity: 0 }, 
-        transition: { duration: 0.5 }, 
+        component: motion.div,
+        initial: { scale: 0.1, opacity: 0 },
+        animate: { scale: 1.1, opacity: 1 },
+        exit: { scale: 0.3, opacity: 0 },
+        transition: { duration: 0.5 },
         sx: {
           width: isFullscreen ? '100vw' : '80vw',
           height: isFullscreen ? '100vh' : '80vh',
           maxWidth: isFullscreen ? 'none' : '800px',
           maxHeight: isFullscreen ? 'none' : '90vh',
-          borderRadius: isFullscreen ? '0' : '20px', 
+          borderRadius: isFullscreen ? '0' : '20px',
           overflow: 'hidden'
-          
+
         },
       }}
     >
-      <DialogContent sx={{ padding: '10px', position: 'relative'}}>
-    
-      <Box
+      <DialogContent sx={{ padding: '10px', position: 'relative' }}>
+
+      {/* <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <iframe
+            src={product.webpageUrl} 
+            title={product.name}
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none',
+            }}
+          />
+        </Box> */}
+
+        <Box
           sx={{
             position: 'absolute',
             top: 8,
@@ -49,10 +66,10 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
             gap: 1,
             zIndex: 10,
           }}
-        >        
+        >
           <IconButton onClick={toggleFullscreen}>
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-            </IconButton>
+            {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+          </IconButton>
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
@@ -60,15 +77,15 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
 
         {/* product detail */}
         <Card sx={{
-      maxWidth: '100%',
-      margin: 0,
-      mt: 3,
-      boxShadow: 'none', 
-      border: '1px solid #e0e0e0', 
-    }}>
-           <Box
+          maxWidth: '100%',
+          margin: 0,
+          mt: 3,
+          boxShadow: 'none',
+          border: '1px solid #e0e0e0',
+        }}>
+          <Box
             sx={{
-              position: 'relative', 
+              position: 'relative',
             }}
           >
             <CardMedia
@@ -100,42 +117,42 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
               </IconButton>
             )}
           </Box>
-      <CardContent>
-        <Typography gutterBottom variant="h4" component="div">
-          {product.name}
-        </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          ¥{product.price}
-        </Typography>
-        <Grid container spacing={1}>
-          {product.des_images && product.des_images.map((imgSrc, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <CardMedia
-                component="img"
-                image={imgSrc}
-                alt={`Product image ${index + 1}`}
-                sx={{
-                  width: '100%',
-                  height: 'auto',
-                  borderRadius: 1,
-                  boxShadow: 1,
-                }}
-              />
+          <CardContent>
+            <Typography gutterBottom variant="h4" component="div">
+              {product.name}
+            </Typography>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              ¥{product.price}
+            </Typography>
+            <Grid container spacing={1}>
+              {product.des_images && product.des_images.map((imgSrc, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <CardMedia
+                    component="img"
+                    image={imgSrc}
+                    alt={`Product image ${index + 1}`}
+                    sx={{
+                      width: '100%',
+                      height: 'auto',
+                      borderRadius: 1,
+                      boxShadow: 1,
+                    }}
+                  />
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          {product.description}
-        </Typography>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {product.description}
+            </Typography>
 
-        <Grid container justifyContent="center" spacing={2}>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            アレルギー情報：{product.allergens}
-          </Typography>
-        </Grid>
-      </CardContent>
+            <Grid container justifyContent="center" spacing={2}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                アレルギー情報：{product.allergens}
+              </Typography>
+            </Grid>
+          </CardContent>
 
-    </Card>
+        </Card>
       </DialogContent>
     </Dialog>
   );
