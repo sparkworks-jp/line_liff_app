@@ -39,14 +39,16 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
       }}
     >
       <DialogContent sx={{ padding: '10px', position: 'relative' }}>
-
-      {/* <Box
+        {/* 嵌套网页可能因目标网站的安全限制失败。
+        如果目标网页设置了 X-Frame-Options 或 CSP 限制，
+        可以尝试代理服务或直接在失败时提示用户访问外部链接。 */}
+        {/* <Box
           sx={{
             width: '100%',
             height: '100%',
           }}
         >
-          <iframe
+          <iframed
             src={product.webpageUrl} 
             title={product.name}
             style={{
