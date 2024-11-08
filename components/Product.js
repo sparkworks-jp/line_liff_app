@@ -8,18 +8,18 @@ import {
 } from '@mui/material';
 
 const Product = ({ product }) => {
-  const [flavorOptions, setFlavorOptions] = useState({
-    extraShot: false,
-    whippedCream: false,
-    syrup: false,
-  });
+  // const [flavorOptions, setFlavorOptions] = useState({
+  //   extraShot: false,
+  //   whippedCream: false,
+  //   syrup: false,
+  // });
 
-  const handleFlavorChange = (event) => {
-    setFlavorOptions({
-      ...flavorOptions,
-      [event.target.name]: event.target.checked,
-    });
-  };
+  // const handleFlavorChange = (event) => {
+  //   setFlavorOptions({
+  //     ...flavorOptions,
+  //     [event.target.name]: event.target.checked,
+  //   });
+  // };
 
 
   return (

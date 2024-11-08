@@ -8,7 +8,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { motion, AnimatePresence } from 'framer-motion';
 import { styled } from '@mui/system';
 
-const ProductItem = ({ product }) => {
+const ProductItem = ({ product, onClick }) => {
   const { addToCart, updateCartItem, cart, removeFromCart, isCartInitialized } = useCart();
   const cartItem = cart.find(item => item.id === product.id);
   const quantityInCart = cartItem ? cartItem.quantity : 0;
@@ -51,7 +51,7 @@ const ProductItem = ({ product }) => {
 
   return (
 
-    <Box component="a" sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+    <Box component="a" sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }} onClick={onClick}>
       <Card sx={{
         width: '100%',
         position: 'relative', // 确保徽章可以相对定位
@@ -61,7 +61,6 @@ const ProductItem = ({ product }) => {
       }}>
 
         <Box sx={{ position: 'relative' }}>
-          <Link href={`/shop/${product.id}`} passHref>
 
             <CardMedia
               component="img"
@@ -70,7 +69,6 @@ const ProductItem = ({ product }) => {
               alt={product.name}
               sx={{ borderRadius: '18px 18px 0 0', overflow: 'hidden' }}
             />
-          </Link>
 
           <Badge
             badgeContent={quantityInCart}
