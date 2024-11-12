@@ -15,76 +15,54 @@ import { Delete } from "@mui/icons-material";
 import Image from "next/image";
 import { useCart } from "../components/CartContext";
 import { useRouter } from "next/router";
-import { useAddress } from "../context/AddressContext";
-const CheckoutPage = () => {
-  // const [addressList, setAddressList] = useState([
-  //   {
-  //     id: 1,
-  //     name: "愛海富村",
-  //     phone: "080-1234-5678",
-  //     address: "滋賀県野洲市小南28番32号",
-  //     postcode: "520-2301",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "研二京極",
-  //     phone: "080-8765-4321",
-  //     address: "青森県平川市館田東稲村7番5号",
-  //     postcode: "036-0155",
-  //   },
-  // ]);
 
-  const {
-    setAddressList,
-    setSelectedAddressId,
-    selectedAddressId,
-    addressList,
-  } = useAddress();
+const CheckoutPage = () => {
+
+  const [defaultAddress, setDefaultAddress] = useState({
+    addressId: null,
+    firstName: "",
+    lastName: "",
+    firstNameKatakana: "",
+    lastNameKatakana: "",
+    phone: "",
+    postalCode: "",
+    prefectureAddress: "",
+    cityAddress: "",
+    districtAddress: "",
+    detailAddress: "",
+    isDefault: false,
+  });
+
+  // 获取数据 默认地址数据
+  // 请求参数：商品id，数量
+  // 响应：商品总价，运费，合计  --运费需要根据地址计算，因此地址变化需要重新请求获取价格详情，价格与地址分两个api？
 
   useEffect(() => {
     // 模拟默认地址数据
-    const defaultAddress = {
-      id: 1,
+    const address = {
+      addressId: 1,
       firstName: "武藏",
       lastName: "宮本",
+      firstNameKatakana: "",
+      lastNameKatakana: "",
       phone: "080-1234-5678",
-      address: "滋賀県野洲市小南",
-      detailAddress: "28番32号sdfsdgsdgsdgsdgdsfgsfdgretrhfdfhhhhh",
-      postcode: "520-2301",
+      prefectureAddress: "京都市",
+      cityAddress: "中京区",
+      districtAddress: "二条通河原町",
+      detailAddress: "西入る",
+      postalCode: "600-8001",
     };
 
-    setAddressList([defaultAddress]); // 设置地址列表为单条地址
-    setSelectedAddressId(defaultAddress.id); // 设置默认地址为选中状态
-  }, [setAddressList, setSelectedAddressId]);
-
-  // 找到选中的地址
-  const selectedAddress = addressList.find(
-    (addr) => addr.id === selectedAddressId
-  );
-
-  // const selectedAddress = null;
+    setDefaultAddress(address);
+  }, [setDefaultAddress]);
 
   const [paymentMethod, setPaymentMethod] = useState("PayPay");
-  const [editAddress, setEditAddress] = useState({
-    id: null,
-    firstName: "",
-    lastName: "",
-    phone: "",
-    address: "",
-    detailAddress: "",
-    postcode: "",
-  });
 
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } =
     useCart();
   const router = useRouter();
   // const handlePaymentMethodChange = (event) => setPaymentMethod(event.target.value);
   const handlePaymentMethodChange = () => {};
-
-  // const products = [
-  //   { id: 1, name: 'Product 1', quantity: 1, price: 100, image: '/cappuccino.jpg' },
-  //   { id: 2, name: 'Product 2', quantity: 2, price: 50, image: '/espresso.jpg' }
-  // ];
 
   const shippingFee = 10;
   const totalAmount =
@@ -96,23 +74,26 @@ const CheckoutPage = () => {
       {/* 配送地址部分 */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6">配送先</Typography>
-        {selectedAddress ? (
+        {defaultAddress ? (
           <>
             <Grid container alignItems="center">
               <Grid item xs={12}>
                 <Typography variant="h6">
-                  {selectedAddress.lastName}
-                  {selectedAddress.firstName} {selectedAddress.phone}
+                  {defaultAddress.lastName}
+                  {defaultAddress.firstName} {defaultAddress.phone}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  〒 {selectedAddress.postcode}
+                  〒 {defaultAddress.postalCode}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  {selectedAddress.address} {selectedAddress.detailAddress}
+                  {defaultAddress.prefectureAddress}
+                  {defaultAddress.cityAddress}
+                  {defaultAddress.districtAddress}
+                  {defaultAddress.detailAddress}
                 </Typography>
               </Grid>
             </Grid>
@@ -240,7 +221,12 @@ const CheckoutPage = () => {
       </Box>
 
       {/* 注文ボタン */}
-      <Button variant="contained" color="primary" fullWidth disabled={!selectedAddress}>
+      <Button
+        variant="contained"
+        color="primary"
+        fullWidth
+        disabled={!defaultAddress}
+      >
         注文
       </Button>
     </Box>

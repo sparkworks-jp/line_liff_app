@@ -35,36 +35,40 @@ const CartDrawer = () => {
 
 
   const handlePlaceOrder = async () => {
-    const User = localStorage.getItem("user");
-    const userInfo = User ? JSON.parse(User) : null;
-    const orderData = {
-      userId: userInfo.userId,
-      userName:userInfo.userName,
-      cart: cart,
-      total: total,
-    };
-    console.log("orderData:", orderData);
-    console.log("userId:", userInfo.userId);
+    // const User = localStorage.getItem("user");
+    // const userInfo = User ? JSON.parse(User) : null;
+    // const orderData = {
+    //   userId: userInfo.userId,
+    //   userName:userInfo.userName,
+    //   cart: cart,
+    //   total: total,
+    // };
+    // console.log("orderData:", orderData);
+    // console.log("userId:", userInfo.userId);
 
-    try {
-      const response = await axios.post(
-        'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
-        orderData, 
-        {
-          headers: {
-            'Content-Type': 'application/json', 
-          },
-        }
-      );      
-      console.log("Order placed successfully:", response.data);
-      const data = response.data;
-      if (data.resultInfo.code == "SUCCESS") {
-        console.log(data.data.url);
-        router.push(data.data.url);
-      }
-    } catch (error) {
-      console.error("Error placing order:", error);
-    }
+    // try {
+    //   const response = await axios.post(
+    //     'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
+    //     orderData, 
+    //     {
+    //       headers: {
+    //         'Content-Type': 'application/json', 
+    //       },
+    //     }
+    //   );      
+    //   console.log("Order placed successfully:", response.data);
+    //   const data = response.data;
+    //   if (data.resultInfo.code == "SUCCESS") {
+    //     console.log(data.data.url);
+    //     router.push(data.data.url);
+    //   }
+    // } catch (error) {
+    //   console.error("Error placing order:", error);
+    // }
+
+    router.push("/checkout");
+    setIsCartOpen(false);
+
   };
   return (
 
@@ -133,7 +137,7 @@ const CartDrawer = () => {
             Total: ${total.toFixed(2)}
           </Typography>
         </Box>
-        <Button variant="contained" color="primary" fullWidth onClick={handlePlaceOrder}>
+        <Button variant="contained" color="primary" fullWidth onClick={handlePlaceOrder} disabled={cart.length <= 0}>
           注文
         </Button>
       </Box>

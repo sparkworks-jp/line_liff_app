@@ -14,15 +14,9 @@ import {
 } from "@mui/material";
 import { Delete, RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
-import { useAddress } from "../context/AddressContext";
 
 const AddressList = () => {
-  const {
-    addressList,
-    setSelectedAddressId,
-    setAddressList,
-    selectedAddressId,
-  } = useAddress();
+  const [addressList, setAddressList] = useState([]);
   const router = useRouter();
 
   // 发送请求获取地址列表
@@ -60,34 +54,44 @@ const AddressList = () => {
   };
 
   useEffect(() => {
-    const initialAddressList = [
-      {
-        id: 1,
-        firstName: "武藏",
-        lastName: "宮本",
-        phone: "080-1234-5678",
-        address: "滋賀県野洲市小南",
-        detailAddress: "28番32号",
-        postcode: "520-2301",
-      },
-      {
-        id: 2,
-        firstName: "太郎",
-        lastName: "山田",
-        phone: "080-9876-5432",
-        address: "京都市中京区二条通河原町",
-        detailAddress: "西入る",
-        postcode: "600-8001",
-      },
-    ];
+    // const initialAddressList = [
+    //   {
+    //     addressId: 1,
+    //     firstName: "武藏",
+    //     lastName: "宮本",
+    //     firstNameKatakana: "",
+    //     lastNameKatakana: "",
+    //     phone: "080-1234-5678",
+    //     prefectureAddress: "滋賀県",
+    //     cityAddress: "野洲市",
+    //     districtAddress: "小南",
+    //     detailAddress: "28番32号",
+    //     postalCode: "520-2301",
+    //     isDefault: true,
+    //   },
+    //   {
+    //     addressId: 2,
+    //     firstName: "太郎",
+    //     lastName: "山田",
+    //     firstNameKatakana: "",
+    //     lastNameKatakana: "",
+    //     phone: "080-9876-5432",
+    //     prefectureAddress: "京都市",
+    //     cityAddress: "中京区",
+    //     districtAddress: "二条通河原町",
+    //     detailAddress: "西入る",
+    //     postalCode: "600-8001",
+    //     isDefault: false,
+    //   },
+    // ];
+    const initialAddressList = [];
     setAddressList(initialAddressList);
-    setSelectedAddressId(1);
   }, [setAddressList]);
 
   const handleEditAddress = (addr) => {
     router.push({
       pathname: "/address",
-      query: { id: addr.id },
+      query: { id: addr.addressId },
     });
   };
 
@@ -96,90 +100,96 @@ const AddressList = () => {
       <Typography variant="h6" sx={{ mb: 3 }}>
         住所リスト
       </Typography>
-      {addressList.map((addr) => (
-        <Card key={addr.id} sx={{ mb: 2 }}>
-          <CardContent>
-            <Grid container alignItems="center">
-              <Grid item xs={12}>
-                <Typography variant="h6">
-                  {addr.lastName}
-                  {addr.firstName} {addr.phone}
-                </Typography>
-                <Typography variant="body1">〒 {addr.postcode}</Typography>
-                <Typography variant="body1">
-                  {addr.address} {addr.detailAddress}
-                </Typography>
+      {addressList.length === 0 ? (
+        <Typography variant="body1" align="center" sx={{ my: 3 }}>
+          現在住所が登録されていません。
+        </Typography>
+      ) : (
+        addressList.map((addr) => (
+          <Card key={addr.addressId} sx={{ mb: 2 }}>
+            <CardContent>
+              <Grid container alignItems="center">
+                <Grid item xs={12}>
+                  <Typography variant="h6">
+                    {addr.lastName}
+                    {addr.firstName} {addr.phone}
+                  </Typography>
+                  <Typography variant="body1">〒 {addr.postalCode}</Typography>
+                  <Typography variant="body1">
+                    {addr.prefectureAddress}
+                    {addr.cityAddress}
+                    {addr.districtAddress}
+                    {addr.detailAddress}
+                  </Typography>
+                </Grid>
               </Grid>
-            </Grid>
-          </CardContent>
-          <CardActions>
-            <Grid
-              container
-              xs={12}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                mb: 1,
-              }}
-            >
-              <Grid item xs={4}>
-                <FormControlLabel
-                  label="おすすめ"
-                  control={
-                    <Checkbox
-                      checked={selectedAddressId === addr.id}
-                      onChange={() => setSelectedAddressId(addr.id)}
-                      icon={<RadioButtonUnchecked />}
-                      checkedIcon={<CheckCircle />}
-                    />
-                  }
-                />
+            </CardContent>
+            <CardActions>
+              <Grid
+                container
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  mb: 1,
+                }}
+              >
+                <Grid item xs={4}>
+                  <FormControlLabel
+                    label="おすすめ"
+                    control={
+                      <Checkbox
+                        checked={addr.isDefault}
+                        onChange={() => setDefaultAddress(addr.addressId)}
+                        icon={<RadioButtonUnchecked />}
+                        checkedIcon={<CheckCircle />}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid item xs={4}></Grid>
+                <Grid item xs={2}>
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() => deleteAddress(addr.addressId)}
+                    sx={{
+                      fontSize: "1.0rem",
+                      padding: "2px 6px",
+                      minWidth: "auto",
+                      backgroundColor: "#d3d3d3",
+                      color: "black",
+                      "&:hover": {
+                        backgroundColor: "#c0c0c0",
+                      },
+                    }}
+                  >
+                    削除
+                  </Button>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    size="small"
+                    onClick={() => handleEditAddress(addr)}
+                    sx={{
+                      fontSize: "1.0rem",
+                      padding: "2px 6px",
+                      minWidth: "auto",
+                      backgroundColor: "#d3d3d3",
+                      color: "black",
+                      "&:hover": {
+                        backgroundColor: "#c0c0c0",
+                      },
+                    }}
+                  >
+                    編集
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={4}></Grid>
-              <Grid item xs={2}>
-                <Button
-                  size="small"
-                  color="error"
-                  onClick={() => {
-                    /* handleDeleteAddress(addr.id); */
-                  }}
-                  sx={{
-                    fontSize: "1.0rem",
-                    padding: "2px 6px",
-                    minWidth: "auto",
-                    backgroundColor: "#d3d3d3",
-                    color: "black",
-                    "&:hover": {
-                      backgroundColor: "#c0c0c0",
-                    },
-                  }}
-                >
-                  削除
-                </Button>
-              </Grid>
-              <Grid item xs={2}>
-                <Button
-                  size="small"
-                  onClick={() => handleEditAddress(addr)}
-                  sx={{
-                    fontSize: "1.0rem",
-                    padding: "2px 6px",
-                    minWidth: "auto",
-                    backgroundColor: "#d3d3d3",
-                    color: "black",
-                    "&:hover": {
-                      backgroundColor: "#c0c0c0",
-                    },
-                  }}
-                >
-                  編集
-                </Button>
-              </Grid>
-            </Grid>
-          </CardActions>
-        </Card>
-      ))}
+            </CardActions>
+          </Card>
+        ))
+      )}
       <Button
         fullWidth
         variant="contained"

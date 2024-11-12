@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import liff from "@line/liff";
 import Layout from "../components/Layout";
 import { CartProvider } from "../components/CartContext";
-import { AddressProvider } from '../context/AddressContext';
+
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
   const [liffError, setLiffError] = useState(null);
@@ -49,11 +49,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <CartProvider>
-      <AddressProvider>
-        <Layout userProfile={userProfile} userId={userId}>
-          <Component {...pageProps} />
-        </Layout>
-      </AddressProvider>
+      <Layout userProfile={userProfile} userId={userId}>
+        <Component {...pageProps} />
+      </Layout>
     </CartProvider>
   );
 }
