@@ -16,7 +16,11 @@ import Image from "next/image";
 import { useCart } from "../components/CartContext";
 import { useRouter } from "next/router";
 import { useAddress } from "../context/AddressContext";
+
 const CheckoutPage = () => {
+  const router = useRouter();
+  const { total } = router.query; 
+  console.log(total, "total")
   // const [addressList, setAddressList] = useState([
   //   {
   //     id: 1,
@@ -77,7 +81,6 @@ const CheckoutPage = () => {
 
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } =
     useCart();
-  const router = useRouter();
   // const handlePaymentMethodChange = (event) => setPaymentMethod(event.target.value);
   const handlePaymentMethodChange = () => {};
 
@@ -90,6 +93,42 @@ const CheckoutPage = () => {
   const totalAmount =
     cart.reduce((sum, product) => sum + product.price * product.quantity, 0) +
     shippingFee;
+
+    const handlePlaceOrder2 = async () => {
+      // const User = localStorage.getItem("user");
+      // const userInfo = User ? JSON.parse(User) : null;
+      const orderData = {
+        // userId: userInfo.userId,
+        // userName:userInfo.userName,
+        userId: "111111",
+        userName:"lucas",
+        cart: cart,
+        total: total,
+      };
+      console.log("orderData:", orderData);
+      // console.log("userId:", userInfo.userId);
+  
+      try {
+        const response = await axios.post(
+          'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
+          orderData, 
+          {
+            headers: {
+              'Content-Type': 'application/json', 
+            },
+          }
+        );      
+        console.log("Order placed successfully:", response.data);
+        const data = response.data;
+        if (data.resultInfo.code == "SUCCESS") {
+          console.log(data.data.url);
+          router.push(data.data.url);
+        }
+      } catch (error) {
+        console.error("Error placing order:", error);
+      }
+    };
+
 
   return (
     <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>

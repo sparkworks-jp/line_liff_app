@@ -1,11 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProductList from '../components/ProductList';
 import styles from '../styles/Shop.module.css';
 import { coffeeProducts } from '../data/coffeeProducts';
+import axios from 'axios';
 
 
 export default function Shop() {
-  const [products] = useState(coffeeProducts);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/shop/products/`);
+        setProducts(response.data);
+        console.log(response.data);
+        console.log(response);
+
+        setLoading(false); 
+      } catch (err) {
+        setError('shop info error'); 
+        setLoading(false);
+      }
+    };
+
+    fetchProducts(); 
+  }, []); 
+
+  if (loading) {
+    return <div>loading...</div>; 
+  }
+
+  if (error) {
+    return <div>{error}</div>; 
+  }
+
+
 
   return (
     <div className={styles.container}>

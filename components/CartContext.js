@@ -18,6 +18,7 @@ const isCartExpired = () => {
 
 // カートを保存し、有効期限を設定する関数
 const saveCartToLocalStorage = (cart) => {
+  console.log('Saving cart to local storage:', cart);
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
   localStorage.setItem(CART_EXPIRATION_KEY, getCurrentTimestamp() + process.env.NEXT_PUBLIC_ORDER_EXPIRATION_TIME);
 };
@@ -71,11 +72,9 @@ export const CartProvider = ({ children }) => {
           flavorOptions: product.flavorOptions
         };
         console.log('Updated cart:', newCart);  
-
         return newCart;
       } else {
         console.log('Adding new item to cart', product);
-
         return [...prevCart, product];
       }
     });

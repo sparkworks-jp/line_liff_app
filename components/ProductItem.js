@@ -10,7 +10,7 @@ import { styled } from '@mui/system';
 
 const ProductItem = ({ product, onClick }) => {
   const { addToCart, updateCartItem, cart, removeFromCart, isCartInitialized } = useCart();
-  const cartItem = cart.find(item => item.id === product.id);
+  const cartItem = cart.find(item => item.id === product.product_id);
   const quantityInCart = cartItem ? cartItem.quantity : 0;
   const [quantity, setQuantity] = useState(quantityInCart || 0);
   const [bubbleVisible, setBubbleVisible] = useState(false);
@@ -28,18 +28,18 @@ const ProductItem = ({ product, onClick }) => {
     setQuantity(newQuantity);
 
     const productToUpdate = {
-      id: product.id,
-      name: product.name,
+      id: product.product_id,
+      name: product.product_name,
       image: product.image,
-      price: product.price,
+      price: product.product_price,
       quantity: newQuantity
     };
     if (newQuantity === 0) {
-      removeFromCart(product.id);
+      removeFromCart(product.product_id);
     } else if (newQuantity === 1 && !quantityInCart) {
       addToCart(productToUpdate);
     } else {
-      updateCartItem(product.id, newQuantity);
+      updateCartItem(product.product_id, newQuantity);
     }
 
     const randomIndex = Math.floor(Math.random() * symbols.length);
@@ -66,7 +66,7 @@ const ProductItem = ({ product, onClick }) => {
               component="img"
               height="150"
               image={product.image}
-              alt={product.name}
+              alt={product.product_name}
               sx={{ borderRadius: '18px 18px 0 0', overflow: 'hidden' }}
             />
 
@@ -117,7 +117,7 @@ const ProductItem = ({ product, onClick }) => {
               textOverflow: 'ellipsis'
             }}
           >
-            {product.name}
+            {product.product_name}
           </Typography>
           <Typography
             variant="body2" color="text.secondary"
@@ -128,7 +128,7 @@ const ProductItem = ({ product, onClick }) => {
               fontSize: '0.95rem'
             }}
           >
-            ¥{product.price}
+            ¥{product.product_price}
           </Typography>
 
           <Grid container justifyContent="center" spacing={2} sx={{ padding: '0px', margin: '0px' }}>

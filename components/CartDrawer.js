@@ -32,14 +32,21 @@ const CartDrawer = () => {
       updateQuantity(itemId, newQuantity);
     }
   };
-
+  const handleOrderAndRedirect = async () => {
+    router.push({
+      pathname: '/checkout',
+      query: { total: total.toFixed(0) }, 
+    });
+  };
 
   const handlePlaceOrder = async () => {
     const User = localStorage.getItem("user");
     const userInfo = User ? JSON.parse(User) : null;
     const orderData = {
-      userId: userInfo.userId,
-      userName:userInfo.userName,
+      // userId: userInfo.userId,
+      // userName:userInfo.userName,
+      userId: "111111",
+      userName:"lucas",
       cart: cart,
       total: total,
     };
@@ -66,6 +73,11 @@ const CartDrawer = () => {
       console.error("Error placing order:", error);
     }
   };
+
+
+
+
+
   return (
 
     <Drawer
@@ -77,7 +89,7 @@ const CartDrawer = () => {
       }}
     >
       <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h6" gutterBottom>Cart</Typography>
+        <Typography variant="h6" gutterBottom>カート</Typography>
         <List sx={{ flexGrow: 1, overflow: 'auto' }}>
           {cart.map((item) => (
 
@@ -130,10 +142,10 @@ const CartDrawer = () => {
         </List>
         <Box sx={{ mt: 2, mb: 2 }}>
           <Typography variant="subtitle1" align="right">
-            Total: ${total.toFixed(2)}
+            合計: {total.toFixed(0)} 円
           </Typography>
         </Box>
-        <Button variant="contained" color="primary" fullWidth onClick={handlePlaceOrder}>
+        <Button variant="contained" color="primary" fullWidth onClick={handleOrderAndRedirect}>
           注文
         </Button>
       </Box>
