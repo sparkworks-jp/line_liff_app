@@ -35,7 +35,6 @@ const CartDrawer = () => {
   const handleOrderAndRedirect = async () => {
     router.push({
       pathname: '/checkout',
-      query: { total: total.toFixed(0) }, 
     });
   };
 
