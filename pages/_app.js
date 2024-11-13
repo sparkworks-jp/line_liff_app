@@ -54,8 +54,16 @@ function MyApp({ Component, pageProps }) {
           // トークン情報の取得とログ
           const accessToken = liff.getAccessToken();
           const idToken = liff.getIDToken();
+          const idToken2 = liff.getIdToken();
+          const decodedIdToken = liff.getDecodedIDToken();
+          const decodedIdToken2 = liff.getDecodedIdToken();
+
           console.log("アクセストークン:", accessToken);
-          
+          console.log("idToken:", idToken);
+          console.log("idToken2:", idToken2);
+          console.log("decodedIdToken:", decodedIdToken);
+          console.log("decodedIdToken2:", decodedIdToken2);
+
         }
       })
       .catch((err) => {
