@@ -31,6 +31,15 @@ function MyApp({ Component, pageProps }) {
               setUserProfile(profile);
               console.log("profile", profile);
               localStorage.setItem("user", JSON.stringify(profile));
+
+              // Test Line Token
+              const accessToken = liff.getAccessToken();
+              const idToken = liff.getIDToken();
+              const decodedIDToken = liff.getDecodedIDToken();
+              console.log("accessToken", accessToken);
+              console.log("idToken", idToken);
+              console.log("decodedIDToken", decodedIDToken);
+
             })
             .catch((err) => console.error("Error getting profile:", err));
         } else {
