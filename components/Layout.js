@@ -8,7 +8,7 @@ import {
   Box,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useCart } from "./CartContext";
+import { useCart } from "../context/CartContext";
 import CartDrawer from "./CartDrawer";
 import SimpleBottomNavigation from "./Bottombutton";
 import Breadcrumb from "./Breadcrumb";

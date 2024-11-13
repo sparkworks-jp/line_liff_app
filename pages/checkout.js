@@ -13,9 +13,10 @@ import {
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import Image from "next/image";
-import { useCart } from "../components/CartContext";
+import { useCart } from "../context/CartContext";
 import { useRouter } from "next/router";
 import { useAddress } from "../context/AddressContext";
+import axios from "axios";
 
 const CheckoutPage = () => {
   const router = useRouter();
@@ -47,36 +48,54 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     // 模拟默认地址数据
-    const address = {
-      addressId: 1,
+    const defaultAddress = {
+      id: 1,
       firstName: "武藏",
       lastName: "宮本",
-      firstNameKatakana: "",
-      lastNameKatakana: "",
       phone: "080-1234-5678",
-      prefectureAddress: "京都市",
-      cityAddress: "中京区",
-      districtAddress: "二条通河原町",
-      detailAddress: "西入る",
-      postalCode: "600-8001",
+      address: "滋賀県野洲市小南",
+      detailAddress: "28番32号sdfsdgsdgsdgsdgdsfgsfdgretrhfdfhhhhh",
+      postcode: "520-2301",
     };
 
-    setDefaultAddress(address);
-  }, [setDefaultAddress]);
+    setAddressList([defaultAddress]); // 设置地址列表为单条地址
+    setSelectedAddressId(defaultAddress.id); // 设置默认地址为选中状态
+  }, [setAddressList, setSelectedAddressId]);
+
+  // 找到选中的地址
+  const selectedAddress = addressList.find(
+    (addr) => addr.id === selectedAddressId
+  );
+
+  // const selectedAddress = null;
 
   const [paymentMethod, setPaymentMethod] = useState("PayPay");
+  const [editAddress, setEditAddress] = useState({
+    id: null,
+    firstName: "",
+    lastName: "",
+    phone: "",
+    address: "",
+    detailAddress: "",
+    postcode: "",
+  });
 
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } =
     useCart();
   // const handlePaymentMethodChange = (event) => setPaymentMethod(event.target.value);
   const handlePaymentMethodChange = () => {};
 
+  // const products = [
+  //   { id: 1, name: 'Product 1', quantity: 1, price: 100, image: '/cappuccino.jpg' },
+  //   { id: 2, name: 'Product 2', quantity: 2, price: 50, image: '/espresso.jpg' }
+  // ];
+
   const shippingFee = 10;
   const totalAmount =
     cart.reduce((sum, product) => sum + product.price * product.quantity, 0) +
     shippingFee;
 
-    const handlePlaceOrder2 = async () => {
+    const handlePlaceOrder = async () => {
       // const User = localStorage.getItem("user");
       // const userInfo = User ? JSON.parse(User) : null;
       const orderData = {
@@ -117,26 +136,23 @@ const CheckoutPage = () => {
       {/* 配送地址部分 */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6">配送先</Typography>
-        {defaultAddress ? (
+        {selectedAddress ? (
           <>
             <Grid container alignItems="center">
               <Grid item xs={12}>
                 <Typography variant="h6">
-                  {defaultAddress.lastName}
-                  {defaultAddress.firstName} {defaultAddress.phone}
+                  {selectedAddress.lastName}
+                  {selectedAddress.firstName} {selectedAddress.phone}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  〒 {defaultAddress.postalCode}
+                  〒 {selectedAddress.postcode}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  {defaultAddress.prefectureAddress}
-                  {defaultAddress.cityAddress}
-                  {defaultAddress.districtAddress}
-                  {defaultAddress.detailAddress}
+                  {selectedAddress.address} {selectedAddress.detailAddress}
                 </Typography>
               </Grid>
             </Grid>
@@ -264,12 +280,7 @@ const CheckoutPage = () => {
       </Box>
 
       {/* 注文ボタン */}
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        disabled={!defaultAddress}
-      >
+      <Button variant="contained" color="primary" fullWidth disabled={!selectedAddress} onClick={handlePlaceOrder}>
         注文
       </Button>
     </Box>
@@ -277,3 +288,4 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
+

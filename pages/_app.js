@@ -2,7 +2,8 @@ import "../styles/globals.css";
 import { useState, useEffect } from "react";
 import liff from "@line/liff";
 import Layout from "../components/Layout";
-import { CartProvider } from "../components/CartContext";
+import { CartProvider } from "../context/CartContext";
+import { AddressProvider } from "../context/AddressContext";
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
@@ -49,9 +50,11 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <CartProvider>
+      <AddressProvider>
       <Layout userProfile={userProfile} userId={userId}>
         <Component {...pageProps} />
       </Layout>
+      </AddressProvider>
     </CartProvider>
   );
 }
