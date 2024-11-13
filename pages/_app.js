@@ -14,48 +14,62 @@ function MyApp({ Component, pageProps }) {
 
   // Execute liff.init() when the app is initialized
   useEffect(() => {
-    console.log("start liff.init()...");
+    // 環境変数のチェック
+    if (!process.env.NEXT_PUBLIC_LIFF_ID) {
+      console.error('LIFF IDが設定されていません。.env.localファイルを確認してください。');
+      setLiffError('LIFF IDが設定されていません');
+      return;
+    }
+
+    console.log("LIFF初期化中...");
+    console.log("LIFF ID:", process.env.NEXT_PUBLIC_LIFF_ID);
+
     liff
-      .init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID })
+      .init({
+        liffId: process.env.NEXT_PUBLIC_LIFF_ID,
+        withLoginOnExternalBrowser: true, // 外部ブラウザでもログインを有効にする
+      })
       .then(() => {
-        console.log("liff.init() done");
+        console.log("LIFF初期化が完了しました");
         setLiffObject(liff);
+        
+        // ログイン状態の確認
         if (liff.isLoggedIn()) {
-          liff
-            .getProfile()
-            .then((profile) => {
-              const userId = profile.userId;
-              const displayName = profile.displayName;
-              setUserId(userId);
-              setUserName(displayName);
-              setUserProfile(profile);
-              console.log("profile", profile);
-              localStorage.setItem("user", JSON.stringify(profile));
-
-              // Test Line Token
-              const accessToken = liff.getAccessToken();
-              const idToken = liff.getIDToken();
-              const decodedIDToken = liff.getDecodedIDToken();
-              console.log("accessToken", accessToken);
-              console.log("idToken", idToken);
-              console.log("decodedIDToken", decodedIDToken);
-
-            })
-            .catch((err) => console.error("Error getting profile:", err));
+          return liff.getProfile();
         } else {
+          console.log("ユーザーが未ログインです。ログインページへリダイレクトします...");
           liff.login();
         }
       })
-      .catch((error) => {
-        console.log(`liff.init() failed: ${error}`);
-        if (!process.env.liffId) {
-          console.info(
-            "LIFF Starter: Please make sure that you provided `LIFF_ID` as an environmental variable."
-          );
+      .then((profile) => {
+        if (profile) {
+          console.log("ユーザー情報を取得しました:", profile);
+          setUserProfile(profile);
+          setUserId(profile.userId);
+          setUserName(profile.displayName);
+          
+          // ユーザー情報をローカルストレージに保存
+          localStorage.setItem("user", JSON.stringify(profile));
+          
+          // トークン情報の取得とログ
+          const accessToken = liff.getAccessToken();
+          const idToken = liff.getIDToken();
+          console.log("アクセストークン:", accessToken);
+          
         }
-        setLiffError(error.toString());
+      })
+      .catch((err) => {
+        console.error("LIFF初期化に失敗しました:", err);
+        setLiffError(err.message);
+        if (err.code) {
+          console.error(`エラーコード: ${err.code}`);
+        }
+        if (err.message) {
+          console.error(`エラーメッセージ: ${err.message}`);
+        }
       });
   }, []);
+
 
   return (
     <CartProvider>
