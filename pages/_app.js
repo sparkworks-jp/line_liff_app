@@ -181,7 +181,7 @@ function MyApp({ Component, pageProps }) {
     initializeLiff();
   }, []);
 
-}
+
 
 
   return (
