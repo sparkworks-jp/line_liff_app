@@ -1,4 +1,4 @@
-import  {  useState } from 'react';
+import  {  useState, useEffect } from 'react';
 export function AuthProvider({ children }) {
   const [userProfile, setUserProfile] = useState(null);
   const [idToken, setIdToken] = useState(null);
