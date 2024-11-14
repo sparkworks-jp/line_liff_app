@@ -4,6 +4,55 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
+
+
+const clearLiffCache = (liffId) => {
+  console.log('检查并清除过期的LIFF缓存...');
+  
+  // 获取所有LIFF相关的localStorage key
+  const keyPrefix = `LIFF_STORE:${liffId}:`;
+  const getLiffKeys = () => {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(keyPrefix)) {
+        keys.push(key);
+      }
+    }
+    return keys;
+  };
+
+  // 检查token是否过期
+  const decodedTokenKey = `${keyPrefix}decodedIDToken`;
+  const decodedTokenStr = localStorage.getItem(decodedTokenKey);
+  
+  if (decodedTokenStr) {
+    try {
+      const decodedToken = JSON.parse(decodedTokenStr);
+      const isExpired = new Date().getTime() > decodedToken.exp * 1000;
+      
+      console.log('Token信息:', {
+        exp: new Date(decodedToken.exp * 1000).toLocaleString(),
+        now: new Date().toLocaleString(),
+        isExpired: isExpired
+      });
+
+      if (isExpired) {
+        console.log('发现过期token，清除LIFF缓存...');
+        const keys = getLiffKeys();
+        keys.forEach(key => {
+          console.log('清除:', key);
+          localStorage.removeItem(key);
+        });
+      }
+    } catch (error) {
+      console.error('解析缓存token失败，清除所有LIFF缓存:', error);
+      getLiffKeys().forEach(key => localStorage.removeItem(key));
+    }
+  }
+};
+
+
 export function AuthProvider({ children, liff }) {
   const [userProfile, setUserProfile] = useState(null);
   const [idToken, setIdToken] = useState(null);
@@ -14,11 +63,17 @@ export function AuthProvider({ children, liff }) {
     const initialize = async () => {
       try {
         if (!liff) return;
+        // 检查并清除过期的LIFF缓存
+        clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
+        // 初始化LIFF
+        await liff.init({
+          liffId: process.env.NEXT_PUBLIC_LIFF_ID,
+          withLoginOnExternalBrowser: true
+        });
 
         const profile = await liff.getProfile();
         const token = await liff.getIDToken();
         console.log('ユーザー情報とトークンを取得しました');
-
         setUserProfile(profile);
         setIdToken(token);
       } catch (error) {
@@ -36,25 +91,15 @@ export function AuthProvider({ children, liff }) {
       let currentToken = idToken;
       let needNewToken = !currentToken;
   
-      // 解析当前token的函数
-      const parseToken = (token) => {
-        const parts = token.split('.');
-        const payload = JSON.parse(atob(parts[1]));
-        console.log('Token解析结果:', {
-          exp: new Date(payload.exp * 1000).toLocaleString(),
-          iat: new Date(payload.iat * 1000).toLocaleString(),
-          current: new Date().toLocaleString(),
-          isExpired: Date.now() >= payload.exp * 1000,
-          timeLeft: Math.round((payload.exp * 1000 - Date.now()) / 1000) + '秒'
-        });
-        return payload;
-      };
-  
       if (currentToken) {
         try {
-          const payload = parseToken(currentToken);
-          if (Date.now() >= payload.exp * 1000) {
-            console.log('Token已过期，获取新token');
+          const tokenParts = currentToken.split('.');
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const exp = payload.exp * 1000;
+          
+          if (Date.now() >= exp) {
+            console.log('Token已过期，清除缓存并获取新token');
+            clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
             needNewToken = true;
           }
         } catch (error) {
@@ -62,20 +107,19 @@ export function AuthProvider({ children, liff }) {
           needNewToken = true;
         }
       }
-  
+
       if (needNewToken) {
         console.log('获取新token...');
         try {
           currentToken = await liff.getIDToken();
-          console.log('获取到新token，解析信息：');
-          parseToken(currentToken);
+          console.log('获取到新token');
           setIdToken(currentToken);
         } catch (error) {
           console.error('获取新token失败:', error);
           throw error;
         }
       }
-  
+
       console.log('使用token发送请求...');
       const response = await fetch(url, {
         ...options,
@@ -84,12 +128,6 @@ export function AuthProvider({ children, liff }) {
           'Authorization': `Bearer ${currentToken}`
         }
       });
-  
-      if (response.status === 401) {
-        const responseText = await response.text();
-        console.log('收到401错误，详细信息:', responseText);
-        throw new Error(`认证失败: ${responseText}`);
-      }
   
       if (!response.ok) {
         throw new Error(`API错误: ${response.status}`);
