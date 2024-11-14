@@ -1,43 +1,59 @@
+// pages/_app.js
 import "../styles/globals.css";
 import { useState, useEffect } from "react";
 import liff from "@line/liff";
 import Layout from "../components/Layout";
 import { CartProvider } from "../context/CartContext";
 import { AddressProvider } from "../context/AddressContext";
-import { AuthProvider } from "../context/AuthContext";
+import { AuthProvider } from "../contexts/AuthContext";
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
-  const [liffError, setLiffError] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [userId, setUserId] = useState(null);
-  const [userName, setUserName] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Execute liff.init() when the app is initialized
   useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_LIFF_ID) {
-      console.error('LIFF IDが設定されていません。');
-      return;
-    }
-    // LIFF の初期化のみを行う
+    // LIFF初期化
     const initializeLiff = async () => {
       try {
+        console.log('LIFF初期化開始');
+        if (!process.env.NEXT_PUBLIC_LIFF_ID) {
+          throw new Error('LIFF IDが設定されていません');
+        }
+
         await liff.init({
           liffId: process.env.NEXT_PUBLIC_LIFF_ID,
-          withLoginOnExternalBrowser: true,
+          withLoginOnExternalBrowser: true
         });
+        
+        console.log('LIFF初期化完了');
+        setLiffObject(liff);
+
+        // 未ログインの場合はログインページへ
+        if (!liff.isLoggedIn()) {
+          console.log('未ログイン状態を検出、ログインページへ遷移します');
+          liff.login();
+          return;
+        }
       } catch (error) {
-        console.error("LIFF初期化エラー:", error);
+        console.error('LIFF初期化エラー:', error);
+      } finally {
+        setLoading(false);
       }
     };
+
     initializeLiff();
   }, []);
 
+  // LIFF初期化中は読み込み画面を表示
+  if (loading) {
+    return <div>アプリ初期化中...</div>;
+  }
+
   return (
-    <AuthProvider>
+    <AuthProvider liff={liffObject}>
       <CartProvider>
         <AddressProvider>
-          <Layout userProfile={userProfile} userId={userId}>
+          <Layout>
             <Component {...pageProps} />
           </Layout>
         </AddressProvider>
