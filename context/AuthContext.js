@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
       // トークンがない場合は再取得
       if (!idToken) {
         const newToken = await liff.getIDToken();
+        console.log('新しいトークンを取得:', newToken);
         setIdToken(newToken);
       }
 
@@ -51,6 +52,7 @@ export function AuthProvider({ children }) {
         // ユーザー情報とトークンを取得
         const profile = await liff.getProfile();
         const token = await liff.getIDToken();
+        console.log('トークンを取得:', token);
 
         setUserProfile(profile);
         setIdToken(token);
