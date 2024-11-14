@@ -56,7 +56,7 @@ export function AuthProvider({ children, liff }) {
         console.log('获取新token...');
         try {
           currentToken = await liff.getIDToken();
-          console.log('获取到新token');
+          console.log('获取到新token',currentToken);
           setIdToken(currentToken);  // 异步更新state
         } catch (error) {
           console.error('获取新token失败:', error);
@@ -73,31 +73,32 @@ export function AuthProvider({ children, liff }) {
           'Authorization': `Bearer ${currentToken}`  
         }
       });
+      console.log('response ',response);
+
+      // if (response.status === 401) {
+      //   console.log('收到401，尝试最后一次获取新token...');
+      //   try {
+      //     currentToken = await liff.getIDToken();
+      //     console.log('最后一次获取新token成功',currentToken);
+      //     setIdToken(currentToken);
   
-      if (response.status === 401) {
-        console.log('收到401，尝试最后一次获取新token...');
-        try {
-          currentToken = await liff.getIDToken();
-          console.log('最后一次获取新token成功');
-          setIdToken(currentToken);
+      //     const retryResponse = await fetch(url, {
+      //       ...options,
+      //       headers: {
+      //         ...options.headers,
+      //         'Authorization': `Bearer ${currentToken}`
+      //       }
+      //     });
   
-          const retryResponse = await fetch(url, {
-            ...options,
-            headers: {
-              ...options.headers,
-              'Authorization': `Bearer ${currentToken}`
-            }
-          });
-  
-          if (!retryResponse.ok) {
-            throw new Error(`API错误: ${retryResponse.status}`);
-          }
-          return retryResponse.json();
-        } catch (error) {
-          console.error('重试获取token失败:', error);
-          throw error;
-        }
-      }
+      //     if (!retryResponse.ok) {
+      //       throw new Error(`API错误: ${retryResponse.status}`);
+      //     }
+      //     return retryResponse.json();
+      //   } catch (error) {
+      //     console.error('重试获取token失败:', error);
+      //     throw error;
+      //   }
+      // }
   
       if (!response.ok) {
         throw new Error(`API错误: ${response.status}`);
