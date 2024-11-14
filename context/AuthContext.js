@@ -34,11 +34,33 @@ export function AuthProvider({ children, liff }) {
   const fetchWithToken = async (url, options = {}) => {
     try {
       let currentToken = idToken;
-      if (!currentToken) {
+      let needNewToken = !currentToken;
+  
+      if (currentToken) {
+        // 检查 token 是否过期
+        try {
+          const tokenParts = currentToken.split('.');
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const exp = payload.exp * 1000; 
+          
+          if (Date.now() >= exp) {
+            console.log('Token已过期获取新token');
+            needNewToken = true;
+          }
+        } catch (error) {
+          console.error('Token解析错误:', error);
+          needNewToken = true;
+        }
+      }
+  
+      // 如果需要，获取新token
+      if (needNewToken) {
+        console.log('获取新token...');
         currentToken = await liff.getIDToken();
         setIdToken(currentToken);
       }
-
+  
+      // 发送请求
       const response = await fetch(url, {
         ...options,
         headers: {
@@ -46,14 +68,35 @@ export function AuthProvider({ children, liff }) {
           'Authorization': `Bearer ${currentToken}`
         }
       });
-
-      if (!response.ok) {
-        throw new Error(`APIエラー: ${response.status}`);
+  
+      if (response.status === 401) {
+        // 如果返回401，强制获取新token并重试
+        console.log('收到401尝试获取新token...');
+        currentToken = await liff.getIDToken();
+        setIdToken(currentToken);
+        
+        // 使用新token重试请求
+        const retryResponse = await fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${currentToken}`
+          }
+        });
+  
+        if (!retryResponse.ok) {
+          throw new Error(`API error: ${retryResponse.status}`);
+        }
+        return retryResponse.json();
       }
-
+  
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+  
       return response.json();
     } catch (error) {
-      console.error('リクエストエラー:', error);
+      console.error('request error:', error);
       throw error;
     }
   };
