@@ -1,35 +1,30 @@
 // contexts/AuthContext.js
-import { createContext, useContext, useState, useEffect } from 'react';
-import liff from '@line/liff';
-
-const AuthContext = createContext();
-
 export function AuthProvider({ children }) {
   const [userProfile, setUserProfile] = useState(null);
   const [idToken, setIdToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // APIリクエスト用の共通関数
   const fetchWithToken = async (url, options = {}) => {
     try {
-      // トークンがない場合は再取得
-      if (!idToken) {
-        const newToken = await liff.getIDToken();
-        console.log('新しいトークンを取得:', newToken);
-        setIdToken(newToken);
+      // トークンの確認と取得
+      let currentToken = idToken;
+      if (!currentToken) {
+        currentToken = await liff.getIDToken();
+        console.log('新しいトークンを取得しました:', currentToken);
+        setIdToken(currentToken);
       }
 
-      // リクエストヘッダーにトークンを追加
+      console.log('リクエスト送信中、使用トークン:', currentToken);
       const response = await fetch(url, {
         ...options,
         headers: {
           ...options.headers,
-          'Authorization': `Bearer ${idToken}`
+          'Authorization': `Bearer ${currentToken}`
         }
       });
 
       if (!response.ok) {
-        throw new Error('APIエラー');
+        throw new Error(`APIエラー: ${response.status}`);
       }
 
       return response.json();
@@ -39,20 +34,21 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // LIFF初期化
   useEffect(() => {
     const initialize = async () => {
       try {
-        // LIFFログインチェック
+        console.log('LIFF初期化開始');
+        await liff.init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID });
+        
         if (!liff.isLoggedIn()) {
+          console.log('未ログイン状態を検出、ログインページへ遷移します');
           liff.login();
           return;
         }
 
-        // ユーザー情報とトークンを取得
         const profile = await liff.getProfile();
         const token = await liff.getIDToken();
-        console.log('トークンを取得:', token);
+        console.log('初期化完了、トークン取得:', token);
 
         setUserProfile(profile);
         setIdToken(token);
@@ -66,16 +62,17 @@ export function AuthProvider({ children }) {
 
     initialize();
   }, []);
+  
+  if (loading || !idToken) {
+    return <div>読み込み中...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{
       userProfile,
       fetchWithToken,
-      loading
     }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => useContext(AuthContext);
