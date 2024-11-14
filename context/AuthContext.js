@@ -36,13 +36,24 @@ export function AuthProvider({ children, liff }) {
       let currentToken = idToken;
       let needNewToken = !currentToken;
   
+      // 解析当前token的函数
+      const parseToken = (token) => {
+        const parts = token.split('.');
+        const payload = JSON.parse(atob(parts[1]));
+        console.log('Token解析结果:', {
+          exp: new Date(payload.exp * 1000).toLocaleString(),
+          iat: new Date(payload.iat * 1000).toLocaleString(),
+          current: new Date().toLocaleString(),
+          isExpired: Date.now() >= payload.exp * 1000,
+          timeLeft: Math.round((payload.exp * 1000 - Date.now()) / 1000) + '秒'
+        });
+        return payload;
+      };
+  
       if (currentToken) {
         try {
-          const tokenParts = currentToken.split('.');
-          const payload = JSON.parse(atob(tokenParts[1]));
-          const exp = payload.exp * 1000;
-          
-          if (Date.now() >= exp) {
+          const payload = parseToken(currentToken);
+          if (Date.now() >= payload.exp * 1000) {
             console.log('Token已过期，获取新token');
             needNewToken = true;
           }
@@ -56,8 +67,9 @@ export function AuthProvider({ children, liff }) {
         console.log('获取新token...');
         try {
           currentToken = await liff.getIDToken();
-          console.log('获取到新token',currentToken);
-          setIdToken(currentToken);  // 异步更新state
+          console.log('获取到新token，解析信息：');
+          parseToken(currentToken);
+          setIdToken(currentToken);
         } catch (error) {
           console.error('获取新token失败:', error);
           throw error;
@@ -65,40 +77,19 @@ export function AuthProvider({ children, liff }) {
       }
   
       console.log('使用token发送请求...');
-      // 使用最新的token发送请求
       const response = await fetch(url, {
         ...options,
         headers: {
           ...options.headers,
-          'Authorization': `Bearer ${currentToken}`  
+          'Authorization': `Bearer ${currentToken}`
         }
       });
-      console.log('response ',response);
-
-      // if (response.status === 401) {
-      //   console.log('收到401，尝试最后一次获取新token...');
-      //   try {
-      //     currentToken = await liff.getIDToken();
-      //     console.log('最后一次获取新token成功',currentToken);
-      //     setIdToken(currentToken);
   
-      //     const retryResponse = await fetch(url, {
-      //       ...options,
-      //       headers: {
-      //         ...options.headers,
-      //         'Authorization': `Bearer ${currentToken}`
-      //       }
-      //     });
-  
-      //     if (!retryResponse.ok) {
-      //       throw new Error(`API错误: ${retryResponse.status}`);
-      //     }
-      //     return retryResponse.json();
-      //   } catch (error) {
-      //     console.error('重试获取token失败:', error);
-      //     throw error;
-      //   }
-      // }
+      if (response.status === 401) {
+        const responseText = await response.text();
+        console.log('收到401错误，详细信息:', responseText);
+        throw new Error(`认证失败: ${responseText}`);
+      }
   
       if (!response.ok) {
         throw new Error(`API错误: ${response.status}`);
