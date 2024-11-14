@@ -37,14 +37,13 @@ export function AuthProvider({ children, liff }) {
       let needNewToken = !currentToken;
   
       if (currentToken) {
-        // 检查 token 是否过期
         try {
           const tokenParts = currentToken.split('.');
           const payload = JSON.parse(atob(tokenParts[1]));
-          const exp = payload.exp * 1000; 
+          const exp = payload.exp * 1000;
           
           if (Date.now() >= exp) {
-            console.log('Token已过期获取新token');
+            console.log('Token已过期，获取新token');
             needNewToken = true;
           }
         } catch (error) {
@@ -53,50 +52,60 @@ export function AuthProvider({ children, liff }) {
         }
       }
   
-      // 如果需要，获取新token
       if (needNewToken) {
         console.log('获取新token...');
-        currentToken = await liff.getIDToken();
-        setIdToken(currentToken);
+        try {
+          currentToken = await liff.getIDToken();
+          console.log('获取到新token');
+          setIdToken(currentToken);  // 异步更新state
+        } catch (error) {
+          console.error('获取新token失败:', error);
+          throw error;
+        }
       }
   
-      // 发送请求
+      console.log('使用token发送请求...');
+      // 使用最新的token发送请求
       const response = await fetch(url, {
         ...options,
         headers: {
           ...options.headers,
-          'Authorization': `Bearer ${currentToken}`
+          'Authorization': `Bearer ${currentToken}`  
         }
       });
   
       if (response.status === 401) {
-        // 如果返回401，强制获取新token并重试
-        console.log('收到401尝试获取新token...');
-        currentToken = await liff.getIDToken();
-        setIdToken(currentToken);
-        
-        // 使用新token重试请求
-        const retryResponse = await fetch(url, {
-          ...options,
-          headers: {
-            ...options.headers,
-            'Authorization': `Bearer ${currentToken}`
-          }
-        });
+        console.log('收到401，尝试最后一次获取新token...');
+        try {
+          currentToken = await liff.getIDToken();
+          console.log('最后一次获取新token成功');
+          setIdToken(currentToken);
   
-        if (!retryResponse.ok) {
-          throw new Error(`API error: ${retryResponse.status}`);
+          const retryResponse = await fetch(url, {
+            ...options,
+            headers: {
+              ...options.headers,
+              'Authorization': `Bearer ${currentToken}`
+            }
+          });
+  
+          if (!retryResponse.ok) {
+            throw new Error(`API错误: ${retryResponse.status}`);
+          }
+          return retryResponse.json();
+        } catch (error) {
+          console.error('重试获取token失败:', error);
+          throw error;
         }
-        return retryResponse.json();
       }
   
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw new Error(`API错误: ${response.status}`);
       }
   
       return response.json();
     } catch (error) {
-      console.error('request error:', error);
+      console.error('请求错误:', error);
       throw error;
     }
   };
