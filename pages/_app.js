@@ -5,7 +5,7 @@ import liff from "@line/liff";
 import Layout from "../components/Layout";
 import { CartProvider } from "../context/CartContext";
 import { AddressProvider } from "../context/AddressContext";
-import { AuthProvider } from "../contexts/AuthContext";
+import { AuthProvider } from "../context/AuthContext";
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
