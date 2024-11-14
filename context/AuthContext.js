@@ -1,4 +1,4 @@
-// contexts/AuthContext.js
+import  {  useState } from 'react';
 export function AuthProvider({ children }) {
   const [userProfile, setUserProfile] = useState(null);
   const [idToken, setIdToken] = useState(null);
@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
 
     initialize();
   }, []);
-  
+
   if (loading || !idToken) {
     return <div>読み込み中...</div>;
   }
