@@ -78,7 +78,7 @@ const CheckoutPage = () => {
       //   alert('配送先住所を選択してください');
       //   return;
       // }
-      
+
       // const User = localStorage.getItem("user");
       // const userInfo = User ? JSON.parse(User) : null;
       const orderData = {
@@ -100,10 +100,10 @@ const CheckoutPage = () => {
   
       try {
         setIsSubmitting(true);
-  
+
         // 1. 先创建订单
         const orderResponse = await axios.post(
-          '/api/orders/create/',  
+          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/create/`,  
           orderData,
           {
             headers: {

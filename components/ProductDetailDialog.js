@@ -42,7 +42,7 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
         {/* 嵌套网页可能因目标网站的安全限制失败。
         如果目标网页设置了 X-Frame-Options 或 CSP 限制，
         可以尝试代理服务或直接在失败时提示用户访问外部链接。 */}
-        {/* <Box
+        <Box
           sx={{
             width: '100%',
             height: '100%',
@@ -57,7 +57,7 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
               border: 'none',
             }}
           />
-        </Box> */}
+        </Box>
 
         <Box
           sx={{
@@ -121,7 +121,7 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
           </Box>
           <CardContent>
             <Typography gutterBottom variant="h4" component="div">
-              {product.name}
+              {product.product_name}
             </Typography>
             <Typography variant="h6" color="text.secondary" gutterBottom>
               ¥{product.price}
