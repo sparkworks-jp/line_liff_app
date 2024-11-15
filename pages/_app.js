@@ -12,44 +12,44 @@ function MyApp({ Component, pageProps }) {
   const [loading, setLoading] = useState(true);
   // token 验证和刷新逻辑，调试API临时注释掉
 
-  // useEffect(() => {
-  //   // LIFF初期化
+  useEffect(() => {
+    // LIFF初期化
 
-  //   const initializeLiff = async () => {
-  //     try {
-  //       console.log('LIFF初期化開始');
-  //       if (!process.env.NEXT_PUBLIC_LIFF_ID) {
-  //         throw new Error('LIFF IDが設定されていません');
-  //       }
+    const initializeLiff = async () => {
+      try {
+        console.log('LIFF初期化開始');
+        if (!process.env.NEXT_PUBLIC_LIFF_ID) {
+          throw new Error('LIFF IDが設定されていません');
+        }
 
-  //       await liff.init({
-  //         liffId: process.env.NEXT_PUBLIC_LIFF_ID,
-  //         withLoginOnExternalBrowser: true
-  //       });
+        await liff.init({
+          liffId: process.env.NEXT_PUBLIC_LIFF_ID,
+          withLoginOnExternalBrowser: true
+        });
         
-  //       console.log('LIFF初期化完了');
-  //       setLiffObject(liff);
+        console.log('LIFF初期化完了');
+        setLiffObject(liff);
 
-  //       // 未ログインの場合はログインページへ
-  //       if (!liff.isLoggedIn()) {
-  //         console.log('未ログイン状態を検出、ログインページへ遷移します');
-  //         liff.login();
-  //         return;
-  //       }
-  //     } catch (error) {
-  //       console.error('LIFF初期化エラー:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+        // 未ログインの場合はログインページへ
+        if (!liff.isLoggedIn()) {
+          console.log('未ログイン状態を検出、ログインページへ遷移します');
+          liff.login();
+          return;
+        }
+      } catch (error) {
+        console.error('LIFF初期化エラー:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   initializeLiff();
-  // }, []);
+    initializeLiff();
+  }, []);
 
   // LIFF初期化中は読み込み画面を表示
-  // if (loading) {
-  //   return <div>アプリ初期化中...</div>;
-  // }
+  if (loading) {
+    return <div>アプリ初期化中...</div>;
+  }
 
   return (
     <AuthProvider liff={liffObject}>

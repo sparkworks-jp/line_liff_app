@@ -62,7 +62,7 @@ export function AuthProvider({ children, liff }) {
         if (!liff) return;
         // token 验证和刷新逻辑，调试API临时注释掉
         // 期限切れのLIFFキャッシュを確認してクリア
-        // clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
+        clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
         await liff.init({
           liffId: process.env.NEXT_PUBLIC_LIFF_ID,
           withLoginOnExternalBrowser: true
@@ -89,34 +89,34 @@ export function AuthProvider({ children, liff }) {
       let needNewToken = !currentToken;
 
       // token 验证和刷新逻辑，调试API临时注释掉
-      // if (currentToken) {
-      //   try {
-      //     const tokenParts = currentToken.split('.');
-      //     const payload = JSON.parse(atob(tokenParts[1]));
-      //     const exp = payload.exp * 1000;
+      if (currentToken) {
+        try {
+          const tokenParts = currentToken.split('.');
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const exp = payload.exp * 1000;
 
-      //     if (Date.now() >= exp) {
-      //       console.log('トークンが期限切れです。キャッシュをクリアして新しいトークンを取得します');
-      //       clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
-      //       needNewToken = true;
-      //     }
-      //   } catch (error) {
-      //     console.error('トークンの解析エラー:', error);
-      //     needNewToken = true;
-      //   }
-      // }
+          if (Date.now() >= exp) {
+            console.log('トークンが期限切れです。キャッシュをクリアして新しいトークンを取得します');
+            clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
+            needNewToken = true;
+          }
+        } catch (error) {
+          console.error('トークンの解析エラー:', error);
+          needNewToken = true;
+        }
+      }
 
-      // if (needNewToken) {
-      //   console.log('新しいトークンを取得しています...');
-      //   try {
-      //     currentToken = await liff.getIDToken();
-      //     console.log('新しいトークンを取得しました');
-      //     setIdToken(currentToken);
-      //   } catch (error) {
-      //     console.error('新しいトークンの取得に失敗しました:', error);
-      //     throw error;
-      //   }
-      // }
+      if (needNewToken) {
+        console.log('新しいトークンを取得しています...');
+        try {
+          currentToken = await liff.getIDToken();
+          console.log('新しいトークンを取得しました');
+          setIdToken(currentToken);
+        } catch (error) {
+          console.error('新しいトークンの取得に失敗しました:', error);
+          throw error;
+        }
+      }
 
       console.log('リクエストを送信しています...');
       const response = await fetch(url, {
