@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardMedia, Button, Typography, Badge, Box, IconButton } from '@mui/material';
 import { useCart } from '../context/CartContext';
-import Link from 'next/link';
 import Grid from '@mui/material/Grid2';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';

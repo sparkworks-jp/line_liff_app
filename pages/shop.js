@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import ProductList from '../components/ProductList';
 import styles from '../styles/Shop.module.css';
-import { coffeeProducts } from '../data/coffeeProducts';
-import axios from 'axios';
 import { useAuth  } from '../context/AuthContext';
 
 
@@ -16,12 +14,8 @@ export default function Shop() {
     const fetchProducts = async () => {
       try {
         const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/shop/products/`);
-        // setProducts(response.data);
         setProducts(response);
-
-        console.log(response.data);
         console.log(response);
-
         setLoading(false); 
       } catch (err) {
         setError('shop info error'); 

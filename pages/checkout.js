@@ -17,8 +17,10 @@ import { useCart } from "../context/CartContext";
 import { useRouter } from "next/router";
 import { useAddress } from "../context/AddressContext";
 import axios from "axios";
+import { useAuth } from '../context/AuthContext';
 
 const CheckoutPage = () => {
+  const { fetchWithToken } = useAuth();
 
   const [defaultAddress, setDefaultAddress] = useState({
     addressId: null,
@@ -66,207 +68,202 @@ const CheckoutPage = () => {
     useCart();
   const router = useRouter();
   // const handlePaymentMethodChange = (event) => setPaymentMethod(event.target.value);
-  const handlePaymentMethodChange = () => {};
+  const handlePaymentMethodChange = () => { };
 
   const shippingFee = 10;
   const totalAmount =
     cart.reduce((sum, product) => sum + product.price * product.quantity, 0) +
     shippingFee;
 
-    const handlePlaceOrder = async () => {
-      // if (!defaultAddress) {
-      //   alert('配送先住所を選択してください');
-      //   return;
-      // }
+  const handlePlaceOrder = async () => {
+    // if (!defaultAddress) {
+    //   alert('配送先住所を選択してください');
+    //   return;
+    // }
 
-      // const User = localStorage.getItem("user");
-      // const userInfo = User ? JSON.parse(User) : null;
-      const orderData = {
-                // userId: userInfo.userId,
-        // userName:userInfo.userName,
-        userId: "111111",
-        userName: "lucas",
-        cart: cart,
-        shippingFee: shippingFee,
-        total: totalAmount,
-        express_information: JSON.stringify({
-          name: defaultAddress.name,
-          phone: defaultAddress.phone,
-          address: defaultAddress.address,
-        }),
-      };
-      
-      console.log("orderData:", orderData);
-  
-      try {
-        setIsSubmitting(true);
-
-        // 1. 先创建订单
-        const orderResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/create/`,  
-          orderData,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-  
-        console.log("Order created successfully:", orderResponse.data);
-        
-        if (orderResponse.data.status === 'success') {
-          const orderId = orderResponse.data.order_id;
-  
-          // 2. 调用PayPay支付接口
-          const paymentResponse = await axios.post(
-            'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
-            {
-              ...orderData,
-              orderId: orderId,  // 添加订单ID到支付请求
-            },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-  
-          console.log("Payment initiated:", paymentResponse.data);
-          
-          if (paymentResponse.data.resultInfo.code === "SUCCESS") {
-            // 清空购物车
-            clearCart();
-            // 跳转到PayPay支付页面
-            router.push(paymentResponse.data.data.url);
-          } else {
-            throw new Error('支払い処理に失敗しました');
-          }
-        } else {
-          throw new Error(orderResponse.data.message || '注文の作成に失敗しました');
-        }
-  
-      } catch (error) {
-        console.error("Error in order process:", error);
-        alert(error.message || '注文処理中にエラーが発生しました');
-      } finally {
-        setIsSubmitting(false);
-      }
+    // const User = localStorage.getItem("user");
+    // const userInfo = User ? JSON.parse(User) : null;
+    const orderData = {
+      // userId: userInfo.userId,
+      // userName:userInfo.userName,
+      userId: "111111",
+      userName: "lucas",
+      cart: cart,
+      shippingFee: shippingFee,
+      total: totalAmount,
+      express_information: JSON.stringify({
+        name: defaultAddress.name,
+        phone: defaultAddress.phone,
+        address: defaultAddress.address,
+      }),
     };
 
-  return (
-    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
-      {/* 配送地址部分 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">配送先</Typography>
-        {defaultAddress ? (
-          <>
-            <Grid container alignItems="center">
-              <Grid item xs={12}>
-                <Typography variant="h6">
-                  {defaultAddress.lastName}
-                  {defaultAddress.firstName} {defaultAddress.phone}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  〒 {defaultAddress.postalCode}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  {defaultAddress.prefectureAddress}
-                  {defaultAddress.cityAddress}
-                  {defaultAddress.districtAddress}
-                  {defaultAddress.detailAddress}
-                </Typography>
-              </Grid>
-            </Grid>
-          </>
-        ) : (
-          <Typography variant="body1" color="textSecondary">
-            まだ住所が登録されていません。新しい住所を追加してください。
-          </Typography>
-        )}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
-          <Button
-            variant="outlined"
-            onClick={() => router.push("/addressList")}
-          >
-            住所を管理
-          </Button>
-        </Box>
-      </Box>
+    console.log("orderData:", orderData);
 
-      {/* 商品リスト部分 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">商品リスト</Typography>
-        {cart.map((product) => (
-          <Grid
-            container
-            spacing={2}
-            key={product.id}
-            sx={{ mt: 1, alignItems: "center" }}
-          >
-            <Grid item xs={2}>
-              <Image
-                src={product.image}
-                alt={product.name}
-                width={60}
-                height={60}
-              />
+    try {
+      setIsSubmitting(true);
+
+      // 1. 先创建订单
+    const orderResponse = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/shop/products/`, {
+        method: 'POST',
+        body: JSON.stringify(orderData)
+      });
+    console.log('注文作成成功:', orderResponse);
+    console.log("Order created successfully:", orderResponse.data);
+
+    if (orderResponse.data.status === 'success') {
+      const orderId = orderResponse.data.order_id;
+
+      // 2. 调用PayPay支付接口
+      const paymentResponse = await axios.post(
+        'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
+        {
+          ...orderData,
+          orderId: orderId,  // 添加订单ID到支付请求
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log("Payment initiated:", paymentResponse.data);
+
+      if (paymentResponse.data.resultInfo.code === "SUCCESS") {
+        // 清空购物车
+        clearCart();
+        // 跳转到PayPay支付页面
+        router.push(paymentResponse.data.data.url);
+      } else {
+        throw new Error('支払い処理に失敗しました');
+      }
+    } else {
+      throw new Error(orderResponse.data.message || '注文の作成に失敗しました');
+    }
+
+  } catch (error) {
+    console.error("Error in order process:", error);
+    alert(error.message || '注文処理中にエラーが発生しました');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+return (
+  <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
+    {/* 配送地址部分 */}
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6">配送先</Typography>
+      {defaultAddress ? (
+        <>
+          <Grid container alignItems="center">
+            <Grid item xs={12}>
+              <Typography variant="h6">
+                {defaultAddress.lastName}
+                {defaultAddress.firstName} {defaultAddress.phone}
+              </Typography>
             </Grid>
-            <Grid item xs={4}>
-              <Typography>{product.name}</Typography>
+            <Grid item xs={12}>
+              <Typography variant="body1">
+                〒 {defaultAddress.postalCode}
+              </Typography>
             </Grid>
-            <Grid item xs={3}>
-              <Typography>数量: {product.quantity}</Typography>
-            </Grid>
-            <Grid item xs={3}>
-              <Typography>価格: ¥{product.price}</Typography>
+            <Grid item xs={12}>
+              <Typography variant="body1">
+                {defaultAddress.prefectureAddress}
+                {defaultAddress.cityAddress}
+                {defaultAddress.districtAddress}
+                {defaultAddress.detailAddress}
+              </Typography>
             </Grid>
           </Grid>
-        ))}
-      </Box>
-
-      {/* 金額部分 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">料金詳細</Typography>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
-          <Typography>商品合計:</Typography>
-          <Typography>
-            ¥
-            {cart.reduce(
-              (sum, product) => sum + product.price * product.quantity,
-              0
-            )}
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
-          <Typography>配送料:</Typography>
-          <Typography>¥{shippingFee}</Typography>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            mt: 1,
-            fontWeight: "bold",
-          }}
+        </>
+      ) : (
+        <Typography variant="body1" color="textSecondary">
+          まだ住所が登録されていません。新しい住所を追加してください。
+        </Typography>
+      )}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+        <Button
+          variant="outlined"
+          onClick={() => router.push("/addressList")}
         >
-          <Typography>合計:</Typography>
-          <Typography>¥{totalAmount}</Typography>
-        </Box>
+          住所を管理
+        </Button>
       </Box>
+    </Box>
 
-      {/* 支払い方法部分 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">支払い方法</Typography>
-        <RadioGroup
-          value={paymentMethod}
-          onChange={handlePaymentMethodChange}
-          sx={{ mt: 2 }}
+    {/* 商品リスト部分 */}
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6">商品リスト</Typography>
+      {cart.map((product) => (
+        <Grid
+          container
+          spacing={2}
+          key={product.id}
+          sx={{ mt: 1, alignItems: "center" }}
         >
-          {/* <FormControlLabel
+          <Grid item xs={2}>
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={60}
+              height={60}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Typography>{product.name}</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <Typography>数量: {product.quantity}</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <Typography>価格: ¥{product.price}</Typography>
+          </Grid>
+        </Grid>
+      ))}
+    </Box>
+
+    {/* 金額部分 */}
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6">料金詳細</Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+        <Typography>商品合計:</Typography>
+        <Typography>
+          ¥
+          {cart.reduce(
+            (sum, product) => sum + product.price * product.quantity,
+            0
+          )}
+        </Typography>
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+        <Typography>配送料:</Typography>
+        <Typography>¥{shippingFee}</Typography>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          mt: 1,
+          fontWeight: "bold",
+        }}
+      >
+        <Typography>合計:</Typography>
+        <Typography>¥{totalAmount}</Typography>
+      </Box>
+    </Box>
+
+    {/* 支払い方法部分 */}
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6">支払い方法</Typography>
+      <RadioGroup
+        value={paymentMethod}
+        onChange={handlePaymentMethodChange}
+        sx={{ mt: 2 }}
+      >
+        {/* <FormControlLabel
             value="creditCard"
             control={<Radio />}
             label={
@@ -276,22 +273,22 @@ const CheckoutPage = () => {
               </Box>
             }
           /> */}
-          <FormControlLabel
-            value="PayPay"
-            control={<Radio />}
-            label={
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Image
-                  src="/Paypay.svg.png"
-                  alt="PayPay"
-                  width={70}
-                  height={20}
-                />
-                <Typography sx={{ ml: 1 }}>PayPay</Typography>
-              </Box>
-            }
-          />
-          {/* <FormControlLabel
+        <FormControlLabel
+          value="PayPay"
+          control={<Radio />}
+          label={
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Image
+                src="/Paypay.svg.png"
+                alt="PayPay"
+                width={70}
+                height={20}
+              />
+              <Typography sx={{ ml: 1 }}>PayPay</Typography>
+            </Box>
+          }
+        />
+        {/* <FormControlLabel
             value="cashOnDelivery"
             control={<Radio />}
             label={
@@ -301,21 +298,21 @@ const CheckoutPage = () => {
               </Box>
             }
           /> */}
-        </RadioGroup>
-      </Box>
-
-      {/* 注文ボタン */}
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        disabled={!defaultAddress}
-        onClick={handlePlaceOrder}
-      >
-        注文
-      </Button>
+      </RadioGroup>
     </Box>
-  );
+
+    {/* 注文ボタン */}
+    <Button
+      variant="contained"
+      color="primary"
+      fullWidth
+      disabled={!defaultAddress}
+      onClick={handlePlaceOrder}
+    >
+      注文
+    </Button>
+  </Box>
+);
 };
 
 export default CheckoutPage;

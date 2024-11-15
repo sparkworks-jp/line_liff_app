@@ -1,15 +1,13 @@
-// contexts/AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
-
-
+// line sdk のトークン有効期限に問題があるため、一時的に手動でリセットします。
 const clearLiffCache = (liffId) => {
-  console.log('检查并清除过期的LIFF缓存...');
-  
-  // 获取所有LIFF相关的localStorage key
+  console.log('期限切れのLIFFキャッシュを確認してクリアしています...');
+
+  // LIFF関連のlocalStorageキーを取得
   const keyPrefix = `LIFF_STORE:${liffId}:`;
   const getLiffKeys = () => {
     const keys = [];
@@ -22,50 +20,48 @@ const clearLiffCache = (liffId) => {
     return keys;
   };
 
-  // 检查token是否过期
+  // トークンが期限切れかどうかを確認
   const decodedTokenKey = `${keyPrefix}decodedIDToken`;
   const decodedTokenStr = localStorage.getItem(decodedTokenKey);
-  
+
   if (decodedTokenStr) {
     try {
       const decodedToken = JSON.parse(decodedTokenStr);
       const isExpired = new Date().getTime() > decodedToken.exp * 1000;
-      
-      console.log('Token信息:', {
+
+      console.log('トークン情報:', {
         exp: new Date(decodedToken.exp * 1000).toLocaleString(),
         now: new Date().toLocaleString(),
         isExpired: isExpired
       });
 
       if (isExpired) {
-        console.log('发现过期token，清除LIFF缓存...');
+        console.log('期限切れのトークンを検出、LIFFキャッシュをクリアします...');
         const keys = getLiffKeys();
         keys.forEach(key => {
-          console.log('清除:', key);
+          console.log('削除:', key);
           localStorage.removeItem(key);
         });
       }
     } catch (error) {
-      console.error('解析缓存token失败，清除所有LIFF缓存:', error);
+      console.error('キャッシュされたトークンの解析に失敗しました。すべてのLIFFキャッシュをクリアします:', error);
       getLiffKeys().forEach(key => localStorage.removeItem(key));
     }
   }
 };
-
 
 export function AuthProvider({ children, liff }) {
   const [userProfile, setUserProfile] = useState(null);
   const [idToken, setIdToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // トークンとユーザー情報の初期化
+  // トークンとユーザ情報の初期化
   useEffect(() => {
     const initialize = async () => {
       try {
         if (!liff) return;
-        // 检查并清除过期的LIFF缓存
+        // 期限切れのLIFFキャッシュを確認してクリア
         clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
-        // 初始化LIFF
         await liff.init({
           liffId: process.env.NEXT_PUBLIC_LIFF_ID,
           withLoginOnExternalBrowser: true
@@ -73,11 +69,11 @@ export function AuthProvider({ children, liff }) {
 
         const profile = await liff.getProfile();
         const token = await liff.getIDToken();
-        console.log('ユーザー情報とトークンを取得しました');
+        console.log('ユーザ情報とトークンを取得しました');
         setUserProfile(profile);
         setIdToken(token);
       } catch (error) {
-        console.error('認証情報取得エラー:', error);
+        console.error('認証情報の取得エラー:', error);
       } finally {
         setLoading(false);
       }
@@ -90,60 +86,62 @@ export function AuthProvider({ children, liff }) {
     try {
       let currentToken = idToken;
       let needNewToken = !currentToken;
-  
+
+      // token 验证和刷新逻辑临时注释掉
       if (currentToken) {
         try {
           const tokenParts = currentToken.split('.');
           const payload = JSON.parse(atob(tokenParts[1]));
           const exp = payload.exp * 1000;
-          
+
           if (Date.now() >= exp) {
-            console.log('Token已过期，清除缓存并获取新token');
+            console.log('トークンが期限切れです。キャッシュをクリアして新しいトークンを取得します');
             clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
             needNewToken = true;
           }
         } catch (error) {
-          console.error('Token解析错误:', error);
+          console.error('トークンの解析エラー:', error);
           needNewToken = true;
         }
       }
 
       if (needNewToken) {
-        console.log('获取新token...');
+        console.log('新しいトークンを取得しています...');
         try {
           currentToken = await liff.getIDToken();
-          console.log('获取到新token');
+          console.log('新しいトークンを取得しました');
           setIdToken(currentToken);
         } catch (error) {
-          console.error('获取新token失败:', error);
+          console.error('新しいトークンの取得に失敗しました:', error);
           throw error;
         }
       }
 
-      console.log('使用token发送请求...');
+      console.log('リクエストを送信しています...');
       const response = await fetch(url, {
         ...options,
         headers: {
+          'Content-Type': 'application/json',
           ...options.headers,
           'Authorization': `Bearer ${currentToken}`
         }
       });
-  
+
       if (!response.ok) {
-        throw new Error(`API错误: ${response.status}`);
+        throw new Error(`APIエラー: ${response.status}`);
       }
-  
+
       const data = await response.json();
-      console.log('API response:', data); 
+      console.log('APIレスポンス:', data);
       return data;
     } catch (error) {
-      console.error('请求错误:', error);
+      console.error('リクエストエラー:', error);
       throw error;
     }
   };
 
   if (loading) {
-    return <div>認証情報読み込み中...</div>;
+    return <div>認証情報を読み込んでいます...</div>;
   }
 
   return (
@@ -155,3 +153,53 @@ export function AuthProvider({ children, liff }) {
     </AuthContext.Provider>
   );
 }
+
+// 例:
+
+// GET 请求
+// const getProducts = async () => {
+//   try {
+//     const products = await fetchWithToken('/api/products/');
+//     console.log('商品一覧:', products);
+//   } catch (error) {
+//     console.error('商品取得エラー:', error);
+//   }
+// };
+
+// // POST 请求
+// const createOrder = async (orderData) => {
+//   try {
+//     const order = await fetchWithToken('/api/orders/', {
+//       method: 'POST',
+//       body: JSON.stringify(orderData)
+//     });
+//     console.log('注文作成成功:', order);
+//   } catch (error) {
+//     console.error('注文作成エラー:', error);
+//   }
+// };
+
+// // PUT 请求
+// const updateOrder = async (orderId, orderData) => {
+//   try {
+//     const updated = await fetchWithToken(`/api/orders/${orderId}`, {
+//       method: 'PUT',
+//       body: JSON.stringify(orderData)
+//     });
+//     console.log('注文更新成功:', updated);
+//   } catch (error) {
+//     console.error('注文更新エラー:', error);
+//   }
+// };
+
+// // DELETE 请求
+// const deleteOrder = async (orderId) => {
+//   try {
+//     await fetchWithToken(`/api/orders/${orderId}`, {
+//       method: 'DELETE'
+//     });
+//     console.log('注文削除成功');
+//   } catch (error) {
+//     console.error('注文削除エラー:', error);
+//   }
+// };
