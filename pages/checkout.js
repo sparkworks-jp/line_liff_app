@@ -83,9 +83,9 @@ const CheckoutPage = () => {
 
     // const User = localStorage.getItem("user");
     // const userInfo = User ? JSON.parse(User) : null;
-    const orderData = {
-      // userId: userInfo.userId,
+          // userId: userInfo.userId,
       // userName:userInfo.userName,
+    const orderData = {
       userId: "111111",
       userName: "lucas",
       cart: cart,
@@ -95,7 +95,7 @@ const CheckoutPage = () => {
         name: defaultAddress.name,
         phone: defaultAddress.phone,
         address: defaultAddress.address,
-      }),
+      })
     };
 
     console.log("orderData:", orderData);
