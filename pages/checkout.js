@@ -104,7 +104,7 @@ const CheckoutPage = () => {
       setIsSubmitting(true);
 
       // 1. 先创建订单
-    const orderResponse = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/orders/create/`, {
+    const orderResponse = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/create/`, {
         method: 'POST',
         body: JSON.stringify(orderData)
       });
