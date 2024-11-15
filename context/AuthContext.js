@@ -133,7 +133,9 @@ export function AuthProvider({ children, liff }) {
         throw new Error(`API错误: ${response.status}`);
       }
   
-      return response.json();
+      const data = await response.json();
+      console.log('API response:', data); 
+      return data;
     } catch (error) {
       console.error('请求错误:', error);
       throw error;

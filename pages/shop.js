@@ -16,7 +16,6 @@ export default function Shop() {
     const fetchProducts = async () => {
       try {
         const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/shop/products/`);
-        // const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/shop/products/`);
         setProducts(response.data);
         console.log(response.data);
         console.log(response);
