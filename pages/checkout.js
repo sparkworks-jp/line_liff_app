@@ -20,6 +20,7 @@ import axios from "axios";
 import { useAuth } from '../context/AuthContext';
 
 const CheckoutPage = () => {
+
   const { fetchWithToken } = useAuth();
 
   const [defaultAddress, setDefaultAddress] = useState({
@@ -40,23 +41,34 @@ const CheckoutPage = () => {
   // 获取数据 默认地址数据
   // 请求参数：商品id，数量
   // 响应：商品总价，运费，合计  --运费需要根据地址计算，因此地址变化需要重新请求获取价格详情，价格与地址分两个api？
+  const fetchDefaultAddress = async () => {
+    try {
+      const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/default/get`);
+      console.log(response);
+      return response.data.address_detail
+    } catch (err) {
+      console.log(err)
+    }
+  };
 
   useEffect(() => {
     setIsCartOpen(false);
     // 模拟默认地址数据
-    const address = {
-      addressId: 1,
-      firstName: "武藏",
-      lastName: "宮本",
-      firstNameKatakana: "",
-      lastNameKatakana: "",
-      phone: "080-1234-5678",
-      prefectureAddress: "京都市",
-      cityAddress: "中京区",
-      districtAddress: "二条通河原町",
-      detailAddress: "西入る",
-      postalCode: "600-8001",
-    };
+    // const address = {
+    //   addressId: 1,
+    //   firstName: "武藏",
+    //   lastName: "宮本",
+    //   firstNameKatakana: "",
+    //   lastNameKatakana: "",
+    //   phone: "080-1234-5678",
+    //   prefectureAddress: "京都市",
+    //   cityAddress: "中京区",
+    //   districtAddress: "二条通河原町",
+    //   detailAddress: "西入る",
+    //   postalCode: "600-8001",
+    // };
+
+    const address = fetchDefaultAddress();
 
     setDefaultAddress(address);
   }, [setDefaultAddress]);
@@ -155,7 +167,7 @@ return (
     {/* 配送地址部分 */}
     <Box sx={{ mb: 3 }}>
       <Typography variant="h6">配送先</Typography>
-      {defaultAddress ? (
+      {defaultAddress.length > 0 ? (
         <>
           <Grid container alignItems="center">
             <Grid item xs={12}>
@@ -181,7 +193,7 @@ return (
         </>
       ) : (
         <Typography variant="body1" color="textSecondary">
-          まだ住所が登録されていません。新しい住所を追加してください。
+           おすすめの住所が設定されていません。おすすめの住所を設定するか、新しい住所を追加してください。
         </Typography>
       )}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>

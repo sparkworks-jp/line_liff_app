@@ -11,37 +11,50 @@ import {
 import { Delete } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import axios from "axios";
-
+import { useAuth } from "../context/AuthContext";
 const AddressPage = () => {
-
   const [editAddress, setEditAddress] = useState({
-    addressId: null,
-    firstName: "",
-    lastName: "",
-    firstNameKatakana: "",
-    lastNameKatakana: "",
-    phone: "",
-    postalCode: "",
-    prefectureAddress: "",
-    cityAddress: "",
-    districtAddress: "",
-    detailAddress: "",
-    isDefault: false,
+    address_id: null,
+    first_name: "",
+    last_name: "",
+    first_name_katakana: "",
+    last_name_katakana: "",
+    phone_number: "",
+    postal_code: "",
+    prefecture_address: "",
+    city_address: "",
+    district_address: "",
+    detail_address: "",
+    is_default: false,
   });
   const [addressInfo, setAddressInfo] = useState({});
   const [errors, setErrors] = useState({});
   const router = useRouter();
   const [oldPostalCode, setOldPostalCode] = useState("");
   const { id } = router.query;
+  const { fetchWithToken } = useAuth();
 
-  const fetchAddressDeatil = async (addressId) => {
+  // const fetchAddressDeatil = async (addressId) => {
+  //   try {
+  //     const response = await axios.get(`/api/getAddress/${addressId}`);
+  //     // 假设返回的数据结构是 { data: [...] }
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("获取地址详情失败:", error);
+  //     throw error; // 需要时可以处理错误
+  //   }
+  // };
+
+  const fetchAddressDeatil = async (address_id) => {
     try {
-      const response = await axios.get(`/api/getAddress/${addressId}`);
-      // 假设返回的数据结构是 { data: [...] }
-      return response.data;
+      const response = await fetchWithToken(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${address_id}/detail`
+      );
+
+      console.log("地址详细获取成功:", response.data.address_detail);
+      setEditAddress(response.data.address_detail)
     } catch (error) {
-      console.error("获取地址详情失败:", error);
-      throw error; // 需要时可以处理错误
+      console.error("获取地址详细失败:", error);
     }
   };
 
@@ -65,11 +78,9 @@ const AddressPage = () => {
     const fetchData = async () => {
       if (id !== undefined) {
         // 注释掉真实请求，暂时使用模拟数据
-        // const addressInfo = await fetchAddressDeatil(id);
-        // setAddressList(addressInfo); // 使用API返回的数据
-
-        // 模拟数据逻辑
-        setEditAddress(simulatedAddress);
+        fetchAddressDeatil(id);
+        // // 模拟数据逻辑
+        // setEditAddress(simulatedAddress);
       }
     };
 
@@ -121,7 +132,7 @@ const AddressPage = () => {
 
   const handlePhoneChange = (event) => {
     const input = event.target.value.replace(/\D/g, "");
-    setEditAddress({ ...editAddress, phone: formatPhoneNumber(input) });
+    setEditAddress({ ...editAddress, phone_number: formatPhoneNumber(input) });
   };
 
   const formatPhoneNumber = (input) => {
@@ -133,7 +144,7 @@ const AddressPage = () => {
 
   const handlePostalCodeChange = (event) => {
     const input = event.target.value.replace(/\D/g, ""); // 只允许数字
-    setEditAddress({ ...editAddress, postalCode: formatPostalCode(input) });
+    setEditAddress({ ...editAddress, postal_code: formatPostalCode(input) });
   };
 
   const formatPostalCode = (input) => {
@@ -251,9 +262,9 @@ const AddressPage = () => {
 
             setEditAddress((prevAddress) => ({
               ...prevAddress,
-              prefectureAddress: address1,
-              cityAddress: address2,
-              districtAddress: address3,
+              prefecture_address: address1,
+              city_address: address2,
+              district_address: address3,
             }));
           }
           //message.success(`ファイルのアップロードに成功しました`);
@@ -277,13 +288,13 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.lastName}
+            value={editAddress.last_name}
             onChange={(e) =>
-              setEditAddress({ ...editAddress, lastName: e.target.value })
+              setEditAddress({ ...editAddress, last_name: e.target.value })
             }
-            onBlur={() => validateField("lastName", editAddress.lastName)}
-            error={!!errors.lastName}
-            helperText={errors.lastName}
+            onBlur={() => validateField("last_name", editAddress.last_name)}
+            error={!!errors.last_name}
+            helperText={errors.last_name}
           />
           <TextField
             fullWidth
@@ -291,13 +302,13 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.firstName}
+            value={editAddress.first_name}
             onChange={(e) =>
-              setEditAddress({ ...editAddress, firstName: e.target.value })
+              setEditAddress({ ...editAddress, first_name: e.target.value })
             }
-            onBlur={() => validateField("firstName", editAddress.firstName)}
-            error={!!errors.firstName}
-            helperText={errors.firstName}
+            onBlur={() => validateField("firstName", editAddress.first_name)}
+            error={!!errors.first_name}
+            helperText={errors.first_name}
           />
           <TextField
             fullWidth
@@ -305,18 +316,18 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.lastNameKatakana}
+            value={editAddress.last_name_katakana}
             onChange={(e) =>
               setEditAddress({
                 ...editAddress,
-                lastNameKatakana: e.target.value,
+                last_name_katakana: e.target.value,
               })
             }
             onBlur={() =>
-              validateField("lastNameKatakana", editAddress.lastNameKatakana)
+              validateField("last_name_katakana", editAddress.last_name_katakana)
             }
-            error={!!errors.lastNameKatakana}
-            helperText={errors.lastNameKatakana}
+            error={!!errors.last_name_katakana}
+            helperText={errors.last_name_katakana}
           />
           <TextField
             fullWidth
@@ -324,18 +335,18 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.firstNameKatakana}
+            value={editAddress.first_name_katakana}
             onChange={(e) =>
               setEditAddress({
                 ...editAddress,
-                firstNameKatakana: e.target.value,
+                first_name_katakana: e.target.value,
               })
             }
             onBlur={() =>
-              validateField("firstNameKatakana", editAddress.firstNameKatakana)
+              validateField("first_name_katakana", editAddress.first_name_katakana)
             }
-            error={!!errors.firstNameKatakana}
-            helperText={errors.firstNameKatakana}
+            error={!!errors.first_name_katakana}
+            helperText={errors.first_name_katakana}
           />
           <TextField
             fullWidth
@@ -343,12 +354,12 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.phone}
+            value={editAddress.phone_number}
             onChange={handlePhoneChange}
-            onBlur={() => validateField("phone", editAddress.phone)}
+            onBlur={() => validateField("phone_number", editAddress.phone_number)}
             placeholder="080-1234-5678"
-            error={!!errors.phone}
-            helperText={errors.phone}
+            error={!!errors.phone_number}
+            helperText={errors.phone_number}
           />
           <TextField
             fullWidth
@@ -356,15 +367,15 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.postalCode}
+            value={editAddress.postal_code}
             onChange={handlePostalCodeChange}
             onBlur={() => {
-              validateField("postcode", editAddress.postalCode);
-              postalCodeToAddress(editAddress.postalCode);
+              validateField("postal_code", editAddress.postal_code);
+              postalCodeToAddress(editAddress.postal_code);
             }}
             placeholder="123-1234"
-            error={!!errors.postalCode}
-            helperText={errors.postalCode}
+            error={!!errors.postal_code}
+            helperText={errors.postal_code}
           />
           <TextField
             fullWidth
@@ -372,18 +383,18 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.prefectureAddress}
+            value={editAddress.prefecture_address}
             onChange={(e) =>
               setEditAddress({
                 ...editAddress,
-                prefectureAddress: e.target.value,
+                prefecture_address: e.target.value,
               })
             }
             onBlur={() =>
-              validateField("prefectureAddress", editAddress.prefectureAddress)
+              validateField("prefecture_address", editAddress.prefecture_address)
             }
-            error={!!errors.prefectureAddress}
-            helperText={errors.prefectureAddress}
+            error={!!errors.prefecture_address}
+            helperText={errors.prefecture_address}
             placeholder="例: 北海道"
           />
           <TextField
@@ -392,13 +403,13 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.cityAddress}
+            value={editAddress.city_address}
             onChange={(e) =>
-              setEditAddress({ ...editAddress, cityAddress: e.target.value })
+              setEditAddress({ ...editAddress, city_address: e.target.value })
             }
-            onBlur={() => validateField("cityAddress", editAddress.cityAddress)}
-            error={!!errors.cityAddress}
-            helperText={errors.cityAddress}
+            onBlur={() => validateField("city_address", editAddress.city_address)}
+            error={!!errors.city_address}
+            helperText={errors.city_address}
             placeholder="例: 美唄市"
           />
           <TextField
@@ -407,18 +418,18 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.districtAddress}
+            value={editAddress.district_address}
             onChange={(e) =>
               setEditAddress({
                 ...editAddress,
-                districtAddress: e.target.value,
+                district_address: e.target.value,
               })
             }
             onBlur={() =>
-              validateField("districtAddress", editAddress.districtAddress)
+              validateField("district_address", editAddress.district_address)
             }
-            error={!!errors.districtAddress}
-            helperText={errors.districtAddress}
+            error={!!errors.district_address}
+            helperText={errors.district_address}
             placeholder="例: 上美唄町協和,"
           />
           <TextField
@@ -427,19 +438,19 @@ const AddressPage = () => {
             variant="outlined"
             sx={{ mb: 2 }}
             required
-            value={editAddress.detailAddress}
+            value={editAddress.detail_address}
             onChange={(e) =>
-              setEditAddress({ ...editAddress, detailAddress: e.target.value })
+              setEditAddress({ ...editAddress, detail_address: e.target.value })
             }
             onBlur={() =>
-              validateField("detailAddress", editAddress.detailAddress)
+              validateField("detail_address", editAddress.detail_address)
             }
-            error={!!errors.detailAddress}
-            helperText={errors.detailAddress}
+            error={!!errors.detail_address}
+            helperText={errors.detail_address}
             placeholder="町域以下"
           />
           <Button variant="contained" fullWidth onClick={handleSaveAddress}>
-            {editAddress.id ? "住所を保存" : "住所を追加"}
+            {editAddress.address_id ? "住所を保存" : "住所を追加"}
           </Button>
         </Grid>
       </Grid>

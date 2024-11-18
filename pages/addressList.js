@@ -14,31 +14,63 @@ import {
 } from "@mui/material";
 import { Delete, RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
+import { useAuth } from "../context/AuthContext";
 
 const AddressList = () => {
   const [addressList, setAddressList] = useState([]);
   const router = useRouter();
+  const { fetchWithToken } = useAuth();
 
   // 发送请求获取地址列表
   const fetchAddressList = async () => {
     try {
-      const response = await axios.get("/api/getAddressList");
-      // 假设返回的数据结构是 { data: [...] }
-      return response.data;
+      const response = await fetchWithToken(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/list`
+      );
+
+      // 检查响应是否有效
+      if (
+        !response ||
+        !response.data ||
+        !Array.isArray(response.data.address_list)
+      ) {
+        console.warn("响应数据格式不正确或地址列表为空", response);
+        setAddressList([]);
+      }
+
+      console.log("地址列表获取成功:", response.data.address_list);
+      setAddressList(response.data.address_list);
+      // return response.data.address_list;
     } catch (error) {
       console.error("获取地址列表失败:", error);
-      throw error; // 需要时可以处理错误
+      setAddressList([]);
     }
   };
 
   // 设置默认地址请求
-  const setDefaultAddress = async (addressId) => {
+  const setDefaultAddress = async (address_id) => {
     try {
-      await axios.post("/api/setDefaultAddress", { addressId });
-      console.log("默认地址设置成功");
+      const response = await fetchWithToken(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${address_id}/dafault/set`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      if (response.status == "success") {
+        console.log("默认地址设置成功");
+        // 重新获取地址列表
+        // 更新 addressList，将目标地址的 is_default 设置为 true，其余为 false
+        setAddressList((prevAddressList) =>
+          prevAddressList.map((address) =>
+            address.address_id === address_id
+              ? { ...address, is_default: true }
+              : { ...address, is_default: false }
+          )
+        );
+      }
     } catch (error) {
-      console.error("设置默认地址失败:", error);
-      throw error;
+      console.log("默认地址设置失败:", error);
     }
   };
 
@@ -54,44 +86,15 @@ const AddressList = () => {
   };
 
   useEffect(() => {
-    // const initialAddressList = [
-    //   {
-    //     addressId: 1,
-    //     firstName: "武藏",
-    //     lastName: "宮本",
-    //     firstNameKatakana: "",
-    //     lastNameKatakana: "",
-    //     phone: "080-1234-5678",
-    //     prefectureAddress: "滋賀県",
-    //     cityAddress: "野洲市",
-    //     districtAddress: "小南",
-    //     detailAddress: "28番32号",
-    //     postalCode: "520-2301",
-    //     isDefault: true,
-    //   },
-    //   {
-    //     addressId: 2,
-    //     firstName: "太郎",
-    //     lastName: "山田",
-    //     firstNameKatakana: "",
-    //     lastNameKatakana: "",
-    //     phone: "080-9876-5432",
-    //     prefectureAddress: "京都市",
-    //     cityAddress: "中京区",
-    //     districtAddress: "二条通河原町",
-    //     detailAddress: "西入る",
-    //     postalCode: "600-8001",
-    //     isDefault: false,
-    //   },
-    // ];
-    const initialAddressList = [];
-    setAddressList(initialAddressList);
-  }, [setAddressList]);
+    fetchAddressList();
+    // const initialAddressList = fetchAddressList();
+    // setAddressList(initialAddressList);
+  }, []);
 
   const handleEditAddress = (addr) => {
     router.push({
       pathname: "/address",
-      query: { id: addr.addressId },
+      query: { id: addr.address_id },
     });
   };
 
@@ -106,20 +109,20 @@ const AddressList = () => {
         </Typography>
       ) : (
         addressList.map((addr) => (
-          <Card key={addr.addressId} sx={{ mb: 2 }}>
+          <Card key={addr.address_id} sx={{ mb: 2 }}>
             <CardContent>
               <Grid container alignItems="center">
                 <Grid item xs={12}>
                   <Typography variant="h6">
-                    {addr.lastName}
-                    {addr.firstName} {addr.phone}
+                    {addr.last_name}
+                    {addr.first_name} {addr.phone_number}
                   </Typography>
-                  <Typography variant="body1">〒 {addr.postalCode}</Typography>
+                  <Typography variant="body1">〒 {addr.postal_code}</Typography>
                   <Typography variant="body1">
-                    {addr.prefectureAddress}
-                    {addr.cityAddress}
-                    {addr.districtAddress}
-                    {addr.detailAddress}
+                    {addr.prefecture_address}
+                    {addr.city_address}
+                    {addr.district_address}
+                    {addr.detail_address}
                   </Typography>
                 </Grid>
               </Grid>
@@ -139,8 +142,9 @@ const AddressList = () => {
                     label="おすすめ"
                     control={
                       <Checkbox
-                        checked={addr.isDefault}
-                        onChange={() => setDefaultAddress(addr.addressId)}
+                        checked={addr.is_default}
+                        disabled={addr.is_default}
+                        onChange={() => setDefaultAddress(addr.address_id)}
                         icon={<RadioButtonUnchecked />}
                         checkedIcon={<CheckCircle />}
                       />
@@ -152,7 +156,7 @@ const AddressList = () => {
                   <Button
                     size="small"
                     color="error"
-                    onClick={() => deleteAddress(addr.addressId)}
+                    onClick={() => deleteAddress(addr.address_id)}
                     sx={{
                       fontSize: "1.0rem",
                       padding: "2px 6px",
