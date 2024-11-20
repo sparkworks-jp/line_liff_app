@@ -103,6 +103,14 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  const clearCart = () => {
+    setCart([]);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(CART_KEY);
+      localStorage.removeItem(CART_EXPIRATION_KEY);
+    }
+  };
+
   return (
     <CartContext.Provider value={{ 
       cart, 
@@ -112,6 +120,7 @@ export const CartProvider = ({ children }) => {
       updateCartItem,
       isCartOpen, 
       setIsCartOpen,
+      clearCart,
       isCartInitialized  
     }}>
       {children}
