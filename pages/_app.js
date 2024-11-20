@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import liff from "@line/liff";
 import Layout from "../components/Layout";
 import { CartProvider } from "../context/CartContext";
-import { AddressProvider } from "../context/AddressContext";
+import { MessageProvider } from "../context/MessageContext";
 import { AuthProvider } from "../context/AuthContext";
 
 function MyApp({ Component, pageProps }) {
@@ -54,11 +54,11 @@ function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider liff={liffObject}>
       <CartProvider>
-        <AddressProvider>
+        <MessageProvider>
           <Layout>
             <Component {...pageProps} />
           </Layout>
-        </AddressProvider>
+        </MessageProvider>
       </CartProvider>
     </AuthProvider>
   );

@@ -24,18 +24,18 @@ const CheckoutPage = () => {
   const { fetchWithToken } = useAuth();
 
   const [defaultAddress, setDefaultAddress] = useState({
-    addressId: null,
-    firstName: "",
-    lastName: "",
-    firstNameKatakana: "",
-    lastNameKatakana: "",
-    phone: "",
-    postalCode: "",
-    prefectureAddress: "",
-    cityAddress: "",
-    districtAddress: "",
-    detailAddress: "",
-    isDefault: false,
+    address_id: null,
+    first_name: "",
+    last_name: "",
+    first_name_katakana: "",
+    last_name_katakana: "",
+    phone_number: "",
+    postal_code: "",
+    prefecture_address: "",
+    city_address: "",
+    district_address: "",
+    detail_address: "",
+    is_default: false,
   });
 
   // 获取数据 默认地址数据
@@ -45,7 +45,8 @@ const CheckoutPage = () => {
     try {
       const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/default/get`);
       console.log(response);
-      return response.data.address_detail
+      setDefaultAddress(response.data.address_detail);
+      // return response.data.address_detail
     } catch (err) {
       console.log(err)
     }
@@ -68,10 +69,8 @@ const CheckoutPage = () => {
     //   postalCode: "600-8001",
     // };
 
-    const address = fetchDefaultAddress();
-
-    setDefaultAddress(address);
-  }, [setDefaultAddress]);
+    fetchDefaultAddress();
+  }, []);
 
   const [paymentMethod, setPaymentMethod] = useState("PayPay");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -167,26 +166,26 @@ return (
     {/* 配送地址部分 */}
     <Box sx={{ mb: 3 }}>
       <Typography variant="h6">配送先</Typography>
-      {defaultAddress.length > 0 ? (
+      {defaultAddress.address_id ? (
         <>
           <Grid container alignItems="center">
             <Grid item xs={12}>
               <Typography variant="h6">
-                {defaultAddress.lastName}
-                {defaultAddress.firstName} {defaultAddress.phone}
+                {defaultAddress.last_name}
+                {defaultAddress.first_name} {defaultAddress.phone_number}
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body1">
-                〒 {defaultAddress.postalCode}
+                〒 {defaultAddress.postal_code}
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body1">
-                {defaultAddress.prefectureAddress}
-                {defaultAddress.cityAddress}
-                {defaultAddress.districtAddress}
-                {defaultAddress.detailAddress}
+                {defaultAddress.prefecture_address}
+                {defaultAddress.city_address}
+                {defaultAddress.district_address}
+                {defaultAddress.detail_address}
               </Typography>
             </Grid>
           </Grid>
