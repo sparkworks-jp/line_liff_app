@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext';
 
 const CheckoutPage = () => {
   const { fetchWithToken } = useAuth();
+  const { clearCart } = useCart();
 
   const [defaultAddress, setDefaultAddress] = useState({
     addressId: null,
@@ -91,11 +92,11 @@ const CheckoutPage = () => {
       cart: cart,
       shippingFee: shippingFee,
       total: totalAmount,
-      express_information: JSON.stringify({
-        name: defaultAddress.name,
-        phone: defaultAddress.phone,
-        address: defaultAddress.address,
-      })
+      addressId: 1,
+      name: "宮本武藏",
+      address: "京都市中京区二条通河原町西入る",
+      phone: "080-1234-5678",
+      postalCode: "600-8001",
     };
 
     console.log("orderData:", orderData);
@@ -111,7 +112,7 @@ const CheckoutPage = () => {
     console.log('注文作成成功:', orderResponse);
     console.log("Order created successfully:", orderResponse.data);
 
-    if (orderResponse.data.status === 'success') {
+    if (orderResponse.data && orderResponse.data.order_id)  {
       const orderId = orderResponse.data.order_id;
 
       // 2. 调用PayPay支付接口
