@@ -111,7 +111,7 @@ const CartDrawer = () => {
                     secondary={
                       <React.Fragment>
                         <Typography variant="body2" color="text.primary">
-                          ${item.price} x {item.quantity}
+                          {item.price} 円 x {item.quantity}
                         </Typography>
                         <Box sx={{ mt: 0.5 }}>
                           {item.flavorOptions && Object.entries(item.flavorOptions).map(([key, value]) =>
