@@ -12,6 +12,8 @@ import { Delete } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { useMessage } from "../context/MessageContext";
+
 const AddressPage = () => {
   const [editAddress, setEditAddress] = useState({
     address_id: null,
@@ -33,17 +35,7 @@ const AddressPage = () => {
   const [oldPostalCode, setOldPostalCode] = useState("");
   const { id } = router.query;
   const { fetchWithToken } = useAuth();
-
-  // const fetchAddressDeatil = async (addressId) => {
-  //   try {
-  //     const response = await axios.get(`/api/getAddress/${addressId}`);
-  //     // 假设返回的数据结构是 { data: [...] }
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error("获取地址详情失败:", error);
-  //     throw error; // 需要时可以处理错误
-  //   }
-  // };
+  const { showMessage } = useMessage();
 
   const fetchAddressDeatil = async (address_id) => {
     try {
@@ -52,7 +44,7 @@ const AddressPage = () => {
       );
 
       console.log("地址详细获取成功:", response.data.address_detail);
-      setEditAddress(response.data.address_detail)
+      setEditAddress(response.data.address_detail);
     } catch (error) {
       console.error("获取地址详细失败:", error);
     }
@@ -90,38 +82,38 @@ const AddressPage = () => {
   const validateField = (field, value) => {
     let error = "";
     switch (field) {
-      case "lastName":
+      case "last_name":
         if (!value) error = "姓は必須です";
         break;
-      case "firstName":
+      case "first_name":
         if (!value) error = "名は必須です";
         break;
-      case "lastNameKatakana":
+      case "last_name_katakana":
         if (!value) error = "セイは必須です";
         break;
-      case "firstNameKatakana":
+      case "first_name_katakana":
         if (!value) error = "メイは必須です";
         break;
-      case "phone":
+      case "phone_number":
         if (!/^\d{3}-\d{4}-\d{4}$/.test(value)) {
           error = "正しい電話番号の形式（例: 080-1234-5678）で入力してください";
         }
         break;
-      case "postalCode":
+      case "postal_code":
         if (!/^\d{3}-\d{4}$/.test(value)) {
           error = "正しい郵便番号の形式（例: 123-4567）で入力してください";
         }
         break;
-      case "prefectureAddress":
+      case "prefecture_address":
         if (!value) error = "住所は必須です";
         break;
-      case "cityAddress":
+      case "city_address":
         if (!value) error = "住所は必須です";
         break;
-      case "districtAddress":
+      case "district_address":
         if (!value) error = "住所は必須です";
         break;
-      case "detailAddress":
+      case "detail_address":
         if (!value) error = "詳しい住所は必須です";
         break;
       default:
@@ -157,16 +149,16 @@ const AddressPage = () => {
   const handleSaveAddress = async () => {
     // 校验所有必填字段是否有错误
     const requiredFields = [
-      "lastName",
-      "firstName",
-      "lastNameKatakana",
-      "firstNameKatakana",
-      "phone",
-      "postalCode",
-      "prefectureAddress",
-      "cityAddress",
-      "districtAddress",
-      "detailAddress",
+      "first_name",
+      "last_name",
+      "first_name_katakana",
+      "last_name_katakana",
+      "phone_number",
+      "postal_code",
+      "prefecture_address",
+      "city_address",
+      "district_address",
+      "detail_address",
     ];
 
     let isValid = true;
@@ -190,37 +182,45 @@ const AddressPage = () => {
 
     // 如果没有错误，准备保存地址信息
     const addressData = {
-      addressId: editAddress.addressId, // 如果是更新，使用现有的地址ID
-      firstName: editAddress.firstName,
-      lastName: editAddress.lastName,
-      firstNameKatakana: editAddress.firstNameKatakana,
-      lastNameKatakana: editAddress.lastNameKatakana,
-      phone: editAddress.phone,
-      postalCode: editAddress.postalCode,
-      prefectureAddress: editAddress.prefectureAddress,
-      cityAddress: editAddress.cityAddress,
-      districtAddress: editAddress.districtAddress,
-      detailAddress: editAddress.detailAddress,
-      isDefault: editAddress.isDefault,
+      address_id: editAddress.address_id, // 如果是更新，使用现有的地址ID
+      first_name: editAddress.first_name,
+      last_name: editAddress.last_name,
+      first_name_katakana: editAddress.first_name_katakana,
+      last_name_katakana: editAddress.last_name_katakana,
+      phone_number: editAddress.phone_number,
+      postal_code: editAddress.postal_code,
+      prefecture_address: editAddress.prefecture_address,
+      city_address: editAddress.city_address,
+      district_address: editAddress.district_address,
+      detail_address: editAddress.detail_address,
     };
 
     try {
       // 如果有 addressId，表示是更新，使用 PUT 请求
-      if (editAddress.addressId) {
-        const response = await axios.put(
-          `/api/updateAddress/${editAddress.addressId}`,
-          addressData
+      if (id) {
+        const response = await fetchWithToken(
+          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${id}/update`,
+          {
+            method: "PUT",
+            body: JSON.stringify(addressData)
+          }
         );
-        if (response.status === 200) {
-          // 更新成功后，可以做跳转或者提示用户
-          router.push("/address"); // 假设这是地址列表页面
+        if (response.status === "success") {
+          showMessage("保存成功！", "success");
+          router.push("/addressList");
         }
       } else {
         // 如果没有 addressId，表示是新增地址，使用 POST 请求
-        const response = await axios.post("/api/addAddress", addressData);
-        if (response.status === 200) {
-          // 添加成功后，跳转或清空表单
-          router.push("/address"); // 跳转到地址列表页面
+        const response = await fetchWithToken(
+          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/add`,
+          {
+            method: "POST",
+            body: JSON.stringify(addressData)
+          }
+        );
+        if (response.status === "success") {
+          showMessage("保存成功！", "success");
+          router.push("/addressList");
         }
       }
     } catch (error) {
@@ -306,7 +306,7 @@ const AddressPage = () => {
             onChange={(e) =>
               setEditAddress({ ...editAddress, first_name: e.target.value })
             }
-            onBlur={() => validateField("firstName", editAddress.first_name)}
+            onBlur={() => validateField("first_name", editAddress.first_name)}
             error={!!errors.first_name}
             helperText={errors.first_name}
           />
@@ -324,7 +324,10 @@ const AddressPage = () => {
               })
             }
             onBlur={() =>
-              validateField("last_name_katakana", editAddress.last_name_katakana)
+              validateField(
+                "last_name_katakana",
+                editAddress.last_name_katakana
+              )
             }
             error={!!errors.last_name_katakana}
             helperText={errors.last_name_katakana}
@@ -343,7 +346,10 @@ const AddressPage = () => {
               })
             }
             onBlur={() =>
-              validateField("first_name_katakana", editAddress.first_name_katakana)
+              validateField(
+                "first_name_katakana",
+                editAddress.first_name_katakana
+              )
             }
             error={!!errors.first_name_katakana}
             helperText={errors.first_name_katakana}
@@ -356,7 +362,9 @@ const AddressPage = () => {
             required
             value={editAddress.phone_number}
             onChange={handlePhoneChange}
-            onBlur={() => validateField("phone_number", editAddress.phone_number)}
+            onBlur={() =>
+              validateField("phone_number", editAddress.phone_number)
+            }
             placeholder="080-1234-5678"
             error={!!errors.phone_number}
             helperText={errors.phone_number}
@@ -391,7 +399,10 @@ const AddressPage = () => {
               })
             }
             onBlur={() =>
-              validateField("prefecture_address", editAddress.prefecture_address)
+              validateField(
+                "prefecture_address",
+                editAddress.prefecture_address
+              )
             }
             error={!!errors.prefecture_address}
             helperText={errors.prefecture_address}
@@ -407,7 +418,9 @@ const AddressPage = () => {
             onChange={(e) =>
               setEditAddress({ ...editAddress, city_address: e.target.value })
             }
-            onBlur={() => validateField("city_address", editAddress.city_address)}
+            onBlur={() =>
+              validateField("city_address", editAddress.city_address)
+            }
             error={!!errors.city_address}
             helperText={errors.city_address}
             placeholder="例: 美唄市"

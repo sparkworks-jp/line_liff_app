@@ -15,11 +15,31 @@ import {
 import { Delete, RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
+import ConfirmationDialog from "../components/ConfirmationDialog";
 
 const AddressList = () => {
   const [addressList, setAddressList] = useState([]);
   const router = useRouter();
   const { fetchWithToken } = useAuth();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+
+  const handleOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleClose = () => {
+    setSelectedAddressId(null);
+    setDialogOpen(false);
+  };
+
+  const handleConfirm = () => {
+    console.log("Action confirmed!");
+    fetchDeleteAddress();
+    setSelectedAddressId(null);
+    setDialogOpen(false);
+  };
 
   // 发送请求获取地址列表
   const fetchAddressList = async () => {
@@ -74,14 +94,27 @@ const AddressList = () => {
     }
   };
 
-  // 删除地址请求
-  const deleteAddress = async (addressId) => {
+  // 删除地址
+  const handleDeleteAddress = (address_id) => {
+    setSelectedAddressId(address_id);
+    handleOpen();
+  };
+
+  const fetchDeleteAddress = async () => {
+    const address_id = selectedAddressId;
     try {
-      await axios.delete(`/api/deleteAddress/${addressId}`);
-      console.log("地址删除成功");
+      const response = await fetchWithToken(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${address_id}/delete`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (response.status == "success") {
+        console.error("删除成功");
+        fetchAddressList();
+      }
     } catch (error) {
-      console.error("删除地址失败:", error);
-      throw error;
+      console.error("获取地址列表失败:", error);
     }
   };
 
@@ -156,7 +189,7 @@ const AddressList = () => {
                   <Button
                     size="small"
                     color="error"
-                    onClick={() => deleteAddress(addr.address_id)}
+                    onClick={() => handleDeleteAddress(addr.address_id)}
                     sx={{
                       fontSize: "1.0rem",
                       padding: "2px 6px",
@@ -203,6 +236,16 @@ const AddressList = () => {
       >
         新規住所を追加
       </Button>
+      <ConfirmationDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onConfirm={handleConfirm}
+        // title="Delete Item"
+        message="本当にこの住所を削除してもよろしいですか？"
+        confirmText="削除する"
+        cancelText="キャンセル"
+        confirmColor="error"
+      />
     </Box>
   );
 };
