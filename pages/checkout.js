@@ -94,13 +94,13 @@ const CheckoutPage = () => {
     //   return;
     // }
 
-    // const User = localStorage.getItem("user");
-    // const userInfo = User ? JSON.parse(User) : null;
           // userId: userInfo.userId,
       // userName:userInfo.userName,
+      // userId: "111111",
+      // userName: "lucas",
+
     const orderData = {
-      userId: "111111",
-      userName: "lucas",
+
       cart: cart,
       shippingFee: shippingFee,
       total: totalAmount,

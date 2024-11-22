@@ -71,6 +71,8 @@ export function AuthProvider({ children, liff }) {
         const profile = await liff.getProfile();
         const token = await liff.getIDToken();
         console.log('ユーザ情報とトークンを取得しました');
+        console.log('profile',profile);
+        console.log('token',token);
         setUserProfile(profile);
         setIdToken(token);
       } catch (error) {
@@ -117,6 +119,13 @@ export function AuthProvider({ children, liff }) {
           throw error;
         }
       }
+
+      if (!userProfile?.userId) {
+        throw new Error('ユーザー情報が見つかりません');
+      }
+      const urlObj = new URL(url);
+      urlObj.searchParams.append('user_id', userProfile.userId);
+      console.log('urlObj.searchParams user_id',userInfo.userI);
 
       console.log('リクエストを送信しています...');
       const response = await fetch(url, {
