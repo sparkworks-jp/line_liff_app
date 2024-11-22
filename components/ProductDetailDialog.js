@@ -41,7 +41,7 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
         },
       }}
     >
-      <DialogContent sx={{ padding: "10px", position: "relative" }}>
+      <DialogContent sx={{ padding: "50px 0 0 0", position: "relative" }}>
         <Box
           sx={{
             width: "100%",
