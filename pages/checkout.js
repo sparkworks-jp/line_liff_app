@@ -92,7 +92,6 @@ const CheckoutPage = () => {
     //   alert('配送先住所を選択してください');
     //   return;
     // }
-
           // userId: userInfo.userId,
       // userName:userInfo.userName,
       // userId: "111111",

@@ -125,10 +125,10 @@ export function AuthProvider({ children, liff }) {
       }
       const urlObj = new URL(url);
       urlObj.searchParams.append('user_id', userProfile.userId);
-      console.log('urlObj.searchParams user_id',userProfile.userId);
+      console.log('urlObj.searchParams user_id',urlObj.toString());
 
       console.log('リクエストを送信しています...');
-      const response = await fetch(url, {
+      const response = await fetch(urlObj.toString(),  {
         ...options,
         headers: {
           'Content-Type': 'application/json',
