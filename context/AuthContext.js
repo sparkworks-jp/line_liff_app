@@ -1,3 +1,4 @@
+import { BackupOutlined } from '@mui/icons-material';
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -54,6 +55,7 @@ export function AuthProvider({ children, liff }) {
   const [userProfile, setUserProfile] = useState(null);
   const [idToken, setIdToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mockUserType, setMockUserType] = useState('default');
 
   // トークンとユーザ情報の初期化
   useEffect(() => {
@@ -85,6 +87,7 @@ export function AuthProvider({ children, liff }) {
     initialize();
   }, [liff]);
 
+  
   const fetchWithToken = async (url, options = {}) => {
     try {
       let currentToken = idToken;
@@ -120,15 +123,8 @@ export function AuthProvider({ children, liff }) {
         }
       }
 
-      if (!userProfile?.userId) {
-        throw new Error('ユーザー情報が見つかりません');
-      }
-      const urlObj = new URL(url);
-      urlObj.searchParams.append('user_id', userProfile.userId);
-      console.log('urlObj.searchParams user_id',urlObj.toString());
-
       console.log('リクエストを送信しています...');
-      const response = await fetch(urlObj.toString(),  {
+      const response = await fetch(url,  {
         ...options,
         headers: {
           'Content-Type': 'application/json',
