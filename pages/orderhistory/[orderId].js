@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import DeleteIcon from '@mui/icons-material/Delete';
+import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded';
 import Grid from '@mui/material/Grid2';
 
 // 模拟订单详细信息
@@ -122,8 +123,18 @@ const OrderDetailPage = () => {
                     >
                         注文キャンセル
                     </Button>
+                    <Button size="small" 
+                    variant="outlined" 
+                    color="primary" 
+                    startIcon={<HourglassTopRoundedIcon />} 
+                    //TODO 
+                    >
+                        お支払い待ち
+                    </Button>
                 </Stack>
             )}
+
+                    
             {/* 商品列表 */}
             <List>
                 {orderDetails.items.map((item) => (
