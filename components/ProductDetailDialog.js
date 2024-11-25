@@ -20,6 +20,25 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
   };
+  const boxStyleFullscreen = {
+    position: "absolute",
+    top: 40,
+    right: 19,
+    display: "flex",
+    gap: 1,
+    zIndex: 10,
+    padding: 1,
+  };
+
+  const boxStyleNormal = {
+    position: "absolute",
+    top: 0,
+    right: 3,
+    display: "flex",
+    gap: 1,
+    zIndex: 10,
+    padding: 1,
+  };
   return (
     <Dialog
       open={open}
@@ -41,7 +60,7 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
         },
       }}
     >
-      <DialogContent sx={{ padding: "50px 0 0 0", position: "relative" }}>
+      <DialogContent sx={{ padding: isFullscreen ? "80px 15px 0 15px" : "50px 0 0 0", position: "relative" }}>
         <Box
           sx={{
             width: "100%",
@@ -59,16 +78,7 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
           />
         </Box>
 
-        <Box
-          sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            display: "flex",
-            gap: 1,
-            zIndex: 10,
-          }}
-        >
+        <Box sx={isFullscreen ? boxStyleFullscreen : boxStyleNormal}>
           <IconButton onClick={toggleFullscreen}>
             {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
           </IconButton>
