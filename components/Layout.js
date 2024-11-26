@@ -25,7 +25,7 @@ const Layout = ({ children, userProfile, userId }) => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar variant="dense">
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {userId && userProfile?.displayName && (

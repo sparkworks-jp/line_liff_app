@@ -41,6 +41,10 @@ export default function OrderHistoryPage() {
       case 1:
         return "支払い待ち";
       case 2:
+    switch (status) {
+      case 1:
+        return "支払い待ち";
+      case 2:
         return "支払い待ち";
       case 3:
         return "支払い済み";
@@ -56,6 +60,9 @@ export default function OrderHistoryPage() {
   };
   const getStatusColor = (status) => {
     switch (status) {
+      case 1:
+        return "#f57c00";
+      case 2:
       case 1:
         return "#f57c00";
       case 2:
