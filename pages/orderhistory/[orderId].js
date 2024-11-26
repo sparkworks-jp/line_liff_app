@@ -195,7 +195,7 @@ const OrderDetailPage = () => {
                         startIcon={<HourglassTopRoundedIcon />}
 
                     >
-                        お支払い待ち
+                        決済
                     </Button>
 
                 </Stack>
