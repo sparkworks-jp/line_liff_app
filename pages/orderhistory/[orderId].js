@@ -9,45 +9,18 @@ import {
     ListItemAvatar,
     ListItemText,
     Divider,
-    Link as MuiLink,
     Container,
     Button,
     CircularProgress,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded';
 import Grid from '@mui/material/Grid2';
 import { useAuth } from '../../context/AuthContext';
-
-// 模拟订单详细信息
-// const orderDetails = {
-//     orderId: 'ORD12345678',
-//     trackingNumber: 'TRK98765432',
-//     orderStatus: '01',
-//     items: [
-//         { id: 1, name: 'らせん酥（螺旋酥）', quantity: 2, price: 340, image: '/rasensu.jpg' },
-//         { id: 3, name: 'たんこう酥（蛋黄酥）', quantity: 3, price: 500, image: '/tankōsu.png' },
-//         { id: 4, name: 'にくまつケーキ（肉松蛋糕）', quantity: 3, price: 500, image: '/nikumatsu.jpg' },
-//         { id: 5, name: 'エッグタルト（蛋挞）', quantity: 3, price: 500, image: '/eggutarto.jpg' },
-//         { id: 6, name: 'げっぺい（月饼）', quantity: 3, price: 500, image: '/geppei2.jpg' },
-//         { id: 7, name: 'ほうり酥（凤梨酥）', quantity: 3, price: 500, image: '/hōrisu.jpg' },
-//         { id: 8, name: 'りょくとう餅（绿豆饼）', quantity: 3, price: 500, image: '/ryokutō.jpg' },
-//         { id: 9, name: 'なつめに酥（枣泥酥）', quantity: 3, price: 500, image: '/natsumenisu.jpg' },
-//         { id: 10, name: 'ゆうご（油果）', quantity: 3, price: 500, image: '/yūgo.jpg' },
-//         { id: 11, name: 'ブラウニー（布朗尼）', quantity: 3, price: 500, image: '/buraunī.jpg' },
-//         { id: 12, name: 'マカロン（马卡龙）', quantity: 3, price: 500, image: '/makaron.jpg' },
-//         { id: 13, name: 'マドレーヌ（玛德琳）', quantity: 3, price: 500, image: '/madorēnu.jpg' },
-//     ],
-//     totalAmount: '¥2,970',
-//     discount: '¥100',
-//     finalAmount: '¥2,870',
-//     deliveryFee: '¥1,870',
-//     orderDate: '2023-05-01',
-//     estimatedDelivery: '2023-05-05',
-//     postalCode: '123-4567',
-//     address: '東京都新宿区西新宿1-1-1',
-// };
+import ConfirmationDialog from "../../components/ConfirmationDialog";
 
 
 const ORDER_STATUS_MAP = {
@@ -66,6 +39,12 @@ const OrderDetailPage = () => {
     const [orderData, setOrderData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
     useEffect(() => {
         if (router.isReady) {
@@ -73,29 +52,73 @@ const OrderDetailPage = () => {
         }
     }, [router.isReady]);
 
-    useEffect(() => {
-        const fetchOrderDetail = async () => {
-            if (!orderId) return;
-            
-            try {
-                setLoading(true);
-                const response = await fetchWithToken(
-                    `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/${orderId}/`
-                );
-                console.log("useEffect response", response);
-                
-                setOrderData(response.data);
-                setError(null);
-            } catch (error) {
-                console.error("Error fetching order details:", error);
-                setError("注文詳細の取得に失敗しました");
-            } finally {
-                setLoading(false);
-            }
-        };
 
+    useEffect(() => {
         fetchOrderDetail();
     }, [orderId, fetchWithToken]);
+
+    const fetchOrderDetail = async () => {
+        if (!orderId) return;
+        try {
+            setLoading(true);
+            const response = await fetchWithToken(
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/${orderId}/`
+            );
+            setOrderData(response.data);
+            setError(null);
+        } catch (error) {
+            console.error("Error fetching order details:", error);
+            setError("注文詳細の取得に失敗しました");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCancelClick = () => {
+        setDialogOpen(true);
+    };
+
+    const handleConfirmCancel = async () => {
+        try {
+            const response = await fetchWithToken(
+                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/cancel/${orderId}/`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: "06" })
+                }
+            );
+
+            if (response.status === "success") {
+                setSnackbar({
+                    open: true,
+                    message: '注文キャンセルしました',
+                    severity: 'success'
+                });
+                fetchOrderDetail();
+            } else {
+                throw new Error("Failed to cancel order");
+            }
+        } catch (error) {
+            console.error("Error canceling order:", error);
+            setSnackbar({
+                open: true,
+                message: '注文キャンセル失敗',
+                severity: 'error'
+            });
+        } finally {
+            setDialogOpen(false);
+        }
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar(prev => ({
+            ...prev,
+            open: false
+        }));
+    };
 
     if (loading) {
         return (
@@ -120,45 +143,22 @@ const OrderDetailPage = () => {
             </Container>
         );
     }
-
-    const handleBreadcrumbClick = (event) => {
-        event.preventDefault();
-        router.push('/order-history');
-    };
     const shouldShowCancelButton = orderData.orderStatus == "01" || orderData.orderStatus == "02";
     const orderStatusText = ORDER_STATUS_MAP[orderData.orderStatus] || "不明なステータス";
 
-    const cancelOrder = async (order_id) => {
-        try {
-            console.log("cancel order", order_id);
-            const response = await fetchWithToken(
-                `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/update/${order_id}/`,
-                {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status: "06" })
-                });
-            if (response.status !== "success") throw new Error("Failed to fetch orders");
-            alert("注文がキャンセルされました");
-        } catch (error) {
-            console.error("Error canceling order:", error);
-        }
-    };
+
     return (
         <Container maxWidth="md">
             <Typography variant="h4" gutterBottom>
                 注文詳細
             </Typography>
-            {/* 订单状态和信息 */}
             <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle1" color="text.secondary">
-                    注文番号　: 
+                    注文番号　:
                     {orderId}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
-                    注文状況　: 
+                    注文状況　:
                     {orderStatusText}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
@@ -184,23 +184,48 @@ const OrderDetailPage = () => {
                         variant="outlined"
                         color="warning"
                         startIcon={<DeleteIcon />}
-                        onClick={() => cancelOrder(orderId)}
+                        onClick={handleCancelClick}
                     >
                         注文キャンセル
                     </Button>
-                    <Button size="small" 
-                    variant="outlined" 
-                    color="primary" 
-                    startIcon={<HourglassTopRoundedIcon />} 
-                    //TODO 
+
+                    <Button size="small"
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<HourglassTopRoundedIcon />}
+
                     >
                         お支払い待ち
                     </Button>
+
                 </Stack>
             )}
+            <ConfirmationDialog
+                open={dialogOpen}
+                onClose={() => setDialogOpen(false)}
+                onConfirm={handleConfirmCancel}
+                message="このご注文をキャンセルしてもよろしいですか？"
+                confirmText="キャンセルする"
+                cancelText="戻る"
+                confirmColor="error"
+            />
 
-                    
-            {/* 商品列表 */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleCloseSnackbar}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+
+            {/* 商品List */}
             <List>
                 {orderData.items.map((item) => (
                     <React.Fragment key={item.id}>
@@ -218,7 +243,7 @@ const OrderDetailPage = () => {
                 ))}
             </List>
 
-            {/* 支付信息 */}
+            {/* 支付情報 */}
             <Box sx={{ mt: 2 }}>
                 {/* 割引金額行 */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
