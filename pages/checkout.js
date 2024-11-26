@@ -45,7 +45,7 @@ const CheckoutPage = () => {
   const fetchDefaultAddress = async () => {
     try {
       const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/default/get`);
-      console.log(response);
+      console.log("fetchDefaultAddress",response);
       setDefaultAddress(response.data.address_detail);
       // return response.data.address_detail
     } catch (err) {
@@ -55,21 +55,6 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     setIsCartOpen(false);
-    // 模拟默认地址数据
-    // const address = {
-    //   addressId: 1,
-    //   firstName: "武藏",
-    //   lastName: "宮本",
-    //   firstNameKatakana: "",
-    //   lastNameKatakana: "",
-    //   phone: "080-1234-5678",
-    //   prefectureAddress: "京都市",
-    //   cityAddress: "中京区",
-    //   districtAddress: "二条通河原町",
-    //   detailAddress: "西入る",
-    //   postalCode: "600-8001",
-    // };
-
     fetchDefaultAddress();
   }, []);
 
@@ -88,17 +73,8 @@ const CheckoutPage = () => {
     shippingFee;
 
   const handlePlaceOrder = async () => {
-    // if (!defaultAddress) {
-    //   alert('配送先住所を選択してください');
-    //   return;
-    // }
-          // userId: userInfo.userId,
-      // userName:userInfo.userName,
-      // userId: "111111",
-      // userName: "lucas",
 
     const orderData = {
-
       cart: cart,
       shippingFee: shippingFee,
       total: totalAmount,
@@ -127,10 +103,9 @@ const CheckoutPage = () => {
 
       // 2. 调用PayPay支付接口
       const paymentResponse = await axios.post(
-        'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/payment/create/${orderId}`,
         {
-          ...orderData,
-          orderId: orderId,  // 添加订单ID到支付请求
+          ...orderData
         },
         {
           headers: {
@@ -141,11 +116,11 @@ const CheckoutPage = () => {
 
       console.log("Payment initiated:", paymentResponse.data);
 
-      if (paymentResponse.data.resultInfo.code === "SUCCESS") {
+      if (paymentResponse.data.status === "success") {
         // 清空购物车
         clearCart();
         // 跳转到PayPay支付页面
-        router.push(paymentResponse.data.data.url);
+        router.push(paymentResponse.data.data.payment_link);
       } else {
         throw new Error('支払い処理に失敗しました');
       }
