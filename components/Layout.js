@@ -20,7 +20,7 @@ const Layout = ({ children, userProfile, userId }) => {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const router = useRouter();
-  const hiddenLayoutPaths = ["/checkout", "/addressList", "/address"];
+  const hiddenLayoutPaths = ["/checkout", "/addressList", "/address","/paymentcomplete"];
   const isHidden = hiddenLayoutPaths.includes(router.pathname);
 
   return (

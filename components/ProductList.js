@@ -18,7 +18,7 @@ const ProductList = ({ products }) => {
     setSelectedProduct(null);
   };
   return (
-    <Grid container spacing={{ xs: 2, md: 3,lg: 3 }}>
+    <Grid container spacing={{ xs: 2, md: 3,lg: 3 }} sx={{mt:2}}>
       {products.map(product => (
         <Grid  size={{ xs: 6, sm: 6,md: 4,lg: 4 }} key={product.product_id}>
           <ProductItem product={product} onClick={() => handleProductClick(product)}/>
