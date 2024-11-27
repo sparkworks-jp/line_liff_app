@@ -4,12 +4,12 @@ import NextLink from 'next/link';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Typography from '@mui/material/Typography';
 import MuiLink from '@mui/material/Link';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const pathConfig = {
-  shop: { label: 'Shop', icon: <ShoppingCartIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
+  shop: { label: '商品リスト', icon: <HomeRoundedIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
   order: { label: 'Order', icon: <ReceiptIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
 };
 

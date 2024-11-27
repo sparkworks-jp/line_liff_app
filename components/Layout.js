@@ -55,7 +55,7 @@ const Layout = ({ children, userProfile, userId }) => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ paddingLeft: 2, marginTop: '8px' }}>
+      <Box sx={{ paddingLeft: 2, marginTop: '65px' }}>
         <Breadcrumb />
       </Box>
 
