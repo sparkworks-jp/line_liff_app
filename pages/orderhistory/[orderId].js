@@ -168,9 +168,6 @@ const OrderDetailPage = () => {
                     注文日　　: {orderData.orderDate}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
-                    予想配達日: {orderData.estimatedDelivery}
-                </Typography>
-                <Typography variant="subtitle1" color="text.secondary">
                     郵便番号　: {orderData.postalCode}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
