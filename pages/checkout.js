@@ -238,7 +238,7 @@ const CheckoutPage = () => {
               <Typography>数量: {product.quantity}</Typography>
             </Grid>
             <Grid item xs={3}>
-              <Typography>価格: ¥{product.price}</Typography>
+              <Typography>価格: ¥{product.price.toLocaleString("ja-JP")}</Typography>
             </Grid>
           </Grid>
         ))}
@@ -249,11 +249,11 @@ const CheckoutPage = () => {
         <Typography variant="h6">料金詳細</Typography>
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
           <Typography>商品合計:</Typography>
-          <Typography>¥{orderInfo.product_total_price}</Typography>
+          <Typography>¥{orderInfo.product_total_price.toLocaleString("ja-JP")}</Typography>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
           <Typography>配送料:</Typography>
-          <Typography>¥{orderInfo.shipping_fee}</Typography>
+          <Typography>¥{orderInfo.shipping_fee.toLocaleString("ja-JP")}</Typography>
         </Box>
         <Box
           sx={{
@@ -264,7 +264,7 @@ const CheckoutPage = () => {
           }}
         >
           <Typography>合計:</Typography>
-          <Typography>¥{orderInfo.product_total_price}</Typography>
+          <Typography>¥{orderInfo.total_price.toLocaleString("ja-JP")}</Typography>
         </Box>
       </Box>
 
@@ -319,7 +319,7 @@ const CheckoutPage = () => {
         variant="contained"
         color="primary"
         fullWidth
-        disabled={!defaultAddress}
+        disabled={!defaultAddress.address_id}
         onClick={handlePlaceOrder}
       >
         注文
