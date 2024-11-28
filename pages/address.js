@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  Typography,
-  TextField,
-  IconButton,
-  Grid,
-  Radio,
-} from "@mui/material";
-import { Delete } from "@mui/icons-material";
+import { Box, Button, Typography, TextField, Grid } from "@mui/material";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -29,7 +20,6 @@ const AddressPage = () => {
     detail_address: "",
     is_default: false,
   });
-  const [addressInfo, setAddressInfo] = useState({});
   const [errors, setErrors] = useState({});
   const router = useRouter();
   const [oldPostalCode, setOldPostalCode] = useState("");
@@ -43,36 +33,17 @@ const AddressPage = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${address_id}/detail`
       );
 
-      console.log("地址详细获取成功:", response.data.address_detail);
+      console.log("get address detail succeed:", response.data.address_detail);
       setEditAddress(response.data.address_detail);
     } catch (error) {
-      console.error("获取地址详细失败:", error);
+      console.error("get address detail failed:", error);
     }
-  };
-
-  // 模拟数据
-  const simulatedAddress = {
-    addressId: 2,
-    firstName: "太郎",
-    lastName: "山田",
-    firstNameKatakana: "タロ",
-    lastNameKatakana: "ヤマダ",
-    phone: "080-9876-5432",
-    postalCode: "600-8001",
-    prefectureAddress: "京都市",
-    cityAddress: "中京区",
-    districtAddress: "二条通河原町",
-    detailAddress: "西入る",
-    isDefault: true,
   };
 
   useEffect(() => {
     const fetchData = async () => {
       if (id !== undefined) {
-        // 注释掉真实请求，暂时使用模拟数据
         fetchAddressDeatil(id);
-        // // 模拟数据逻辑
-        // setEditAddress(simulatedAddress);
       }
     };
 
@@ -135,7 +106,7 @@ const AddressPage = () => {
   };
 
   const handlePostalCodeChange = (event) => {
-    const input = event.target.value.replace(/\D/g, ""); // 只允许数字
+    const input = event.target.value.replace(/\D/g, ""); // only allow number
     setEditAddress({ ...editAddress, postal_code: formatPostalCode(input) });
   };
 
@@ -147,7 +118,7 @@ const AddressPage = () => {
   };
 
   const handleSaveAddress = async () => {
-    // 校验所有必填字段是否有错误
+    // validate all required fields
     const requiredFields = [
       "first_name",
       "last_name",
@@ -164,7 +135,6 @@ const AddressPage = () => {
     let isValid = true;
     let newErrors = {};
 
-    // 遍历并验证所有必填字段
     requiredFields.forEach((field) => {
       const value = editAddress[field];
       validateField(field, value);
@@ -174,15 +144,14 @@ const AddressPage = () => {
       }
     });
 
-    // 如果有错误，更新错误状态并阻止保存
     if (!isValid) {
       setErrors(newErrors);
       return;
     }
 
-    // 如果没有错误，准备保存地址信息
+    // prepare to save address
     const addressData = {
-      address_id: editAddress.address_id, // 如果是更新，使用现有的地址ID
+      address_id: editAddress.address_id, // if update,use the existed address id
       first_name: editAddress.first_name,
       last_name: editAddress.last_name,
       first_name_katakana: editAddress.first_name_katakana,
@@ -196,36 +165,35 @@ const AddressPage = () => {
     };
 
     try {
-      // 如果有 addressId，表示是更新，使用 PUT 请求
+      // if have addressId，use PUT to update
       if (id) {
         const response = await fetchWithToken(
           `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${id}/update`,
           {
             method: "PUT",
-            body: JSON.stringify(addressData)
+            body: JSON.stringify(addressData),
           }
         );
         if (response.status === "success") {
-          showMessage("保存成功！", "success");
+          showMessage("saved!", "success");
           router.push("/addressList");
         }
       } else {
-        // 如果没有 addressId，表示是新增地址，使用 POST 请求
+        // if not, we should use POST to create a new address
         const response = await fetchWithToken(
           `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/add`,
           {
             method: "POST",
-            body: JSON.stringify(addressData)
+            body: JSON.stringify(addressData),
           }
         );
         if (response.status === "success") {
-          showMessage("保存成功！", "success");
+          showMessage("saved!", "success");
           router.push("/addressList");
         }
       }
     } catch (error) {
-      console.error("保存地址时出错:", error);
-      // 可以在此显示错误提示
+      console.error("there's error when saving address:", error);
       setErrors({
         ...errors,
         serverError: "住所の保存に失敗しました。もう一度お試しください。",
@@ -239,7 +207,6 @@ const AddressPage = () => {
     const formatPostalCode = postalCode.replace("-", "");
     console.log(formatPostalCode);
 
-    // 防抖动，减少请求次数
     if (oldPostalCode == postalCode) {
       return;
     }

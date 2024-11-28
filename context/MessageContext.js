@@ -2,10 +2,10 @@ import React, { createContext, useState, useContext } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
-// 创建上下文
+// Create context
 const MessageContext = createContext();
 
-// 提供者组件
+// provider component
 export const MessageProvider = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -24,7 +24,7 @@ export const MessageProvider = ({ children }) => {
   return (
     <MessageContext.Provider value={{ showMessage }}>
       {children}
-      {/* 全局消息提示 */}
+      {/* Global message prompt */}
       <Snackbar
         open={open}
         autoHideDuration={3000}
@@ -43,8 +43,8 @@ export const MessageProvider = ({ children }) => {
           sx={{
             width: "100%",
             display: "flex",
-            alignItems: "center", // 垂直居中内容
-            padding: "8px 16px", // 自定义内边距
+            alignItems: "center",
+            padding: "8px 16px", 
           }}
         >
           {message}
@@ -54,5 +54,5 @@ export const MessageProvider = ({ children }) => {
   );
 };
 
-// 自定义 Hook
+// Customize Hook
 export const useMessage = () => useContext(MessageContext);
