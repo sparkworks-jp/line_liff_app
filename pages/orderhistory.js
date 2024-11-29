@@ -42,14 +42,12 @@ export default function OrderHistoryPage() {
       case 1:
         return "支払い待ち";
       case 2:
-        return "支払い待ち";
-      case 3:
         return "支払い済み";
-      case 4:
+      case 3:
         return "発送済み";
-      case 5:
+      case 4:
         return "完了";
-      case 6:
+      case 5:
         return "キャンセル";
       default:
         return "不明な状態";
@@ -60,14 +58,12 @@ export default function OrderHistoryPage() {
       case 1:
         return "#f57c00";
       case 2:
-        return "#f57c00";
-      case 3:
         return "#388e3c";
-      case 4:
+      case 3:
         return "#0288d1";
-      case 5:
+      case 4:
         return "#4caf50";
-      case 6:
+      case 5:
         return "#d32f2f";
       default:
         return "#9e9e9e";

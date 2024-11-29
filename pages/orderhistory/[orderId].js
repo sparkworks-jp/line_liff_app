@@ -22,12 +22,11 @@ import { useAuth } from "../../context/AuthContext";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
 
 const ORDER_STATUS_MAP = {
-  "01": "作成済み",
-  "02": "支払い待ち",
-  "03": "支払い済み",
-  "04": "発送済み",
-  "05": "完了",
-  "06": "キャンセル",
+  "01": "支払い待ち",
+  "02": "支払い済み",
+  "03": "発送済み",
+  "04": "完了",
+  "05": "キャンセル",
 };
 
 const OrderDetailPage = () => {
@@ -164,8 +163,7 @@ const OrderDetailPage = () => {
       </Container>
     );
   }
-  const shouldShowCancelButton =
-    orderData.orderStatus == "01" || orderData.orderStatus == "02";
+  const shouldShowCancelButton = orderData.orderStatus == "01"
   const orderStatusText =
     ORDER_STATUS_MAP[orderData.orderStatus] || "不明なステータス";
 
@@ -176,12 +174,10 @@ const OrderDetailPage = () => {
       </Typography>
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle1" color="text.secondary">
-          注文番号　:
-          {orderId}
+          注文番号　: {orderId}
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
-          注文状況　:
-          {orderStatusText}
+          注文状況　: {orderStatusText}
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
           追跡番号　: {orderData.trackingNumber}
