@@ -104,7 +104,7 @@ const OrderDetailPage = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: 6 }),
+          body: JSON.stringify({ status: 5 }),
         }
       );
 
