@@ -2,20 +2,15 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Modal,
   Typography,
   Grid,
-  TextField,
   RadioGroup,
   FormControlLabel,
   Radio,
-  IconButton,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
 import Image from "next/image";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/router";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
 const CheckoutPage = () => {
@@ -43,9 +38,9 @@ const CheckoutPage = () => {
     total_price: 0,
   });
 
-  // 获取数据 默认地址数据
-  // 请求参数：商品id，数量
-  // 响应：商品总价，运费，合计  --运费需要根据地址计算，因此地址变化需要重新请求获取价格详情，价格与地址分两个api？
+  // get data , default address data
+  // parameter: product id , product amount
+  // response: total price, shipment fee  --shipment fee calculation api todo?
   const fetchDefaultAddress = async () => {
     try {
       const response = await fetchWithToken(
@@ -99,8 +94,8 @@ const CheckoutPage = () => {
   // const handlePaymentMethodChange = (event) => setPaymentMethod(event.target.value);
   const handlePaymentMethodChange = () => {};
 
-  const shippingFee = 10;
-  const totalAmount =
+  //mock shippingFee 
+  const shippingFee = 100;
     cart.reduce((sum, product) => sum + product.price * product.quantity, 0) +
     shippingFee;
 
@@ -109,7 +104,7 @@ const CheckoutPage = () => {
       product_id: item.id,
       quantity: item.quantity,
     }));
-    
+
     const orderData = {
       product_list: productList,
     };
@@ -119,7 +114,7 @@ const CheckoutPage = () => {
     try {
       setIsSubmitting(true);
 
-      // 1. 先创建订单
+      // 1. create order
       const orderResponse = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/create/`,
         {
@@ -133,13 +128,11 @@ const CheckoutPage = () => {
       if (orderResponse.data && orderResponse.data.order_id) {
         const orderId = orderResponse.data.order_id;
 
-        // 2. 调用PayPay支付接口
-        const paymentResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/payment/create/${orderId}`,
+        // 2. call paypay 
+        const paymentResponse = await fetchWithToken(
+          `${process.env.NEXT_PUBLIC_BACKEND_API}/api/payment/create/${orderId}/`,
           {
-            ...orderData,
-          },
-          {
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
@@ -147,12 +140,9 @@ const CheckoutPage = () => {
         );
 
         console.log("Payment initiated:", paymentResponse.data);
-
-        if (paymentResponse.data.status === "success") {
-          // 清空购物车
+        if (paymentResponse.status === "success") {
           clearCart();
-          // 跳转到PayPay支付页面
-          router.push(paymentResponse.data.data.payment_link);
+          router.push(paymentResponse.data.payment_link);
         } else {
           throw new Error("支払い処理に失敗しました");
         }
@@ -173,7 +163,7 @@ const CheckoutPage = () => {
     <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
       {/* 配送地址部分 */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">配送先</Typography>
+        <Typography variant="h6">お届け先</Typography>
         {defaultAddress.address_id ? (
           <>
             <Grid container alignItems="center">
@@ -238,7 +228,9 @@ const CheckoutPage = () => {
               <Typography>数量: {product.quantity}</Typography>
             </Grid>
             <Grid item xs={3}>
-              <Typography>価格: ¥{product.price.toLocaleString("ja-JP")}</Typography>
+              <Typography>
+                価格: ¥{product.price.toLocaleString("ja-JP")}
+              </Typography>
             </Grid>
           </Grid>
         ))}
@@ -249,11 +241,15 @@ const CheckoutPage = () => {
         <Typography variant="h6">料金詳細</Typography>
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
           <Typography>商品合計:</Typography>
-          <Typography>¥{orderInfo.product_total_price.toLocaleString("ja-JP")}</Typography>
+          <Typography>
+            ¥{orderInfo.product_total_price.toLocaleString("ja-JP")}
+          </Typography>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
           <Typography>配送料:</Typography>
-          <Typography>¥{orderInfo.shipping_fee.toLocaleString("ja-JP")}</Typography>
+          <Typography>
+            ¥{orderInfo.shipping_fee.toLocaleString("ja-JP")}
+          </Typography>
         </Box>
         <Box
           sx={{
@@ -264,7 +260,9 @@ const CheckoutPage = () => {
           }}
         >
           <Typography>合計:</Typography>
-          <Typography>¥{orderInfo.total_price.toLocaleString("ja-JP")}</Typography>
+          <Typography>
+            ¥{orderInfo.total_price.toLocaleString("ja-JP")}
+          </Typography>
         </Box>
       </Box>
 

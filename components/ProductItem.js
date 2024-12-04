@@ -53,10 +53,10 @@ const ProductItem = ({ product, onClick }) => {
     <Box component="a" sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }} onClick={onClick}>
       <Card sx={{
         width: '100%',
-        position: 'relative', // 确保徽章可以相对定位
+        position: 'relative', 
         boxShadow: 3,
         borderRadius: 6,
-        overflow: 'visible'// 解决图片浮动问题 
+        overflow: 'visible'
       }}>
 
         <Box sx={{ position: 'relative' }}>
@@ -76,7 +76,7 @@ const ProductItem = ({ product, onClick }) => {
               position: 'absolute',
               top: 4,
               right: 4,
-              zIndex: 2, // 确保徽章在图片之上
+              zIndex: 2, 
             }}
           />
           <AnimatePresence>

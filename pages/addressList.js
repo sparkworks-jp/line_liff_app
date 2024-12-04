@@ -6,13 +6,12 @@ import {
   Typography,
   Grid,
   Checkbox,
-  IconButton,
   Card,
   CardContent,
   CardActions,
   FormControlLabel,
 } from "@mui/material";
-import { Delete, RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
+import { RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 import ConfirmationDialog from "../components/ConfirmationDialog";
@@ -29,10 +28,6 @@ const AddressList = () => {
     setDialogOpen(true);
   };
 
-  const handleClose = () => {
-    setSelectedAddressId(null);
-    setDialogOpen(false);
-  };
 
   const handleConfirm = () => {
     console.log("Action confirmed!");
@@ -41,33 +36,33 @@ const AddressList = () => {
     setDialogOpen(false);
   };
 
-  // 发送请求获取地址列表
+  // Send a request to get a list of addresses
   const fetchAddressList = async () => {
     try {
       const response = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/list`
       );
 
-      // 检查响应是否有效
+      // Check if the response is valid
       if (
         !response ||
         !response.data ||
         !Array.isArray(response.data.address_list)
       ) {
-        console.warn("响应数据格式不正确或地址列表为空", response);
+        console.warn("Response data format is incorrect or address list is empty", response);
         setAddressList([]);
       }
 
-      console.log("地址列表获取成功:", response.data.address_list);
+      console.log("Address list get successfully:", response.data.address_list);
       setAddressList(response.data.address_list);
       // return response.data.address_list;
     } catch (error) {
-      console.error("获取地址列表失败:", error);
+      console.error("Failed to get address list:", error);
       setAddressList([]);
     }
   };
 
-  // 设置默认地址请求
+  // Set default address request
   const setDefaultAddress = async (address_id) => {
     try {
       const response = await fetchWithToken(
@@ -78,9 +73,9 @@ const AddressList = () => {
       );
 
       if (response.status == "success") {
-        console.log("默认地址设置成功");
-        // 重新获取地址列表
-        // 更新 addressList，将目标地址的 is_default 设置为 true，其余为 false
+        console.log("Default address set successfully");
+        // Retrieve address list
+        // Update addressList to set is_default of the target address to true and the rest to false
         setAddressList((prevAddressList) =>
           prevAddressList.map((address) =>
             address.address_id === address_id
@@ -90,11 +85,11 @@ const AddressList = () => {
         );
       }
     } catch (error) {
-      console.log("默认地址设置失败:", error);
+      console.log("Default address setting failed:", error);
     }
   };
 
-  // 删除地址
+  // Delete address
   const handleDeleteAddress = (address_id) => {
     setSelectedAddressId(address_id);
     handleOpen();
@@ -110,11 +105,11 @@ const AddressList = () => {
         }
       );
       if (response.status == "success") {
-        console.error("删除成功");
+        console.error("Delete successfully");
         fetchAddressList();
       }
     } catch (error) {
-      console.error("获取地址列表失败:", error);
+      console.error("Failed to get address list:", error);
     }
   };
 
@@ -172,7 +167,7 @@ const AddressList = () => {
               >
                 <Grid item xs={4}>
                   <FormControlLabel
-                    label="おすすめ"
+                    label="お届け先"
                     control={
                       <Checkbox
                         checked={addr.is_default}
@@ -232,7 +227,7 @@ const AddressList = () => {
         variant="contained"
         color="primary"
         sx={{ mt: 3 }}
-        onClick={() => router.push("/address")} // 跳转到新增页面
+        onClick={() => router.push("/address")} 
       >
         新規住所を追加
       </Button>
