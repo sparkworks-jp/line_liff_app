@@ -106,21 +106,17 @@ const CartDrawer = () => {
                   <ListItemAvatar>
                     <Avatar src={item.image} alt={item.name} variant="square" />
                   </ListItemAvatar>
-                  <ListItemText
-                    primary={item.name}
-                    secondary={
-                      <React.Fragment>
-                        <Typography variant="body2" color="text.primary">
-                          {item.price} 円 x {item.quantity}
-                        </Typography>
-                        <Box sx={{ mt: 0.5 }}>
-                          {item.flavorOptions && Object.entries(item.flavorOptions).map(([key, value]) =>
-                            value && <Chip key={key} label={key} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
-                          )}
-                        </Box>
-                      </React.Fragment>
-                    }
-                  />
+                  <Box>
+                    <Typography variant="subtitle1">{item.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {item.price} 円 x {item.quantity}
+                    </Typography>
+                    <Box sx={{ mt: 0.5 }}>
+                      {item.flavorOptions && Object.entries(item.flavorOptions).map(([key, value]) =>
+                        value && <Chip key={key} label={key} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
+                      )}
+                    </Box>
+                  </Box>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <IconButton size="small" onClick={() => handleQuantityChange(item.id, -1)}>

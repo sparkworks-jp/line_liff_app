@@ -26,9 +26,9 @@ export default function Shop() {
     fetchProducts(); 
   }, []); 
 
-  if (loading) {
-    return <div>loading...</div>; 
-  }
+  // if (loading) {
+  //   return <div>loading...</div>; 
+  // }
 
   if (error) {
     return <div>{error}</div>; 
