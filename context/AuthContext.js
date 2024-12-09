@@ -62,7 +62,7 @@ export function AuthProvider({ children, liff }) {
     const initialize = async () => {
       try {
         if (!liff) return;
-        // token 验证和刷新逻辑，调试API临时注释掉
+        // トークン検証とリフレッシュロジック、デバッグAPIは一時的にコメントアウトされています
         // 期限切れのLIFFキャッシュを確認してクリア
         clearLiffCache(process.env.NEXT_PUBLIC_LIFF_ID);
         await liff.init({
@@ -93,7 +93,7 @@ export function AuthProvider({ children, liff }) {
       let currentToken = idToken;
       let needNewToken = !currentToken;
 
-      // token 验证和刷新逻辑，调试API临时注释掉
+      // トークン検証とリフレッシュロジック、デバッグAPIは一時的にコメントアウトされています
       if (currentToken) {
         try {
           const tokenParts = currentToken.split('.');
@@ -159,53 +159,3 @@ export function AuthProvider({ children, liff }) {
     </AuthContext.Provider>
   );
 }
-
-// 例:
-
-// GET 请求
-// const getProducts = async () => {
-//   try {
-//     const products = await fetchWithToken('/api/products/');
-//     console.log('商品一覧:', products);
-//   } catch (error) {
-//     console.error('商品取得エラー:', error);
-//   }
-// };
-
-// // POST 请求
-// const createOrder = async (orderData) => {
-//   try {
-//     const order = await fetchWithToken('/api/orders/', {
-//       method: 'POST',
-//       body: JSON.stringify(orderData)
-//     });
-//     console.log('注文作成成功:', order);
-//   } catch (error) {
-//     console.error('注文作成エラー:', error);
-//   }
-// };
-
-// // PUT 请求
-// const updateOrder = async (orderId, orderData) => {
-//   try {
-//     const updated = await fetchWithToken(`/api/orders/${orderId}`, {
-//       method: 'PUT',
-//       body: JSON.stringify(orderData)
-//     });
-//     console.log('注文更新成功:', updated);
-//   } catch (error) {
-//     console.error('注文更新エラー:', error);
-//   }
-// };
-
-// // DELETE 请求
-// const deleteOrder = async (orderId) => {
-//   try {
-//     await fetchWithToken(`/api/orders/${orderId}`, {
-//       method: 'DELETE'
-//     });
-//     console.log('注文削除成功');
-//   } catch (error) {
-//     console.error('注文削除エラー:', error);
-//   }
-// };
