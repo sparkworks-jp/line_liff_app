@@ -31,11 +31,12 @@ export const MessageProvider = ({ children }) => {
         onClose={handleClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         sx={{
-          top: "50%",
+          top: "10%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "80%",
+          width: "95%",
           maxWidth: "400px",
+          borderRadius:"10px"
         }}
       >
         <Alert

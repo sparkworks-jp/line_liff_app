@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
 
   // 初期化時に localStorage からカートを読み込む
   useEffect(() => {
-    // 检查是否处于浏览器环境，确保只在客户端执行
+    // ブラウザ環境にいるかどうかを確認し、クライアント側でのみ実行されていることを確認します
     if (typeof window !== 'undefined') {
       const initialCart = loadCartFromLocalStorage();
       setCart(initialCart);

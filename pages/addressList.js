@@ -15,12 +15,14 @@ import { RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 import ConfirmationDialog from "../components/ConfirmationDialog";
+import { getPrefectureById } from "../data/addressData";
+import { useMessage } from "../context/MessageContext";
 
 const AddressList = () => {
   const [addressList, setAddressList] = useState([]);
   const router = useRouter();
   const { fetchWithToken } = useAuth();
-
+  const { showMessage } = useMessage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
 
@@ -30,7 +32,6 @@ const AddressList = () => {
 
 
   const handleConfirm = () => {
-    console.log("Action confirmed!");
     fetchDeleteAddress();
     setSelectedAddressId(null);
     setDialogOpen(false);
@@ -54,8 +55,15 @@ const AddressList = () => {
       }
 
       console.log("Address list get successfully:", response.data.address_list);
-      setAddressList(response.data.address_list);
-      // return response.data.address_list;
+      const updatedAddressList = response.data.address_list.map((addr) => {
+        const prefectureData = getPrefectureById(addr.prefecture_address);
+        return {
+          ...addr,
+          prefecture_address_name: prefectureData ? prefectureData.name : "",
+        };
+      });
+      setAddressList(updatedAddressList);
+
     } catch (error) {
       console.error("Failed to get address list:", error);
       setAddressList([]);
@@ -106,6 +114,7 @@ const AddressList = () => {
       );
       if (response.status == "success") {
         console.error("Delete successfully");
+        showMessage("住所が削除されました", "success");
         fetchAddressList();
       }
     } catch (error) {
@@ -115,8 +124,7 @@ const AddressList = () => {
 
   useEffect(() => {
     fetchAddressList();
-    // const initialAddressList = fetchAddressList();
-    // setAddressList(initialAddressList);
+
   }, []);
 
   const handleEditAddress = (addr) => {
@@ -147,7 +155,7 @@ const AddressList = () => {
                   </Typography>
                   <Typography variant="body1">〒 {addr.postal_code}</Typography>
                   <Typography variant="body1">
-                    {addr.prefecture_address}
+                    {addr.prefecture_address_name}
                     {addr.city_address}
                     {addr.district_address}
                     {addr.detail_address}

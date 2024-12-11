@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import HourglassTopRoundedIcon from "@mui/icons-material/HourglassTopRounded";
 import { useAuth } from "../../context/AuthContext";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
+import { getPrefectureById } from "../../data/addressData";
 
 const ORDER_STATUS_MAP = {
   1: "支払い待ち",
@@ -60,7 +61,18 @@ const OrderDetailPage = () => {
       const response = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/${orderId}/`
       );
-      setOrderData(response.data);
+      const orderData = response.data;
+        const prefectureMatch = orderData.address.match(/^(\d{1,2})/);
+        if (prefectureMatch) {
+          const prefectureId = prefectureMatch[1]; 
+          const prefectureData = getPrefectureById(prefectureId);
+          if (prefectureData) {
+            const prefectureName = prefectureData.name;
+            orderData.address = `${prefectureName} ${orderData.address.slice(prefectureId.length).trim()}`;
+          }
+        }
+      
+      setOrderData(orderData);
       setError(null);
     } catch (error) {
       console.error("Error fetching order details:", error);

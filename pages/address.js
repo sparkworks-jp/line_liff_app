@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography, TextField, Grid } from "@mui/material";
+import { Box, Button, Typography, TextField, Grid , Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../context/MessageContext";
+import { prefecture, getPrefectureById } from "../data/addressData"; 
 
 const AddressPage = () => {
   const [editAddress, setEditAddress] = useState({
@@ -14,7 +15,7 @@ const AddressPage = () => {
     last_name_katakana: "",
     phone_number: "",
     postal_code: "",
-    prefecture_address: "",
+    prefecture_address_id: null,
     city_address: "",
     district_address: "",
     detail_address: "",
@@ -26,19 +27,28 @@ const AddressPage = () => {
   const { id } = router.query;
   const { fetchWithToken } = useAuth();
   const { showMessage } = useMessage();
-
+  
   const fetchAddressDeatil = async (address_id) => {
     try {
       const response = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${address_id}/detail`
       );
-
+  
       console.log("get address detail succeed:", response.data.address_detail);
-      setEditAddress(response.data.address_detail);
+      const addressDetail = response.data.address_detail;
+  
+      const prefectureData = getPrefectureById(addressDetail.prefecture_address);
+      const prefectureId = prefectureData ? prefectureData.id : null;
+  
+      setEditAddress({
+        ...addressDetail,
+        prefecture_address_id: prefectureId,
+      });
     } catch (error) {
       console.error("get address detail failed:", error);
     }
   };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,7 +85,7 @@ const AddressPage = () => {
           error = "正しい郵便番号の形式（例: 123-4567）で入力してください";
         }
         break;
-      case "prefecture_address":
+      case "prefecture_address_id":
         if (!value) error = "住所は必須です";
         break;
       case "city_address":
@@ -158,7 +168,7 @@ const AddressPage = () => {
       last_name_katakana: editAddress.last_name_katakana,
       phone_number: editAddress.phone_number,
       postal_code: editAddress.postal_code,
-      prefecture_address: editAddress.prefecture_address,
+      prefecture_address_id: editAddress.prefecture_address_id,
       city_address: editAddress.city_address,
       district_address: editAddress.district_address,
       detail_address: editAddress.detail_address,
@@ -201,46 +211,40 @@ const AddressPage = () => {
     }
   };
 
+  const handlePrefectureChange = (event) => {
+    const value = event.target.value;
+    setEditAddress({
+      ...editAddress,
+      prefecture_address_id: event.target.value, 
+    });
+  };
+
   const postalCodeToAddress = (postalCode) => {
-    console.log(postalCode);
-
     const formatPostalCode = postalCode.replace("-", "");
-    console.log(formatPostalCode);
-
-    if (oldPostalCode == postalCode) {
-      return;
-    }
+    if (oldPostalCode === postalCode) return;
     setOldPostalCode(postalCode);
-
-    let url =
-      "https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + formatPostalCode;
-
-    if (formatPostalCode.length == 7) {
-      axios
-        .get(url)
-        .then((res) => {
-          if (res.status == 200) {
-            if (res.data.results == null) {
-              // message.error("郵便番号に該当する住所は存在しません");
-              return;
-            }
-
-            const { address1, address2, address3 } = res.data.results[0];
-
-            setEditAddress((prevAddress) => ({
-              ...prevAddress,
-              prefecture_address: address1,
-              city_address: address2,
-              district_address: address3,
-            }));
-          }
-          //message.success(`ファイルのアップロードに成功しました`);
-        })
-        .catch(() => {
-          //message.error(`ファイルのアップロードに失敗しました.`);
-        });
+  
+    const url = `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${formatPostalCode}`;
+    if (formatPostalCode.length === 7) {
+      axios.get(url).then((res) => {
+        if (res.status === 200 && res.data.results) {
+          const { address1, address2, address3 } = res.data.results[0];
+          const prefectureData = prefecture.find(
+            (pref) => pref.name === address1
+          );
+          const prefectureId = prefectureData ? prefectureData.id : null;
+  
+          setEditAddress((prev) => ({
+            ...prev,
+            prefecture_address_id: prefectureId,
+            city_address: address2 || "",
+            district_address: address3 || "",
+          }));
+        }
+      });
     }
   };
+  
 
   return (
     <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
@@ -352,30 +356,38 @@ const AddressPage = () => {
             error={!!errors.postal_code}
             helperText={errors.postal_code}
           />
-          <TextField
-            fullWidth
-            label="住所（都道府県）"
-            variant="outlined"
-            sx={{ mb: 2 }}
-            required
-            value={editAddress.prefecture_address}
-            onChange={(e) =>
-              setEditAddress({
-                ...editAddress,
-                prefecture_address: e.target.value,
-              })
-            }
-            onBlur={() =>
-              validateField(
-                "prefecture_address",
-                editAddress.prefecture_address
-              )
-            }
-            error={!!errors.prefecture_address}
-            helperText={errors.prefecture_address}
-            placeholder="例: 北海道"
-          />
-          <TextField
+            <FormControl fullWidth sx={{ mb: 2 }} required>
+              <InputLabel
+                id="prefecture-label"
+                shrink
+                sx={{
+                  position: "absolute",
+                  top: "-4px",
+                  left: "-2px", 
+                }}
+              >
+                住所（都道府県）
+              </InputLabel>
+              <Select
+                labelId="prefecture-label"
+                value={editAddress.prefecture_address_id || ""}
+                onChange={handlePrefectureChange}
+                displayEmpty
+              >
+                <MenuItem value="" disabled>
+                  都道府県を選択してください
+                </MenuItem>
+                  {prefecture.map((pref) => (
+                  <MenuItem key={pref.id} value={pref.id}>
+                    {pref.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.prefecture_address_id && (
+                <Typography color="error">{errors.prefecture_address_id}</Typography>
+              )}
+            </FormControl>
+            <TextField
             fullWidth
             label="住所（市区町村）"
             variant="outlined"

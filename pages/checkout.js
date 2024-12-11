@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
+import { getPrefectureById } from "../data/addressData"; 
 
 const CheckoutPage = () => {
   const { fetchWithToken } = useAuth();
@@ -47,8 +48,14 @@ const CheckoutPage = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/default/get`
       );
       console.log("fetchDefaultAddress", response);
-      setDefaultAddress(response.data.address_detail);
-      // return response.data.address_detail
+      if (response.data && response.data.address_detail) {
+        const address = response.data.address_detail;
+  
+        const prefecture = getPrefectureById(address.prefecture_address);
+        address.prefecture_address = prefecture ? prefecture.name : "";
+  
+        setDefaultAddress(address);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -96,8 +103,7 @@ const CheckoutPage = () => {
 
   //mock shippingFee 
   const shippingFee = 100;
-    cart.reduce((sum, product) => sum + product.price * product.quantity, 0) +
-    shippingFee;
+    cart.reduce((sum, product) => sum + product.price * product.quantity, 0) + shippingFee;
 
   const handlePlaceOrder = async () => {
     const productList = cart.map((item) => ({
@@ -108,8 +114,6 @@ const CheckoutPage = () => {
     const orderData = {
       product_list: productList,
     };
-
-    console.log("orderData:", orderData);
 
     try {
       setIsSubmitting(true);
@@ -190,7 +194,7 @@ const CheckoutPage = () => {
           </>
         ) : (
           <Typography variant="body1" color="textSecondary">
-            おすすめの住所が設定されていません。おすすめの住所を設定するか、新しい住所を追加してください。
+            お届け先が設定されていません。登録された住所から選択してください、或いは新しい住所を追加してください。
           </Typography>
         )}
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
@@ -274,16 +278,6 @@ const CheckoutPage = () => {
           onChange={handlePaymentMethodChange}
           sx={{ mt: 2 }}
         >
-          {/* <FormControlLabel
-            value="creditCard"
-            control={<Radio />}
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Image src="/creditCardLogo.png" alt="クレジットカード" width={20} height={20} />
-                <Typography sx={{ ml: 1 }}>クレジットカード</Typography>
-              </Box>
-            }
-          /> */}
           <FormControlLabel
             value="PayPay"
             control={<Radio />}
