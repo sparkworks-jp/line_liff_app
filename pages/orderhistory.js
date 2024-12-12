@@ -7,9 +7,11 @@ import {
   ListItemText,
   Divider,
   Link,
+  IconButton
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
