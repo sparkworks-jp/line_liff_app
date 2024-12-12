@@ -62,7 +62,10 @@ const AddressList = () => {
           prefecture_address_name: prefectureData ? prefectureData.name : "",
         };
       });
-      setAddressList(updatedAddressList);
+    const sortedAddressList = updatedAddressList.sort((a, b) =>
+      b.is_default - a.is_default
+    );
+    setAddressList(sortedAddressList);
 
     } catch (error) {
       console.error("Failed to get address list:", error);
@@ -82,15 +85,7 @@ const AddressList = () => {
 
       if (response.status == "success") {
         console.log("Default address set successfully");
-        // Retrieve address list
-        // Update addressList to set is_default of the target address to true and the rest to false
-        setAddressList((prevAddressList) =>
-          prevAddressList.map((address) =>
-            address.address_id === address_id
-              ? { ...address, is_default: true }
-              : { ...address, is_default: false }
-          )
-        );
+        await fetchAddressList();
       }
     } catch (error) {
       console.log("Default address setting failed:", error);
@@ -99,6 +94,12 @@ const AddressList = () => {
 
   // Delete address
   const handleDeleteAddress = (address_id) => {
+
+    const address = addressList.find((addr) => addr.address_id === address_id);
+    if (address && address.is_default) {
+      showMessage("選択中お届け先は削除できません。", "error"); 
+      return;
+    }
     setSelectedAddressId(address_id);
     handleOpen();
   };
