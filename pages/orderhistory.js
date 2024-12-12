@@ -12,11 +12,13 @@ import {
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useMessage } from "../context/MessageContext";
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
   const { fetchWithToken } = useAuth();
   const router = useRouter();
+  const { showMessage } = useMessage();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -48,21 +50,15 @@ export default function OrderHistoryPage() {
       
       if (response.status === 'success') {
         setOrders(orders.filter(order => order.id !== orderId));
-        setSnackbar({
-          open: true,
-          message: response.message || '注文を削除しました',
-          severity: 'success'
-        });
+        showMessage("注文を削除しました", "success");
+
       } else {
         throw new Error(response.message || "削除に失敗しました");
       }
     } catch (error) {
       console.error("削除エラー:", error);
-      setSnackbar({
-        open: true,
-        message: error.message || "削除に失敗しました",
-        severity: 'error'
-      });
+      showMessage("削除に失敗しました", "error");
+
     }
   };
 
