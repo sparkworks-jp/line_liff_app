@@ -23,7 +23,7 @@ export default function OrderHistoryPage() {
           `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/orders/`
         );
         if (response.status !== 200) throw new Error("Failed to fetch orders");
-        console.log("response.data", response.data);
+        console.log("response.data orders", response.data);
         setOrders(response.data);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -34,6 +34,34 @@ export default function OrderHistoryPage() {
   }, [fetchWithToken]);
   const handleOrderClick = (orderId) => {
     router.push(`/orderhistory/${orderId}`);
+  };
+  const handleDelete = async (orderId) => {
+    try {
+      const response = await fetchWithToken(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/delete/${orderId}`,
+        {
+          method: 'DELETE'
+        }
+      );
+      
+      if (response.status === 'success') {
+        setOrders(orders.filter(order => order.id !== orderId));
+        setSnackbar({
+          open: true,
+          message: response.message || '注文を削除しました',
+          severity: 'success'
+        });
+      } else {
+        throw new Error(response.message || "削除に失敗しました");
+      }
+    } catch (error) {
+      console.error("削除エラー:", error);
+      setSnackbar({
+        open: true,
+        message: error.message || "削除に失敗しました",
+        severity: 'error'
+      });
+    }
   };
 
   const getStatusText = (status) => {
@@ -71,7 +99,7 @@ export default function OrderHistoryPage() {
   };
 
   return (
-    <Container maxWidth="md" sx={{mt:5}}>
+    <Container maxWidth="md" sx={{ mt: 5 }}>
       <Typography variant="h4" component="h1" gutterBottom>
         注文履歴
       </Typography>
@@ -116,6 +144,20 @@ export default function OrderHistoryPage() {
                   </>
                 }
               />
+
+              {order.status !== 1 && order.status !== 2 && (
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={(e) => {
+                    e.stopPropagation(); 
+                    handleDelete(order.id);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
+
             </ListItem>
             <Divider component="li" />
           </React.Fragment>
