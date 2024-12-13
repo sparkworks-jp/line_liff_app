@@ -185,7 +185,7 @@ const AddressPage = () => {
           }
         );
         if (response.status === "success") {
-          showMessage("住所を更新されました！", "success");
+          showMessage("住所が更新されました！", "success");
           router.push("/addressList");
         }
       } else {
@@ -198,7 +198,7 @@ const AddressPage = () => {
           }
         );
         if (response.status === "success") {
-          showMessage("住所を保存されました！", "success");
+          showMessage("住所が保存されました！", "success");
           router.push("/addressList");
         }
       }

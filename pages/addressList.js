@@ -32,7 +32,6 @@ const AddressList = () => {
     setDialogOpen(true);
   };
 
-
   const handleConfirm = () => {
     fetchDeleteAddress();
     setSelectedAddressId(null);
@@ -52,7 +51,10 @@ const AddressList = () => {
         !response.data ||
         !Array.isArray(response.data.address_list)
       ) {
-        console.warn("Response data format is incorrect or address list is empty", response);
+        console.warn(
+          "Response data format is incorrect or address list is empty",
+          response
+        );
         setAddressList([]);
       }
 
@@ -96,7 +98,6 @@ const AddressList = () => {
 
   // Delete address
   const handleDeleteAddress = (address_id) => {
-
     const address = addressList.find((addr) => addr.address_id === address_id);
     if (address && address.is_default) {
       showMessage("選択中お届け先は削除できません。", "error");
@@ -127,7 +128,6 @@ const AddressList = () => {
 
   useEffect(() => {
     fetchAddressList();
-
   }, []);
 
   const handleEditAddress = (addr) => {
@@ -143,45 +143,54 @@ const AddressList = () => {
         住所リスト
       </Typography>
       {addressList.length === 0 ? (
-        <Typography variant="body1" align="center" sx={{ my: 3 }}>
+        <Typography
+          variant="body1"
+          align="center"
+          sx={{
+            my: 3,
+            color: "#666",
+            fontSize: "1rem",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <i
+            className="material-icons"
+            style={{ fontSize: "3rem", marginBottom: "0.5rem", color: "#ddd" }}
+          >
+            location_off
+          </i>
           現在住所が登録されていません。
         </Typography>
       ) : (
         addressList.map((addr) => (
-          <Card key={addr.address_id} sx={{ mb: 2 }}>
+          <Card
+            key={addr.address_id}
+            sx={{
+              mb: 2,
+              border: addr.is_default
+                ? "2px solid rgb(182, 212, 244)"
+                : "1px solid #e0e0e0",
+              borderRadius: "12px",
+              boxShadow: addr.is_default
+                ? "0px 4px 10px rgba(180, 231, 255, 0.2)"
+                : "0px 2px 4px rgba(0, 0, 0, 0.1)",
+              backgroundColor: addr.is_default ? "#f0f8ff" : "#fff",
+              transition: "all 0.3s ease",
+            }}
+          >
             <CardContent>
-              <Grid container alignItems="center">
-                <Grid item xs={12}>
-                  <Typography variant="h6">
-                    {addr.last_name}
-                    {addr.first_name} {addr.phone_number}
-                  </Typography>
-                  <Typography variant="body1">〒 {addr.postal_code}</Typography>
-                  <Typography variant="body1">
-                    {addr.prefecture_address_name}
-                    {addr.city_address}
-                    {addr.district_address}
-                    {addr.detail_address}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-            <CardActions>
-              <Grid
-                container
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                  mb: 1,
-                }}
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: "bold", mb: 1 }}
               >
                 <Grid item xs={4}>
                   <FormControlLabel
                     label="お届け先"
                     sx={{
-                      marginLeft: 0,  
-                      '& .MuiFormControlLabel-label': { 
+                      marginLeft: 0,
+                      '& .MuiFormControlLabel-label': {
                         fontSize: '1.1rem',
                         fontFamily: '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
                         fontWeight: 500,
@@ -254,11 +263,20 @@ const AddressList = () => {
         fullWidth
         variant="contained"
         color="primary"
-        sx={{ mt: 3 }}
+        sx={{
+          mt: 3,
+          textTransform: "none",
+          backgroundColor: "primary",
+          color: "#fff",
+          "&:hover": {
+            backgroundColor: "#0056b3",
+          },
+        }}
         onClick={() => router.push("/address")}
       >
         新規住所を追加
       </Button>
+
       <ConfirmationDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
