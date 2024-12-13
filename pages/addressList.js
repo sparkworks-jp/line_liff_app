@@ -149,12 +149,6 @@ const AddressList = () => {
             alignItems: "center",
           }}
         >
-          <i
-            className="material-icons"
-            style={{ fontSize: "3rem", marginBottom: "0.5rem", color: "#ddd" }}
-          >
-            location_off
-          </i>
           現在住所が登録されていません。
         </Typography>
       ) : (
