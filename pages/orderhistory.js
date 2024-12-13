@@ -101,7 +101,7 @@ export default function OrderHistoryPage() {
     if (status === 1) {
       // 注文日から24時間後を計算
       const deadline = new Date(orderDate);
-      deadline.setHours(deadline.getHours() + PAYMENT_TIMEOUT_HOURS);
+      deadline.setHours(deadline.getHours() +`${process.env.NEXT_PUBLIC_PAYMENT_TIMEOUT_HOURS}`);
 
       return (
         <>
