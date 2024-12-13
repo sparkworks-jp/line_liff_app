@@ -11,8 +11,8 @@ import {
   CardActions,
   FormControlLabel,
 } from "@mui/material";
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
 import { RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
@@ -66,11 +66,10 @@ const AddressList = () => {
           prefecture_address_name: prefectureData ? prefectureData.name : "",
         };
       });
-      const sortedAddressList = updatedAddressList.sort((a, b) =>
-        b.is_default - a.is_default
+      const sortedAddressList = updatedAddressList.sort(
+        (a, b) => b.is_default - a.is_default
       );
       setAddressList(sortedAddressList);
-
     } catch (error) {
       console.error("Failed to get address list:", error);
       setAddressList([]);
@@ -168,28 +167,49 @@ const AddressList = () => {
                 : "1px solid #e0e0e0",
               borderRadius: "12px",
               boxShadow: addr.is_default
-                ? "0px 4px 10px rgba(180, 231, 255, 0.2)"
+                ? "0px 4px 10px   rgba(180, 231, 255, 0.2)"
                 : "0px 2px 4px rgba(0, 0, 0, 0.1)",
-              backgroundColor: addr.is_default ? "#f0f8ff" : "#fff",
               transition: "all 0.3s ease",
             }}
           >
             <CardContent>
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: "bold", mb: 1 }}
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: "bold",
+                      mb: 1,
+                    }}
+                  >
+                    {addr.last_name} {addr.first_name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    〒{addr.postal_code} {addr.prefecture_address_name}
+                    {addr.city_address} {addr.district_address}
+                    {addr.detail_address}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </CardContent>
+            <CardActions>
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
               >
-                <Grid item xs={4}>
+                <Grid item>
                   <FormControlLabel
-                    label="お届け先"
+                    label="いつもこの住所に届ける"
                     sx={{
                       marginLeft: 0,
-                      '& .MuiFormControlLabel-label': {
-                        fontSize: '1.1rem',
-                        fontFamily: '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
+                      "& .MuiFormControlLabel-label": {
+                        fontSize: "1rem",
+                        fontFamily:
+                          '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
                         fontWeight: 500,
-                        letterSpacing: '0.02em',
-                      }
+                        letterSpacing: "0.02em",
+                      },
                     }}
                     control={
                       <Checkbox
@@ -202,47 +222,43 @@ const AddressList = () => {
                     }
                   />
                 </Grid>
-                <Grid item xs={2}></Grid>
-                <Grid item xs={3}>
+                <Grid item>
                   <Button
-                    size="large"
-
+                    size="small"
+                    variant="contained"
                     startIcon={<DeleteForeverIcon />}
                     onClick={() => handleDeleteAddress(addr.address_id)}
                     sx={{
-                      backgroundColor: '#f5f5f5',
-                      color: 'error.main',
-                      '&:hover': {
-                        backgroundColor: '#ffebee',
-                      },
-                      minWidth: '80px',
-                      fontSize: '1.1rem',
-                      fontFamily: '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
+                      color: "error.main",
+                      backgroundColor: "rgb(255, 255, 255)",
+                      minWidth: "80px",
+                      fontSize: "0.9rem",
+                      fontFamily:
+                        '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
                       fontWeight: 500,
-                      letterSpacing: '0.02em',
-                      padding: '2px 4px',
+                      letterSpacing: "0.02em",
+                      padding: "4px 8px",
                     }}
                   >
                     削除
                   </Button>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item>
                   <Button
+                    variant="contained"
                     size="small"
                     startIcon={<BorderColorIcon />}
                     onClick={() => handleEditAddress(addr)}
                     sx={{
-                      backgroundColor: '#f5f5f5',
-                      color: 'text.primary',
-                      '&:hover': {
-                        backgroundColor: '#e0e0e0',
-                      },
-                      minWidth: '80px',
-                      fontSize: '1.1rem',
-                      fontFamily: '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
+                      color: "text.primary",
+                      backgroundColor: "rgb(255, 255, 255)",
+                      minWidth: "80px",
+                      fontSize: "0.9rem",
+                      fontFamily:
+                        '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
                       fontWeight: 500,
-                      letterSpacing: '0.02em',
-                      padding: '2px 4px',
+                      letterSpacing: "0.02em",
+                      padding: "4px 8px",
                     }}
                   >
                     編集
