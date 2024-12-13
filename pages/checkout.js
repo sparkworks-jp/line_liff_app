@@ -229,6 +229,7 @@ const CheckoutPage = () => {
         <Box
           sx={{
             p: 2,
+            mb: 2,
             textAlign: "center",
             backgroundColor: "#fffbe6",
             borderRadius: "8px",
@@ -241,15 +242,28 @@ const CheckoutPage = () => {
           }}
         >
           <Typography sx={{ display: "flex", alignItems: "center" }}>
-            <i className="material-icons" style={{ marginRight: 4 }}>
-              error
-            </i>{" "}
             住所が設定されていません。
           </Typography>
         </Box>
       )}
 
-      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "right", gap: 2, mb: 3 }}>
+        {addressList.length > 0 && (
+          <Button
+            variant="outlined"
+            onClick={() => setDialogOpen(true)}
+            sx={{
+              textTransform: "none",
+              borderColor: "primary",
+              color: "primary",
+              "&:hover": {
+                backgroundColor: "#e6f0ff",
+              },
+            }}
+          >
+            お届け先を変更
+          </Button>
+        )}
         <Button
           variant="contained"
           onClick={() => router.push("/addressList")}
@@ -263,20 +277,6 @@ const CheckoutPage = () => {
           }}
         >
           住所管理
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => setDialogOpen(true)}
-          sx={{
-            textTransform: "none",
-            borderColor: "primary",
-            color: "primary",
-            "&:hover": {
-              backgroundColor: "#e6f0ff",
-            },
-          }}
-        >
-          お届け先を変更
         </Button>
       </Box>
 
@@ -314,7 +314,6 @@ const CheckoutPage = () => {
                 transition: "background-color 0.3s",
               }}
             >
-              
               <Typography
                 variant="subtitle1"
                 sx={{ fontWeight: "bold", mb: 1 }}
