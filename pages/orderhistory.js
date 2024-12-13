@@ -9,10 +9,12 @@ import {
   Link,
   IconButton
 } from "@mui/material";
+import Grid from '@mui/material/Grid2';
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useMessage } from "../context/MessageContext";
+import Countdown from 'react-countdown';
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -47,7 +49,7 @@ export default function OrderHistoryPage() {
           method: 'DELETE'
         }
       );
-      
+
       if (response.status === 'success') {
         setOrders(orders.filter(order => order.id !== orderId));
         showMessage("注文を削除しました", "success");
@@ -95,6 +97,28 @@ export default function OrderHistoryPage() {
         return "#9e9e9e";
     }
   };
+  const getCancelTimer = (orderDate, status) => {
+    if (status === 1) {
+      // 注文日から24時間後を計算
+      const deadline = new Date(orderDate);
+      deadline.setHours(deadline.getHours() + PAYMENT_TIMEOUT_HOURS);
+
+      return (
+        <>
+          <Countdown
+            date={deadline}
+            renderer={({ hours, minutes, seconds }) => (
+              <span style={{ color: '#d32f2f' }}>
+                {`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`}
+              </span>
+            )}
+          />
+          <span style={{ marginLeft: '4px' }}>後キャンセル</span>
+        </>
+      );
+    }
+    return null;
+  };
 
   return (
     <Container maxWidth="md" sx={{ mt: 5 }}>
@@ -110,22 +134,43 @@ export default function OrderHistoryPage() {
             >
               <ListItemText
                 primary={
-                  <>
-                    注文日: {order.date}
+                  <Grid container alignItems="center" spacing={1}>
+                  <Grid item>
+                    <Typography component="span" variant="body1" sx={{ fontSize: '1rem' }}>
+                      注文日: {order.date}
+                    </Typography>
+                  </Grid>
+                  <Grid item>
                     <Typography
                       component="span"
                       variant="body2"
                       sx={{
-                        marginLeft: "8px",
                         padding: "2px 4px",
                         borderRadius: "4px",
+                        fontSize: '1rem',
                         backgroundColor: getStatusColor(order.status),
                         color: "#fff",
                       }}
                     >
                       {getStatusText(order.status)}
                     </Typography>
-                  </>
+                  </Grid>
+                  {getCancelTimer(order.date, order.status) && (
+                    <Grid item>
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{
+                          fontSize: '1rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {getCancelTimer(order.date, order.status)}
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
                 }
                 secondary={
                   <>
@@ -148,7 +193,7 @@ export default function OrderHistoryPage() {
                   edge="end"
                   aria-label="delete"
                   onClick={(e) => {
-                    e.stopPropagation(); 
+                    e.stopPropagation();
                     handleDelete(order.id);
                   }}
                 >
