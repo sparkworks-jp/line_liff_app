@@ -7,17 +7,23 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import Image from "next/image";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
-import { getPrefectureById } from "../data/addressData"; 
+import { getPrefectureById, prefecture } from "../data/addressData";
 
 const CheckoutPage = () => {
   const { fetchWithToken } = useAuth();
   const { clearCart } = useCart();
-
+  const [currentAddress, setCurrentAddress] = useState(null);
+  const [addressList, setAddressList] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [defaultAddress, setDefaultAddress] = useState({
     address_id: null,
     first_name: "",
@@ -39,6 +45,11 @@ const CheckoutPage = () => {
     total_price: 0,
   });
 
+  const handleSelectAddress = (address) => {
+    setCurrentAddress(address);
+    setDialogOpen(false);
+  };
+
   // get data , default address data
   // parameter: product id , product amount
   // response: total price, shipment fee  --shipment fee calculation api todo?
@@ -50,26 +61,40 @@ const CheckoutPage = () => {
       console.log("fetchDefaultAddress", response);
       if (response.data && response.data.address_detail) {
         const address = response.data.address_detail;
-  
         const prefecture = getPrefectureById(address.prefecture_address);
         address.prefecture_address = prefecture ? prefecture.name : "";
-  
         setDefaultAddress(address);
+      } else {
+        setDefaultAddress(null);
+        setCurrentAddress(null);
       }
     } catch (err) {
       console.log(err);
     }
   };
 
-  const fetchPreviewOrderInfo = async () => {
+  const fetchAddressList = async () => {
+    try {
+      const response = await fetchWithToken(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/list`
+      );
+      if (response.data && response.data.address_list) {
+        setAddressList(response.data.address_list);
+      }
+    } catch (error) {
+      console.error("Failed to fetch address list:", error);
+    }
+  };
+
+  const fetchPreviewOrderInfo = async (address) => {
     const productList = cart.map((item) => ({
       product_id: item.id,
       quantity: item.quantity,
     }));
 
-    // console.log("Product list for preview order:", productList);
     const requestBody = {
       product_list: productList,
+      address_id: address ? address.address_id : null,
     };
 
     try {
@@ -80,17 +105,25 @@ const CheckoutPage = () => {
           body: JSON.stringify(requestBody),
         }
       );
-      // console.log("fetchPreviewOrderInfo", response);
       setOrderInfo(response.data);
     } catch (err) {
       console.log(err);
     }
   };
+  useEffect(() => {
+    if (defaultAddress && defaultAddress.address_id) {
+      setCurrentAddress(defaultAddress);
+    }
+  }, [defaultAddress]);
+
+  useEffect(() => {
+    fetchPreviewOrderInfo(currentAddress);
+  }, [currentAddress]);
 
   useEffect(() => {
     setIsCartOpen(false);
     fetchDefaultAddress();
-    fetchPreviewOrderInfo();
+    fetchAddressList();
   }, []);
 
   const [paymentMethod, setPaymentMethod] = useState("PayPay");
@@ -101,9 +134,10 @@ const CheckoutPage = () => {
   // const handlePaymentMethodChange = (event) => setPaymentMethod(event.target.value);
   const handlePaymentMethodChange = () => {};
 
-  //mock shippingFee 
+  //mock shippingFee
   const shippingFee = 100;
-    cart.reduce((sum, product) => sum + product.price * product.quantity, 0) + shippingFee;
+  cart.reduce((sum, product) => sum + product.price * product.quantity, 0) +
+    shippingFee;
 
   const handlePlaceOrder = async () => {
     const productList = cart.map((item) => ({
@@ -113,6 +147,7 @@ const CheckoutPage = () => {
 
     const orderData = {
       product_list: productList,
+      address_id: currentAddress.address_id,
     };
 
     try {
@@ -132,7 +167,7 @@ const CheckoutPage = () => {
       if (orderResponse.data && orderResponse.data.order_id) {
         const orderId = orderResponse.data.order_id;
 
-        // 2. call paypay 
+        // 2. call paypay
         const paymentResponse = await fetchWithToken(
           `${process.env.NEXT_PUBLIC_BACKEND_API}/api/payment/create/${orderId}/`,
           {
@@ -166,113 +201,245 @@ const CheckoutPage = () => {
   return (
     <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
       {/* 配送地址部分 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">お届け先</Typography>
-        {defaultAddress.address_id ? (
-          <>
-            <Grid container alignItems="center">
-              <Grid item xs={12}>
-                <Typography variant="h6">
-                  {defaultAddress.last_name}
-                  {defaultAddress.first_name} {defaultAddress.phone_number}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  〒 {defaultAddress.postal_code}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  {defaultAddress.prefecture_address}
-                  {defaultAddress.city_address}
-                  {defaultAddress.district_address}
-                  {defaultAddress.detail_address}
-                </Typography>
-              </Grid>
-            </Grid>
-          </>
-        ) : (
-          <Typography variant="body1" color="textSecondary">
-            お届け先が設定されていません。登録された住所から選択してください、或いは新しい住所を追加してください。
+      {currentAddress ? (
+        <Box
+          sx={{
+            p: 2,
+            mb: 2,
+            border: "1px solid #e0e0e0",
+            borderRadius: "8px",
+            backgroundColor: "rgb(247, 247, 247)",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            position: "relative",
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
+            {currentAddress.last_name} {currentAddress.first_name}
           </Typography>
-        )}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            {currentAddress.phone_number}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            〒{currentAddress.postal_code} {currentAddress.prefecture_address}
+            {currentAddress.city_address} {currentAddress.district_address}{" "}
+            {currentAddress.detail_address}
+          </Typography>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            p: 2,
+            textAlign: "center",
+            backgroundColor: "#fffbe6",
+            borderRadius: "8px",
+            border: "1px dashed #ffcc00",
+            color: "#ff6961",
+            fontStyle: "italic",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography sx={{ display: "flex", alignItems: "center" }}>
+            <i className="material-icons" style={{ marginRight: 4 }}>
+              error
+            </i>{" "}
+            住所が設定されていません。
+          </Typography>
+        </Box>
+      )}
+
+      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+        <Button
+          variant="contained"
+          onClick={() => router.push("/addressList")}
+          sx={{
+            textTransform: "none",
+            backgroundColor: "primary",
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "#0056b3",
+            },
+          }}
+        >
+          住所管理
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setDialogOpen(true)}
+          sx={{
+            textTransform: "none",
+            borderColor: "primary",
+            color: "primary",
+            "&:hover": {
+              backgroundColor: "#e6f0ff",
+            },
+          }}
+        >
+          お届け先を変更
+        </Button>
+      </Box>
+
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            p: 2,
+            borderRadius: "10px",
+            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
+            position: "absolute",
+            top: "15%",
+            transform: "translateY(-15%)",
+          },
+        }}
+      >
+        <DialogTitle>今度注文のお届け先を選択</DialogTitle>
+        <DialogContent>
+          {addressList.map((addr) => (
+            <Box
+              key={addr.address_id}
+              sx={{
+                mb: 2,
+                p: 2,
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                backgroundColor:
+                  currentAddress?.address_id === addr.address_id
+                    ? "#f0f8ff"
+                    : "#fff",
+                transition: "background-color 0.3s",
+              }}
+            >
+              
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: "bold", mb: 1 }}
+              >
+                {addr.last_name} {addr.first_name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                〒{addr.postal_code} {addr.prefecture_address}{" "}
+                {addr.city_address} {addr.district_address}{" "}
+                {addr.detail_address}
+              </Typography>
+              <Button
+                variant="contained"
+                size="small"
+                color="primary"
+                onClick={() => handleSelectAddress(addr)}
+                sx={{
+                  mt: 2,
+                  textTransform: "none",
+                }}
+              >
+                この住所を使う
+              </Button>
+            </Box>
+          ))}
+        </DialogContent>
+
+        <DialogActions>
           <Button
             variant="outlined"
-            onClick={() => router.push("/addressList")}
+            color="secondary"
+            onClick={() => setDialogOpen(false)}
+            sx={{
+              borderColor: "#d3d3d3",
+              color: "#666",
+              "&:hover": {
+                borderColor: "#c0c0c0",
+                backgroundColor: "#f5f5f5",
+              },
+            }}
           >
-            住所を管理
+            キャンセル
           </Button>
-        </Box>
-      </Box>
+        </DialogActions>
+      </Dialog>
 
       {/* 商品リスト部分 */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">商品リスト</Typography>
-        {cart.map((product) => (
-          <Grid
-            container
-            spacing={2}
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          商品リスト
+        </Typography>
+        {cart.map((product, index) => (
+          <Box
             key={product.id}
-            sx={{ mt: 1, alignItems: "center" }}
+            sx={{
+              borderBottom:
+                index !== cart.length - 1 ? "1px solid #e0e0e0" : "none",
+              pb: 2,
+              mb: 2,
+            }}
           >
-            <Grid item xs={2}>
-              <Image
-                src={product.image}
-                alt={product.name}
-                width={60}
-                height={60}
-              />
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={2}>
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  width={60}
+                  height={60}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body1">{product.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  数量: {product.quantity}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography
+                  variant="body1"
+                  align="right"
+                  sx={{ fontWeight: "bold" }}
+                >
+                  ¥{product.price.toLocaleString("ja-JP")}
+                </Typography>
+              </Grid>
             </Grid>
-            <Grid item xs={4}>
-              <Typography>{product.name}</Typography>
-            </Grid>
-            <Grid item xs={3}>
-              <Typography>数量: {product.quantity}</Typography>
-            </Grid>
-            <Grid item xs={3}>
-              <Typography>
-                価格: ¥{product.price.toLocaleString("ja-JP")}
-              </Typography>
-            </Grid>
-          </Grid>
+          </Box>
         ))}
       </Box>
 
       {/* 金額部分 */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">料金詳細</Typography>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
           <Typography>商品合計:</Typography>
           <Typography>
             ¥{orderInfo.product_total_price.toLocaleString("ja-JP")}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
           <Typography>配送料:</Typography>
           <Typography>
             ¥{orderInfo.shipping_fee.toLocaleString("ja-JP")}
           </Typography>
         </Box>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            mt: 1,
-            fontWeight: "bold",
-          }}
-        >
-          <Typography>合計:</Typography>
-          <Typography>
-            ¥{orderInfo.total_price.toLocaleString("ja-JP")}
-          </Typography>
+        <Box sx={{ borderTop: "1px solid #e0e0e0", mt: 2, pt: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography
+              variant="h5"
+              sx={{ color: "orange", fontWeight: "bold", fontSize: "1.5rem" }}
+            >
+              合計:
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{ color: "orange", fontWeight: "bold", fontSize: "1.5rem" }}
+            >
+              ¥{orderInfo.total_price.toLocaleString("ja-JP")}
+            </Typography>
+          </Box>
         </Box>
       </Box>
 
       {/* 支払い方法部分 */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">支払い方法</Typography>
+        <Typography variant="h6">お支払い</Typography>
         <RadioGroup
           value={paymentMethod}
           onChange={handlePaymentMethodChange}
@@ -289,20 +456,9 @@ const CheckoutPage = () => {
                   width={70}
                   height={20}
                 />
-                <Typography sx={{ ml: 1 }}>PayPay</Typography>
               </Box>
             }
           />
-          {/* <FormControlLabel
-            value="cashOnDelivery"
-            control={<Radio />}
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Image src="/cashOnDeliveryLogo.png" alt="現金引換" width={20} height={20} />
-                <Typography sx={{ ml: 1 }}>現金引換</Typography>
-              </Box>
-            }
-          /> */}
         </RadioGroup>
       </Box>
 
@@ -311,7 +467,7 @@ const CheckoutPage = () => {
         variant="contained"
         color="primary"
         fullWidth
-        disabled={!defaultAddress.address_id}
+        disabled={!currentAddress}
         onClick={handlePlaceOrder}
       >
         注文
