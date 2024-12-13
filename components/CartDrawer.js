@@ -141,7 +141,7 @@ const CartDrawer = () => {
           </Typography>
         </Box>
         <Button variant="contained" color="primary" fullWidth onClick={handleOrderAndRedirect}>
-          注文
+          確認
         </Button>
       </Box>
     </Drawer>

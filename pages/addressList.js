@@ -11,6 +11,8 @@ import {
   CardActions,
   FormControlLabel,
 } from "@mui/material";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { RadioButtonUnchecked, CheckCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
@@ -62,10 +64,10 @@ const AddressList = () => {
           prefecture_address_name: prefectureData ? prefectureData.name : "",
         };
       });
-    const sortedAddressList = updatedAddressList.sort((a, b) =>
-      b.is_default - a.is_default
-    );
-    setAddressList(sortedAddressList);
+      const sortedAddressList = updatedAddressList.sort((a, b) =>
+        b.is_default - a.is_default
+      );
+      setAddressList(sortedAddressList);
 
     } catch (error) {
       console.error("Failed to get address list:", error);
@@ -97,7 +99,7 @@ const AddressList = () => {
 
     const address = addressList.find((addr) => addr.address_id === address_id);
     if (address && address.is_default) {
-      showMessage("選択中お届け先は削除できません。", "error"); 
+      showMessage("選択中お届け先は削除できません。", "error");
       return;
     }
     setSelectedAddressId(address_id);
@@ -177,6 +179,15 @@ const AddressList = () => {
                 <Grid item xs={4}>
                   <FormControlLabel
                     label="お届け先"
+                    sx={{
+                      marginLeft: 0,  
+                      '& .MuiFormControlLabel-label': { 
+                        fontSize: '1.1rem',
+                        fontFamily: '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
+                        fontWeight: 500,
+                        letterSpacing: '0.02em',
+                      }
+                    }}
                     control={
                       <Checkbox
                         checked={addr.is_default}
@@ -188,39 +199,47 @@ const AddressList = () => {
                     }
                   />
                 </Grid>
-                <Grid item xs={4}></Grid>
-                <Grid item xs={2}>
+                <Grid item xs={2}></Grid>
+                <Grid item xs={3}>
                   <Button
-                    size="small"
-                    color="error"
+                    size="large"
+
+                    startIcon={<DeleteForeverIcon />}
                     onClick={() => handleDeleteAddress(addr.address_id)}
                     sx={{
-                      fontSize: "1.0rem",
-                      padding: "2px 6px",
-                      minWidth: "auto",
-                      backgroundColor: "#d3d3d3",
-                      color: "black",
-                      "&:hover": {
-                        backgroundColor: "#c0c0c0",
+                      backgroundColor: '#f5f5f5',
+                      color: 'error.main',
+                      '&:hover': {
+                        backgroundColor: '#ffebee',
                       },
+                      minWidth: '80px',
+                      fontSize: '1.1rem',
+                      fontFamily: '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
+                      fontWeight: 500,
+                      letterSpacing: '0.02em',
+                      padding: '2px 4px',
                     }}
                   >
                     削除
                   </Button>
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item xs={3}>
                   <Button
                     size="small"
+                    startIcon={<BorderColorIcon />}
                     onClick={() => handleEditAddress(addr)}
                     sx={{
-                      fontSize: "1.0rem",
-                      padding: "2px 6px",
-                      minWidth: "auto",
-                      backgroundColor: "#d3d3d3",
-                      color: "black",
-                      "&:hover": {
-                        backgroundColor: "#c0c0c0",
+                      backgroundColor: '#f5f5f5',
+                      color: 'text.primary',
+                      '&:hover': {
+                        backgroundColor: '#e0e0e0',
                       },
+                      minWidth: '80px',
+                      fontSize: '1.1rem',
+                      fontFamily: '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
+                      fontWeight: 500,
+                      letterSpacing: '0.02em',
+                      padding: '2px 4px',
                     }}
                   >
                     編集
@@ -236,7 +255,7 @@ const AddressList = () => {
         variant="contained"
         color="primary"
         sx={{ mt: 3 }}
-        onClick={() => router.push("/address")} 
+        onClick={() => router.push("/address")}
       >
         新規住所を追加
       </Button>

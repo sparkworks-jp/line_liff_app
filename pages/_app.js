@@ -6,6 +6,9 @@ import Layout from "../components/Layout";
 import { CartProvider } from "../context/CartContext";
 import { MessageProvider } from "../context/MessageContext";
 import { AuthProvider } from "../context/AuthContext";
+import { theme } from '../styles/theme.js'
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
@@ -26,7 +29,7 @@ function MyApp({ Component, pageProps }) {
           liffId: process.env.NEXT_PUBLIC_LIFF_ID,
           withLoginOnExternalBrowser: true
         });
-        
+
         console.log('LIFF初期化完了');
         setLiffObject(liff);
 
@@ -52,15 +55,19 @@ function MyApp({ Component, pageProps }) {
   }
 
   return (
-    <AuthProvider liff={liffObject}>
-      <CartProvider>
-        <MessageProvider>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </MessageProvider>
-      </CartProvider>
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider liff={liffObject}>
+        <CartProvider>
+          <MessageProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </MessageProvider>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
+
   );
 }
 
