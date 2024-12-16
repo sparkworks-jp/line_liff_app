@@ -21,33 +21,81 @@ const ConfirmationDialog = ({
     <Dialog
       open={open}
       onClose={onClose}
-      aria-labelledby="confirmation-dialog-title"
-      aria-describedby="confirmation-dialog-description"
-      maxWidth="md"
+      maxWidth="sm"
       fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: "1rem",
+          padding: "0.5rem",
+        },
+      }}
     >
-      <DialogTitle id="confirmation-dialog-title">{title}</DialogTitle>
+      {title && (
+        <DialogTitle
+          id="confirmation-dialog-title"
+          sx={{
+            fontSize: "1rem",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          {title}
+        </DialogTitle>
+      )}
+
       <DialogContent>
         <DialogContentText
           id="confirmation-dialog-description"
-          sx={{ fontSize: "1.25rem", lineHeight: 1.6 }}
+          sx={{
+            fontSize: "1rem",
+            color: "#555",
+            textAlign: "center",
+            padding: "8px 0",
+            lineHeight: 1.6,
+          }}
         >
           {message}
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
+
+      <DialogActions
+        sx={{
+          justifyContent: "center",
+          gap: "16px",
+          paddingBottom: "1rem",
+        }}
+      >
         <Button
           onClick={onClose}
+          variant="outlined"
           color={cancelColor}
-          sx={{ fontSize: "1rem", padding: "8px 16px" }}
+          sx={{
+            fontSize: "0.9rem",
+            borderRadius: "0.6rem",
+            padding: "0.4rem 1rem",
+            color: "#1976d2",
+            borderColor: "#1976d2",
+            "&:hover": {
+              backgroundColor: "#e3f2fd",
+            },
+          }}
         >
           {cancelText}
         </Button>
         <Button
           onClick={onConfirm}
+          variant="outlined"
           color={confirmColor}
-          autoFocus
-          sx={{ fontSize: "1rem", padding: "8px 16px" }}
+          sx={{
+            fontSize: "0.9rem",
+            borderRadius: "0.6rem",
+            padding: "0.4rem 1rem",
+            backgroundColor: "#f44336",
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "#d32f2f",
+            },
+          }}
         >
           {confirmText}
         </Button>

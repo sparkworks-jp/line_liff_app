@@ -10,8 +10,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import Image from "next/image";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/router";
@@ -78,8 +78,17 @@ const CheckoutPage = () => {
       const response = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/list`
       );
-      if (response.data && response.data.address_list) {
-        setAddressList(response.data.address_list);
+      if (response.data && Array.isArray(response.data.address_list)) {
+        const updatedAddressList = response.data.address_list.map((address) => {
+          const prefecture = getPrefectureById(address.prefecture_address);
+          return {
+            ...address,
+            prefecture_address: prefecture ? prefecture.name : "",
+          };
+        });
+        setAddressList(updatedAddressList);
+      } else {
+        setAddressList([]);
       }
     } catch (error) {
       console.error("Failed to fetch address list:", error);
@@ -296,7 +305,24 @@ const CheckoutPage = () => {
           },
         }}
       >
-        <DialogTitle>今度注文のお届け先を選択</DialogTitle>
+        <Button
+          onClick={() => setDialogOpen(false)}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            minWidth: "auto", 
+            padding: 0,
+            color: "#666"
+          }}
+        >
+          <CloseIcon />
+        </Button>
+
+        <DialogTitle sx={{ fontSize: "1.1rem", color: "primary" }}>
+          今度注文のお届け先を選択
+        </DialogTitle>
+
         <DialogContent>
           {addressList.map((addr) => (
             <Box
@@ -340,24 +366,6 @@ const CheckoutPage = () => {
             </Box>
           ))}
         </DialogContent>
-
-        <DialogActions>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => setDialogOpen(false)}
-            sx={{
-              borderColor: "#d3d3d3",
-              color: "#666",
-              "&:hover": {
-                borderColor: "#c0c0c0",
-                backgroundColor: "#f5f5f5",
-              },
-            }}
-          >
-            キャンセル
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* 商品リスト部分 */}

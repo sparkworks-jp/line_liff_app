@@ -162,10 +162,11 @@ const AddressList = () => {
             key={addr.address_id}
             sx={{
               mb: 2,
+              p: 1,
               border: addr.is_default
                 ? "2px solid rgb(182, 212, 244)"
                 : "1px solid #e0e0e0",
-              borderRadius: "12px",
+              borderRadius: "1rem",
               boxShadow: addr.is_default
                 ? "0px 4px 10px   rgba(180, 231, 255, 0.2)"
                 : "0px 2px 4px rgba(0, 0, 0, 0.1)",
@@ -184,7 +185,7 @@ const AddressList = () => {
                   >
                     {addr.last_name} {addr.first_name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ fontSize: "1.1rem" }}>
                     〒{addr.postal_code} {addr.prefecture_address_name}
                     {addr.city_address} {addr.district_address}
                     {addr.detail_address}
@@ -193,78 +194,78 @@ const AddressList = () => {
               </Grid>
             </CardContent>
             <CardActions>
-              <Grid
-                container
+              <Box
+                display="flex"
                 justifyContent="space-between"
                 alignItems="center"
+                flexWrap="nowrap"
+                width="100%"
               >
-                <Grid item>
-                  <FormControlLabel
-                    label="いつもこの住所に届ける"
+                <FormControlLabel
+                  label="いつもこの住所に届ける"
+                  sx={{
+                    marginLeft: 0,
+                    "& .MuiFormControlLabel-label": {
+                      fontSize: "0.9rem",
+                      fontFamily:
+                        '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
+                      fontWeight: 500,
+                      letterSpacing: "0.02em",
+                    },
+                  }}
+                  control={
+                    <Checkbox
+                      checked={addr.is_default}
+                      disabled={addr.is_default}
+                      onChange={() => setDefaultAddress(addr.address_id)}
+                      icon={<RadioButtonUnchecked />}
+                      checkedIcon={<CheckCircle />}
+                    />
+                  }
+                />
+                <Box display="flex" gap={1}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<BorderColorIcon />}
+                    onClick={() => handleEditAddress(addr)}
                     sx={{
-                      marginLeft: 0,
-                      "& .MuiFormControlLabel-label": {
-                        fontSize: "1rem",
-                        fontFamily:
-                          '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
-                        fontWeight: 500,
-                        letterSpacing: "0.02em",
+                      color: "#1976d2",
+                      borderColor: "#1976d2",
+                      "&:hover": {
+                        backgroundColor: "#e3f2fd",
+                        borderColor: "#1565c0",
                       },
+                      borderRadius: "0.6rem",
+                      minWidth: "80px",
+                      fontSize: "0.85rem",
+                      transition: "all 0.3s ease",
                     }}
-                    control={
-                      <Checkbox
-                        checked={addr.is_default}
-                        disabled={addr.is_default}
-                        onChange={() => setDefaultAddress(addr.address_id)}
-                        icon={<RadioButtonUnchecked />}
-                        checkedIcon={<CheckCircle />}
-                      />
-                    }
-                  />
-                </Grid>
-                <Grid item>
+                  >
+                    編集
+                  </Button>
                   <Button
                     size="small"
                     variant="contained"
                     startIcon={<DeleteForeverIcon />}
                     onClick={() => handleDeleteAddress(addr.address_id)}
                     sx={{
-                      color: "error.main",
-                      backgroundColor: "rgb(255, 255, 255)",
+                      color: "#fff",
+                      backgroundColor: "#f44336",
+                      "&:hover": {
+                        backgroundColor: "#d32f2f",
+                      },
+                      borderRadius: "0.6rem",
                       minWidth: "80px",
-                      fontSize: "0.9rem",
-                      fontFamily:
-                        '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
-                      fontWeight: 500,
-                      letterSpacing: "0.02em",
-                      padding: "4px 8px",
+                      fontSize: "0.85rem",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+                      transition: "all 0.3s ease",
                     }}
                   >
                     削除
                   </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    startIcon={<BorderColorIcon />}
-                    onClick={() => handleEditAddress(addr)}
-                    sx={{
-                      color: "text.primary",
-                      backgroundColor: "rgb(255, 255, 255)",
-                      minWidth: "80px",
-                      fontSize: "0.9rem",
-                      fontFamily:
-                        '"Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", "Meiryo", "メイリオ", "Noto Sans JP", sans-serif',
-                      fontWeight: 500,
-                      letterSpacing: "0.02em",
-                      padding: "4px 8px",
-                    }}
-                  >
-                    編集
-                  </Button>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </CardActions>
           </Card>
         ))
