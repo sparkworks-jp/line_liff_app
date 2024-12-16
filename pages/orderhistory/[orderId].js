@@ -180,7 +180,7 @@ const OrderDetailPage = () => {
 
   return (
     <Container maxWidth="md">
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{  marginTop: '20px' }}>
         注文詳細
       </Typography>
       <Box sx={{ mb: 2 }}>

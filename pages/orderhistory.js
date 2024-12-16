@@ -178,9 +178,6 @@ export default function OrderHistoryPage() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        注文履歴
-      </Typography>
       <List>
         {orders.map((order) => (
           <React.Fragment key={order.id}>
