@@ -11,9 +11,18 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useCart } from "../context/CartContext";
 import CartDrawer from "./CartDrawer";
 import SimpleBottomNavigation from "./Bottombutton";
-import Breadcrumb from "./Breadcrumb";
 import { useRouter } from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
+const PAGE_TITLES = {
+  '/': 'ホーム',
+  '/shop': 'ショップ',
+  '/checkout': 'お会計',
+  '/addressList': '配送先一覧',
+  '/address': '配送先',
+  '/address': '配送先登録',
+  '/orderhistory': '注文履歴',
+};
 
 const Layout = ({ children, userProfile, userId }) => {
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } =
@@ -35,6 +44,8 @@ const Layout = ({ children, userProfile, userId }) => {
     "/checkout": "/shop", // checkout --> shop
   };
 
+
+
   // 動的に戻るパスを決定
   const handleBack = () => {
     const backPath = backPathMap[router.pathname]; 
@@ -45,6 +56,9 @@ const Layout = ({ children, userProfile, userId }) => {
     }
   };
 
+  const getCurrentPageTitle = () => {
+    return PAGE_TITLES[router.pathname] ; 
+  };
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <AppBar position="fixed">
@@ -56,10 +70,9 @@ const Layout = ({ children, userProfile, userId }) => {
             </IconButton>
           )}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {userId && userProfile?.displayName && (
-              <p>いらっしゃいませ，{userProfile.displayName}</p>
-            )}
+            {getCurrentPageTitle()}
           </Typography>
+
           {!isHidden && (
             <>
               <Box sx={{ mt: 2, mb: 2 }}>
@@ -83,8 +96,7 @@ const Layout = ({ children, userProfile, userId }) => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ paddingLeft: 2, marginTop: '65px' }}>
-        <Breadcrumb />
+      <Box sx={{ paddingLeft: 2, marginTop: '56px' }}>
       </Box>
 
       <Box component="main" sx={{ flexGrow: 1, pb: '56px'}}>
