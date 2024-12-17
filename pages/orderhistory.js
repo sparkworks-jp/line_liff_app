@@ -131,10 +131,10 @@ export default function OrderHistoryPage() {
 
       console.log("Deadline:", deadline);
       const now = new Date();
-      console.log("now",now);
-      
+      console.log("now", now);
+
       if (now >= deadline) {
-        return null; 
+        return null;
       }
 
       return (
@@ -160,7 +160,7 @@ export default function OrderHistoryPage() {
             }}
           />
           <Countdown
-            date={deadline} 
+            date={deadline}
             renderer={({ hours, minutes, seconds }) => (
               <span>
                 {`${String(hours).padStart(2, "0")}:${String(minutes).padStart(
@@ -183,10 +183,10 @@ export default function OrderHistoryPage() {
         {orders.map((order) => (
           <React.Fragment key={order.id}>
             <ListItem
-              alignItems="center" 
+              alignItems="center"
               sx={{
                 display: "flex",
-                justifyContent: "space-between", 
+                justifyContent: "space-between",
                 alignItems: "center",
               }}
               onClick={() => handleOrderClick(order.id)}
@@ -267,8 +267,8 @@ export default function OrderHistoryPage() {
                     handleDelete(order.id);
                   }}
                   sx={{
-                    backgroundColor: "#fef2f2", 
-                    color: "#d32f2f", 
+                    backgroundColor: "#fef2f2",
+                    color: "#d32f2f",
                   }}
                 >
                   <DeleteIcon sx={{ fontSize: "1.2rem" }} />{" "}
