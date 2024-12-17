@@ -23,11 +23,6 @@ export default function OrderHistoryPage() {
   const { fetchWithToken } = useAuth();
   const router = useRouter();
   const { showMessage } = useMessage();
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -59,7 +54,7 @@ export default function OrderHistoryPage() {
 
       if (response.status === "success") {
         setOrders(orders.filter((order) => order.id !== orderId));
-        showMessage("注文を削除しました", "success");
+        showMessage("注文が削除されました。", "success");
       } else {
         throw new Error(response.message || "削除に失敗しました");
       }
@@ -135,6 +130,12 @@ export default function OrderHistoryPage() {
       );
 
       console.log("Deadline:", deadline);
+      const now = new Date();
+      console.log("now",now);
+      
+      if (now >= deadline) {
+        return null; 
+      }
 
       return (
         <Box
@@ -159,7 +160,7 @@ export default function OrderHistoryPage() {
             }}
           />
           <Countdown
-            date={deadline}
+            date={deadline} 
             renderer={({ hours, minutes, seconds }) => (
               <span>
                 {`${String(hours).padStart(2, "0")}:${String(minutes).padStart(
@@ -182,13 +183,18 @@ export default function OrderHistoryPage() {
         {orders.map((order) => (
           <React.Fragment key={order.id}>
             <ListItem
-              alignItems="flex-start"
+              alignItems="center" 
+              sx={{
+                display: "flex",
+                justifyContent: "space-between", 
+                alignItems: "center",
+              }}
               onClick={() => handleOrderClick(order.id)}
             >
               <ListItemText
                 primary={
                   <Grid container alignItems="center" spacing={1}>
-                    <Grid item>
+                    <Grid item xs={6}>
                       <Typography
                         component="span"
                         variant="body1"
@@ -197,7 +203,7 @@ export default function OrderHistoryPage() {
                         注文日: {order.date}
                       </Typography>
                     </Grid>
-                    <Grid item>
+                    <Grid item xs={6}>
                       <Typography
                         component="span"
                         variant="body2"
@@ -260,8 +266,12 @@ export default function OrderHistoryPage() {
                     e.stopPropagation();
                     handleDelete(order.id);
                   }}
+                  sx={{
+                    backgroundColor: "#fef2f2", 
+                    color: "#d32f2f", 
+                  }}
                 >
-                  <DeleteIcon />
+                  <DeleteIcon sx={{ fontSize: "1.2rem" }} />{" "}
                 </IconButton>
               )}
             </ListItem>
