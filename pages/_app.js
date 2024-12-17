@@ -9,6 +9,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { theme } from '../styles/theme.js'
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import GestureComponent from "../components/Gesture.js";
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
@@ -56,6 +57,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ThemeProvider theme={theme}>
+      <GestureComponent />
       <CssBaseline />
       <AuthProvider liff={liffObject}>
         <CartProvider>
