@@ -11,9 +11,7 @@ import {
   Divider,
   Container,
   Button,
-  CircularProgress,
-  Snackbar,
-  Alert,
+  CircularProgress
 } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -21,6 +19,7 @@ import HourglassTopRoundedIcon from "@mui/icons-material/HourglassTopRounded";
 import { useAuth } from "../../context/AuthContext";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
 import { getPrefectureById } from "../../data/addressData";
+import { useMessage } from "../../context/MessageContext";
 
 const ORDER_STATUS_MAP = {
   1: "支払い待ち",
@@ -38,11 +37,7 @@ const OrderDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+    const { showMessage } = useMessage();
 
   useEffect(() => {
     if (router.isReady) {
@@ -62,16 +57,18 @@ const OrderDetailPage = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/${orderId}/`
       );
       const orderData = response.data;
-        const prefectureMatch = orderData.address.match(/^(\d{1,2})/);
-        if (prefectureMatch) {
-          const prefectureId = prefectureMatch[1]; 
-          const prefectureData = getPrefectureById(prefectureId);
-          if (prefectureData) {
-            const prefectureName = prefectureData.name;
-            orderData.address = `${prefectureName} ${orderData.address.slice(prefectureId.length).trim()}`;
-          }
+      const prefectureMatch = orderData.address.match(/^(\d{1,2})/);
+      if (prefectureMatch) {
+        const prefectureId = prefectureMatch[1];
+        const prefectureData = getPrefectureById(prefectureId);
+        if (prefectureData) {
+          const prefectureName = prefectureData.name;
+          orderData.address = `${prefectureName} ${orderData.address
+            .slice(prefectureId.length)
+            .trim()}`;
         }
-      
+      }
+
       setOrderData(orderData);
       setError(null);
     } catch (error) {
@@ -115,38 +112,25 @@ const OrderDetailPage = () => {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-          }
+          },
         }
       );
 
       if (response.status === "success") {
-        setSnackbar({
-          open: true,
-          message: "注文キャンセルしました",
-          severity: "success",
-        });
+        showMessage("注文がキャンセルされました！", "success");
         fetchOrderDetail();
       } else {
         throw new Error("Failed to cancel order");
       }
     } catch (error) {
       console.error("Error canceling order:", error);
-      setSnackbar({
-        open: true,
-        message: "注文キャンセル失敗",
-        severity: "error",
-      });
+      showMessage("注文キャンセルが失敗しました！", "error");
     } finally {
       setDialogOpen(false);
     }
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({
-      ...prev,
-      open: false,
-    }));
-  };
+ 
 
   if (loading) {
     return (
@@ -174,13 +158,13 @@ const OrderDetailPage = () => {
       </Container>
     );
   }
-  const shouldShowCancelButton = orderData.orderStatus == 1
+  const shouldShowCancelButton = orderData.orderStatus == 1;
   const orderStatusText =
     ORDER_STATUS_MAP[orderData.orderStatus] || "不明なステータス";
 
   return (
     <Container maxWidth="md">
-      <Typography variant="h4" gutterBottom sx={{  marginTop: '20px' }}>
+      <Typography variant="h4" gutterBottom sx={{ marginTop: "20px" }}>
         注文詳細
       </Typography>
       <Box sx={{ mb: 2 }}>
@@ -191,7 +175,7 @@ const OrderDetailPage = () => {
           注文状況　: {orderStatusText}
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
-          追跡番号　: {orderData.trackingNumber ? rderData.trackingNumber : '-'}
+          追跡番号　: {orderData.trackingNumber ? rderData.trackingNumber : "-"}
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
           注文日　　: {orderData.orderDate}
@@ -209,7 +193,7 @@ const OrderDetailPage = () => {
           <Button
             size="small"
             variant="outlined"
-            color="warning"
+            color="error"
             startIcon={<DeleteIcon />}
             onClick={handleCancelClick}
           >
@@ -223,7 +207,7 @@ const OrderDetailPage = () => {
             startIcon={<HourglassTopRoundedIcon />}
             onClick={handlePayment}
           >
-            決済
+            お支払い
           </Button>
         </Stack>
       )}
@@ -231,26 +215,11 @@ const OrderDetailPage = () => {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onConfirm={handleConfirmCancel}
-        message="このご注文をキャンセルしてもよろしいですか？"
+        message="注文をキャンセルしてもよろしいですか？"
         confirmText="キャンセルする"
         cancelText="戻る"
         confirmColor="error"
       />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
 
       {/* 商品List */}
       <List>
@@ -270,7 +239,6 @@ const OrderDetailPage = () => {
         ))}
       </List>
 
-      {/* 支付情報 */}
       <Box sx={{ mt: 2 }}>
         {/* 割引金額行 */}
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>

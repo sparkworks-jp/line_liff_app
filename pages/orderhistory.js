@@ -7,14 +7,16 @@ import {
   ListItemText,
   Divider,
   Link,
-  IconButton
+  Box,
+  IconButton,
 } from "@mui/material";
-import Grid from '@mui/material/Grid2';
+import Grid from "@mui/material/Grid2";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useMessage } from "../context/MessageContext";
-import Countdown from 'react-countdown';
+import Countdown from "react-countdown";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -46,26 +48,48 @@ export default function OrderHistoryPage() {
       const response = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/delete/${orderId}`,
         {
-          method: 'DELETE'
+          method: "DELETE",
         }
       );
 
-      if (response.status === 'success') {
-        setOrders(orders.filter(order => order.id !== orderId));
-        showMessage("注文を削除しました", "success");
-
+      if (response.status === "success") {
+        setOrders(orders.filter((order) => order.id !== orderId));
+        showMessage("注文が削除されました。", "success");
       } else {
         throw new Error(response.message || "削除に失敗しました");
       }
     } catch (error) {
       console.error("削除エラー:", error);
       showMessage("削除に失敗しました", "error");
-
     }
   };
 
-  const getStatusText = (status) => {
+  const handleCancelOrder = async (orderId) => {
+    try {
+      const response = await fetchWithToken(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/cancel/${orderId}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
+      if (response.status === "success") {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === orderId ? { ...order, status: 5 } : order
+          )
+        );
+      } else {
+        throw new Error("Failed to cancel order");
+      }
+    } catch (error) {
+      console.error("Error canceling order:", error);
+    }
+  };
+  const getStatusText = (status) => {
     switch (status) {
       case 1:
         return "支払い待ち";
@@ -97,24 +121,57 @@ export default function OrderHistoryPage() {
         return "#9e9e9e";
     }
   };
-  const getCancelTimer = (orderDate, status) => {
+  const getCancelTimer = (date, status, orderId) => {
     if (status === 1) {
-      // 注文日から24時間後を計算
-      const deadline = new Date(orderDate);
-      deadline.setHours(deadline.getHours() +`${process.env.NEXT_PUBLIC_PAYMENT_TIMEOUT_HOURS}`);
+      const deadline = new Date(date);
+      deadline.setHours(
+        deadline.getHours() +
+          parseInt(process.env.NEXT_PUBLIC_PAYMENT_TIMEOUT_HOURS, 10)
+      );
+
+      console.log("Deadline:", deadline);
+      const now = new Date();
+      console.log("now", now);
+
+      if (now >= deadline) {
+        return null;
+      }
 
       return (
-        <>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          sx={{
+            backgroundColor: "#fff8e1",
+            border: "1px solid #ffd54f",
+            borderRadius: "8px",
+            padding: "4px 8px",
+            color: "#f57c00",
+            fontSize: "0.9rem",
+            fontWeight: 600,
+          }}
+        >
+          <AccessTimeIcon
+            sx={{
+              fontSize: "1.2rem",
+              marginRight: "4px",
+              color: "#ffa000",
+            }}
+          />
           <Countdown
             date={deadline}
             renderer={({ hours, minutes, seconds }) => (
-              <span style={{ color: '#d32f2f' }}>
-                {`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`}
+              <span>
+                {`${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+                  2,
+                  "0"
+                )}:${String(seconds).padStart(2, "0")}`}
               </span>
             )}
+            onComplete={() => handleCancelOrder(orderId)}
           />
-          <span style={{ marginLeft: '4px' }}>後キャンセル</span>
-        </>
+        </Box>
       );
     }
     return null;
@@ -126,61 +183,77 @@ export default function OrderHistoryPage() {
         {orders.map((order) => (
           <React.Fragment key={order.id}>
             <ListItem
-              alignItems="flex-start"
+              alignItems="center"
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
               onClick={() => handleOrderClick(order.id)}
             >
               <ListItemText
                 primary={
                   <Grid container alignItems="center" spacing={1}>
-                  <Grid item>
-                    <Typography component="span" variant="body1" sx={{ fontSize: '1rem' }}>
-                      注文日: {order.date}
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      sx={{
-                        padding: "2px 4px",
-                        borderRadius: "4px",
-                        fontSize: '1rem',
-                        backgroundColor: getStatusColor(order.status),
-                        color: "#fff",
-                      }}
-                    >
-                      {getStatusText(order.status)}
-                    </Typography>
-                  </Grid>
-                  {getCancelTimer(order.date, order.status) && (
-                    <Grid item>
+                    <Grid item xs={6}>
                       <Typography
                         component="span"
-                        variant="caption"
-                        sx={{
-                          fontSize: '1rem',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                        }}
+                        variant="body1"
+                        sx={{ fontSize: "1rem" }}
                       >
-                        {getCancelTimer(order.date, order.status)}
+                        注文日: {order.date}
                       </Typography>
                     </Grid>
-                  )}
-                </Grid>
+                    <Grid item xs={6}>
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        sx={{
+                          padding: "2px 4px",
+                          borderRadius: "4px",
+                          fontSize: "0.85rem",
+                          backgroundColor: getStatusColor(order.status),
+                          color: "#fff",
+                        }}
+                      >
+                        {getStatusText(order.status)}
+                      </Typography>
+                    </Grid>
+                  </Grid>
                 }
                 secondary={
                   <>
-                    <Link
-                      component="span"
-                      variant="body2"
-                      color="primary"
-                      underline="none"
-                      onClick={() => handleOrderClick(order.id)}
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      sx={{ mt: 1 }}
                     >
-                      {order.items}
-                    </Link>
-                    {` — 合計: ${order.total}`}
+                      <Box>
+                        <Link
+                          component="span"
+                          variant="body2"
+                          color="primary"
+                          underline="none"
+                          onClick={() => handleOrderClick(order.id)}
+                        >
+                          {order.items.length > 15
+                            ? `${order.items.slice(0, 10)}...`
+                            : order.items}
+                        </Link>
+                        <Typography
+                          component="span"
+                          sx={{
+                            marginLeft: "1px",
+                            fontSize: "0.9rem",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {` — 合計: ${order.total}`}
+                        </Typography>
+                      </Box>
+
+                      {getCancelTimer(order.created_at, order.status, order.id)}
+                    </Box>
                   </>
                 }
               />
@@ -193,11 +266,14 @@ export default function OrderHistoryPage() {
                     e.stopPropagation();
                     handleDelete(order.id);
                   }}
+                  sx={{
+                    backgroundColor: "#fef2f2",
+                    color: "#d32f2f",
+                  }}
                 >
-                  <DeleteIcon />
+                  <DeleteIcon sx={{ fontSize: "1.2rem" }} />{" "}
                 </IconButton>
               )}
-
             </ListItem>
             <Divider component="li" />
           </React.Fragment>
@@ -206,4 +282,3 @@ export default function OrderHistoryPage() {
     </Container>
   );
 }
-

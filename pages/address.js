@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography, TextField, Grid , Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../context/MessageContext";
-import { prefecture, getPrefectureById } from "../data/addressData"; 
+import { prefecture, getPrefectureById } from "../data/addressData";
 
 const AddressPage = () => {
   const [editAddress, setEditAddress] = useState({
@@ -27,19 +37,21 @@ const AddressPage = () => {
   const { id } = router.query;
   const { fetchWithToken } = useAuth();
   const { showMessage } = useMessage();
-  
+
   const fetchAddressDeatil = async (address_id) => {
     try {
       const response = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/addresses/${address_id}/detail`
       );
-  
+
       console.log("get address detail succeed:", response.data.address_detail);
       const addressDetail = response.data.address_detail;
-  
-      const prefectureData = getPrefectureById(addressDetail.prefecture_address);
+
+      const prefectureData = getPrefectureById(
+        addressDetail.prefecture_address
+      );
       const prefectureId = prefectureData ? prefectureData.id : null;
-  
+
       setEditAddress({
         ...addressDetail,
         prefecture_address_id: prefectureId,
@@ -48,7 +60,36 @@ const AddressPage = () => {
       console.error("get address detail failed:", error);
     }
   };
-  
+
+  const validateAllFields = () => {
+    const requiredFields = [
+      "first_name",
+      "last_name",
+      "first_name_katakana",
+      "last_name_katakana",
+      "phone_number",
+      "postal_code",
+      "prefecture_address_id",
+      "city_address",
+      "district_address",
+      "detail_address",
+    ];
+
+    let newErrors = {};
+    let isValid = true;
+
+    requiredFields.forEach((field) => {
+      const value = editAddress[field];
+      const error = validateField(field, value);
+      if (error) {
+        isValid = false;
+        newErrors[field] = error;
+      }
+    });
+
+    setErrors(newErrors); //
+    return isValid; //
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,21 +127,21 @@ const AddressPage = () => {
         }
         break;
       case "prefecture_address_id":
-        if (!value) error = "住所は必須です";
+        if (!value) error = "住所（都道府県）は必須です";
         break;
       case "city_address":
-        if (!value) error = "住所は必須です";
+        if (!value) error = "住所（市区町村）は必須です";
         break;
       case "district_address":
-        if (!value) error = "住所は必須です";
+        if (!value) error = "住所（町域）は必須です";
         break;
       case "detail_address":
-        if (!value) error = "詳しい住所は必須です";
+        if (!value) error = "詳しい住所（町域以下）は必須です";
         break;
       default:
         break;
     }
-    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    return error;
   };
 
   const handlePhoneChange = (event) => {
@@ -128,34 +169,10 @@ const AddressPage = () => {
   };
 
   const handleSaveAddress = async () => {
-    // validate all required fields
-    const requiredFields = [
-      "first_name",
-      "last_name",
-      "first_name_katakana",
-      "last_name_katakana",
-      "phone_number",
-      "postal_code",
-      "prefecture_address",
-      "city_address",
-      "district_address",
-      "detail_address",
-    ];
-
-    let isValid = true;
-    let newErrors = {};
-
-    requiredFields.forEach((field) => {
-      const value = editAddress[field];
-      validateField(field, value);
-      if (errors[field]) {
-        newErrors[field] = errors[field];
-        isValid = false;
-      }
-    });
+    const isValid = validateAllFields();
 
     if (!isValid) {
-      setErrors(newErrors);
+      showMessage("全ての必須項目を入力してください", "error");
       return;
     }
 
@@ -215,7 +232,7 @@ const AddressPage = () => {
     const value = event.target.value;
     setEditAddress({
       ...editAddress,
-      prefecture_address_id: event.target.value, 
+      prefecture_address_id: event.target.value,
     });
   };
 
@@ -223,7 +240,7 @@ const AddressPage = () => {
     const formatPostalCode = postalCode.replace("-", "");
     if (oldPostalCode === postalCode) return;
     setOldPostalCode(postalCode);
-  
+
     const url = `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${formatPostalCode}`;
     if (formatPostalCode.length === 7) {
       axios.get(url).then((res) => {
@@ -233,7 +250,7 @@ const AddressPage = () => {
             (pref) => pref.name === address1
           );
           const prefectureId = prefectureData ? prefectureData.id : null;
-  
+
           setEditAddress((prev) => ({
             ...prev,
             prefecture_address_id: prefectureId,
@@ -244,7 +261,6 @@ const AddressPage = () => {
       });
     }
   };
-  
 
   return (
     <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
@@ -257,7 +273,12 @@ const AddressPage = () => {
             fullWidth
             label="姓"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.last_name}
             onChange={(e) =>
@@ -271,7 +292,12 @@ const AddressPage = () => {
             fullWidth
             label="名"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.first_name}
             onChange={(e) =>
@@ -285,7 +311,12 @@ const AddressPage = () => {
             fullWidth
             label="セイ"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.last_name_katakana}
             onChange={(e) =>
@@ -307,7 +338,12 @@ const AddressPage = () => {
             fullWidth
             label="メイ"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.first_name_katakana}
             onChange={(e) =>
@@ -329,7 +365,12 @@ const AddressPage = () => {
             fullWidth
             label="電話番号"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.phone_number}
             onChange={handlePhoneChange}
@@ -344,7 +385,12 @@ const AddressPage = () => {
             fullWidth
             label="郵便番号"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.postal_code}
             onChange={handlePostalCodeChange}
@@ -356,42 +402,49 @@ const AddressPage = () => {
             error={!!errors.postal_code}
             helperText={errors.postal_code}
           />
-            <FormControl fullWidth sx={{ mb: 2 }} required>
-              <InputLabel
-                id="prefecture-label"
-                shrink
-                sx={{
-                  position: "absolute",
-                  top: "-4px",
-                  left: "-2px", 
-                }}
-              >
-                住所（都道府県）
-              </InputLabel>
-              <Select
-                labelId="prefecture-label"
-                value={editAddress.prefecture_address_id || ""}
-                onChange={handlePrefectureChange}
-                displayEmpty
-              >
-                <MenuItem value="" disabled>
-                  都道府県を選択してください
+          <FormControl
+            fullWidth
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.prefecture_address_id
+                  ? "#fff5f5"
+                  : "white",
+                borderColor: errors.prefecture_address_id ? "red" : "inherit",
+              },
+            }}
+            error={!!errors.prefecture_address_id}
+          >
+            <InputLabel>住所（都道府県）</InputLabel>
+            <Select
+              value={editAddress.prefecture_address_id || ""}
+              onChange={handlePrefectureChange}
+              displayEmpty
+            >
+              <MenuItem value="" disabled></MenuItem>
+              {prefecture.map((pref) => (
+                <MenuItem key={pref.id} value={pref.id}>
+                  {pref.name}
                 </MenuItem>
-                  {prefecture.map((pref) => (
-                  <MenuItem key={pref.id} value={pref.id}>
-                    {pref.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.prefecture_address_id && (
-                <Typography color="error">{errors.prefecture_address_id}</Typography>
-              )}
-            </FormControl>
-            <TextField
+              ))}
+            </Select>
+            {errors.prefecture_address_id && (
+              <Typography color="error" sx={{ fontSize: "0.73rem", ml:1.8 }}>
+                {errors.prefecture_address_id}
+              </Typography>
+            )}
+          </FormControl>
+
+          <TextField
             fullWidth
             label="住所（市区町村）"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.city_address}
             onChange={(e) =>
@@ -408,7 +461,12 @@ const AddressPage = () => {
             fullWidth
             label="住所（町域）"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.district_address}
             onChange={(e) =>
@@ -428,7 +486,12 @@ const AddressPage = () => {
             fullWidth
             label="詳しい住所（町域以下）"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: errors.last_name ? "#fff5f5" : "white",
+              },
+            }}
             required
             value={editAddress.detail_address}
             onChange={(e) =>
