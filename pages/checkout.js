@@ -51,10 +51,18 @@ const CheckoutPage = () => {
     setDialogOpen(false);
   };
 
-  const bind = useDrag(({ direction: [xDir] }) => {
-    if (xDir < 0) {
-      console.log("Swiped Left: checkout Returning to shop");
-      router.push("/shop");
+  let swipeTimeout = null;
+
+  const bind = useDrag(({ direction: [xDir], movement: [xMovement] } , touches) => {
+    const SWIPE_THRESHOLD = 50;
+    if (touches > 1) return; 
+    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
+      if (swipeTimeout) return;
+      swipeTimeout = setTimeout(() => {
+        console.log("Swiped Left: checkout Returning to shop");
+        router.push("/shop");
+        swipeTimeout = null
+      }, 300) 
     }
   });
 

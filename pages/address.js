@@ -39,12 +39,25 @@ const AddressPage = () => {
   const { fetchWithToken } = useAuth();
   const { showMessage } = useMessage();
 
-  const bind = useDrag(({ direction: [xDir] }) => {
-    if (xDir < 0) {
-      console.log("Swiped Left: address Returning to addresslist");
-      router.push("/addressList");
+  let swipeTimeout = null;
+
+  const bind = useDrag(({ direction: [xDir], movement: [xMovement], event }, touches) => {
+    const SWIPE_THRESHOLD = 50;
+    if (touches > 1) return;
+    if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
+      console.log("editing");
+      return;
+    }
+    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
+      if (swipeTimeout) return;
+      swipeTimeout = setTimeout(() => {
+        console.log("Swiped Left: Returning to address list");
+        router.push("/addressList");
+        swipeTimeout = null;
+      }, 300); 
     }
   });
+  
   
 
   const fetchAddressDeatil = async (address_id) => {

@@ -40,10 +40,18 @@ const OrderDetailPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { showMessage } = useMessage();
 
-  const bind = useDrag(({ direction: [xDir] }) => {
-    if (xDir < 0) {
-      console.log("Swiped Left: Returning to OrderHistoryPage");
-      router.push("/orderhistory");
+  let swipeTimeout = null;
+
+  const bind = useDrag(({ direction: [xDir], movement: [xMovement], event }, touches) => {
+    const SWIPE_THRESHOLD = 50;
+    if (touches > 1) return;
+    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
+      if (swipeTimeout) return;
+      swipeTimeout = setTimeout(() => {
+        console.log("Swiped Left: Returning to OrderHistoryPage");
+        router.push("/orderhistory");
+        swipeTimeout = null;
+      }, 300); 
     }
   });
 

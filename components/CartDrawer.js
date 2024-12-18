@@ -17,7 +17,6 @@ import { useCart } from '../context/CartContext';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useRouter } from 'next/router';
-import { useDrag } from "@use-gesture/react"; 
 const CartDrawer = () => {
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } = useCart();
   const router = useRouter();
@@ -37,14 +36,6 @@ const CartDrawer = () => {
     });
   };
 
-  const bind = useDrag(({ direction: [xDir] }) => {
-    if (xDir < 0) {
-      console.log("cart drawer Swiped Left: Returning to Shop");
-      router.push("/shop");
-    }
-  });
-
-
   return (
 
     <Drawer
@@ -55,7 +46,7 @@ const CartDrawer = () => {
         sx: { width: '30%', maxWidth: '360px', minWidth: '280px' }
       }}>
     
-      <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }} {...bind()}>
+      <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Typography variant="h6" gutterBottom>カート</Typography>
         <List sx={{ flexGrow: 1, overflow: 'auto' }}>
           {cart.map((item) => (

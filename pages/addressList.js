@@ -38,11 +38,18 @@ const AddressList = () => {
     setSelectedAddressId(null);
     setDialogOpen(false);
   };
-
-  const bind = useDrag(({ direction: [xDir] }) => {
-      if (xDir < 0) {
+  
+  let swipeTimeout = null;
+  const bind = useDrag(({ direction: [xDir], movement: [xMovement] }, touches) => {
+    const SWIPE_THRESHOLD = 50; 
+    if (touches > 1) return;
+    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
+      if (swipeTimeout) return;
+      swipeTimeout = setTimeout(() => {
         console.log("Swiped Left: addresslist Returning to checkout");
         router.push("/checkout");
+        swipeTimeout = null
+      }, 300)
       }
     });
 
