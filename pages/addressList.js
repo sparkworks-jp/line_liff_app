@@ -38,20 +38,25 @@ const AddressList = () => {
     setSelectedAddressId(null);
     setDialogOpen(false);
   };
-  
   let swipeTimeout = null;
-  const bind = useDrag(({ direction: [xDir], movement: [xMovement], velocity }, touches) => {
-    const SWIPE_THRESHOLD = 50; 
-    if (touches > 1) return;
-    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.3){
-      if (swipeTimeout) return;
-      swipeTimeout = setTimeout(() => {
-        console.log("Swiped Left: addresslist Returning to checkout");
-        router.push("/checkout");
-        swipeTimeout = null
-      }, 300)
+
+  const bind = useDrag(
+    ({ direction: [xDir], movement: [xMovement], velocity, event }) => {
+      const SWIPE_THRESHOLD = 50; 
+      if (event.touches && event.touches.length > 1) return; 
+  
+      if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.1) {
+        if (swipeTimeout) clearTimeout(swipeTimeout);
+        swipeTimeout = setTimeout(() => {
+          console.log("Swiped Left: addresslist Returning to checkout");
+          router.push("/checkout");
+          swipeTimeout = null;
+        }, 300);
       }
-    });
+    },
+    { axis: "x", filterTaps: true } 
+  );
+  
 
   // Send a request to get a list of addresses
   const fetchAddressList = async () => {

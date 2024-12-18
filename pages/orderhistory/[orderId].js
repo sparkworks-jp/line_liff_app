@@ -42,18 +42,22 @@ const OrderDetailPage = () => {
 
   let swipeTimeout = null;
 
-  const bind = useDrag(({ direction: [xDir], movement: [xMovement], velocity}, touches) => {
-    const SWIPE_THRESHOLD = 50;
-    if (touches > 1) return;
-    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.3) {
-      if (swipeTimeout) return;
-      swipeTimeout = setTimeout(() => {
+const bind = useDrag(
+    ({ direction: [xDir], movement: [xMovement], velocity, event }) => {
+      const SWIPE_THRESHOLD = 50; 
+      if (event.touches && event.touches.length > 1) return; 
+  
+      if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.1) {
+        if (swipeTimeout) clearTimeout(swipeTimeout);
+        swipeTimeout = setTimeout(() => {
         console.log("Swiped Left: Returning to OrderHistoryPage");
         router.push("/orderhistory");
         swipeTimeout = null;
-      }, 300); 
+      }, 300);
     }
-  });
+  },
+  { axis: "x", filterTaps: true } 
+);
 
   useEffect(() => {
     if (router.isReady) {

@@ -53,18 +53,22 @@ const CheckoutPage = () => {
 
   let swipeTimeout = null;
 
-  const bind = useDrag(({ direction: [xDir], movement: [xMovement], velocity } , touches) => {
-    const SWIPE_THRESHOLD = 50;
-    if (touches > 1) return; 
-    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.3) {
-      if (swipeTimeout) return;
-      swipeTimeout = setTimeout(() => {
+  const bind = useDrag(
+    ({ direction: [xDir], movement: [xMovement], velocity, event }) => {
+      const SWIPE_THRESHOLD = 50; 
+      if (event.touches && event.touches.length > 1) return; 
+  
+      if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.1) {
+        if (swipeTimeout) clearTimeout(swipeTimeout);
+        swipeTimeout = setTimeout(() => {
         console.log("Swiped Left: checkout Returning to shop");
         router.push("/shop");
-        swipeTimeout = null
-      }, 300) 
+        swipeTimeout = null;
+      }, 300);
     }
-  });
+  },
+  { axis: "x", filterTaps: true } 
+);
 
   // get data , default address data
   // parameter: product id , product amount
