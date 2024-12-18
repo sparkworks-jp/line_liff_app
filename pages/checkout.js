@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogContent,
 } from "@mui/material";
+import { useDrag } from "@use-gesture/react"; 
 import CloseIcon from "@mui/icons-material/Close";
 import Image from "next/image";
 import { useCart } from "../context/CartContext";
@@ -49,6 +50,13 @@ const CheckoutPage = () => {
     setCurrentAddress(address);
     setDialogOpen(false);
   };
+
+  const bind = useDrag(({ direction: [xDir] }) => {
+    if (xDir < 0) {
+      console.log("Swiped Left: checkout Returning to shop");
+      router.push("/shop");
+    }
+  });
 
   // get data , default address data
   // parameter: product id , product amount
@@ -208,7 +216,7 @@ const CheckoutPage = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
+    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }} {...bind()}>
       {/* 配送地址部分 */}
       {currentAddress ? (
         <Box

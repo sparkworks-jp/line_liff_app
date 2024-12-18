@@ -6,10 +6,9 @@ import Layout from "../components/Layout";
 import { CartProvider } from "../context/CartContext";
 import { MessageProvider } from "../context/MessageContext";
 import { AuthProvider } from "../context/AuthContext";
-import { theme } from '../styles/theme.js'
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import GestureComponent from "../components/Gesture.js";
+import { theme } from "../styles/theme.js";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
@@ -21,27 +20,27 @@ function MyApp({ Component, pageProps }) {
 
     const initializeLiff = async () => {
       try {
-        console.log('LIFF初期化開始');
+        console.log("LIFF初期化開始");
         if (!process.env.NEXT_PUBLIC_LIFF_ID) {
-          throw new Error('LIFF IDが設定されていません');
+          throw new Error("LIFF IDが設定されていません");
         }
 
         await liff.init({
           liffId: process.env.NEXT_PUBLIC_LIFF_ID,
-          withLoginOnExternalBrowser: true
+          withLoginOnExternalBrowser: true,
         });
 
-        console.log('LIFF初期化完了');
+        console.log("LIFF初期化完了");
         setLiffObject(liff);
 
         // 未ログインの場合はログインページへ
         if (!liff.isLoggedIn()) {
-          console.log('未ログイン状態を検出、ログインページへ遷移します');
+          console.log("未ログイン状態を検出、ログインページへ遷移します");
           liff.login();
           return;
         }
       } catch (error) {
-        console.error('LIFF初期化エラー:', error);
+        console.error("LIFF初期化エラー:", error);
       } finally {
         setLoading(false);
       }
@@ -57,7 +56,6 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ThemeProvider theme={theme}>
-      <GestureComponent />
       <CssBaseline />
       <AuthProvider liff={liffObject}>
         <CartProvider>
@@ -69,7 +67,6 @@ function MyApp({ Component, pageProps }) {
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>
-
   );
 }
 

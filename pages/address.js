@@ -15,6 +15,7 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../context/MessageContext";
 import { prefecture, getPrefectureById } from "../data/addressData";
+import { useDrag } from "@use-gesture/react"; 
 
 const AddressPage = () => {
   const [editAddress, setEditAddress] = useState({
@@ -37,6 +38,14 @@ const AddressPage = () => {
   const { id } = router.query;
   const { fetchWithToken } = useAuth();
   const { showMessage } = useMessage();
+
+  const bind = useDrag(({ direction: [xDir] }) => {
+    if (xDir < 0) {
+      console.log("Swiped Left: address Returning to addresslist");
+      router.push("/addressList");
+    }
+  });
+  
 
   const fetchAddressDeatil = async (address_id) => {
     try {
@@ -263,7 +272,7 @@ const AddressPage = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
+    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }} {...bind()}>
       <Typography variant="h6" sx={{ mb: 3 }}>
         住所管理
       </Typography>

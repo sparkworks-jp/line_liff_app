@@ -3,7 +3,6 @@ import {
   Drawer,
   List,
   ListItem,
-  ListItemText,
   ListItemAvatar,
   Avatar,
   IconButton,
@@ -17,12 +16,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useCart } from '../context/CartContext';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useDrag } from "@use-gesture/react"; 
 const CartDrawer = () => {
   const { cart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen } = useCart();
   const router = useRouter();
-  console.log('Current cart state:', cart);  // 输出当前购物车状态
+  console.log('Current cart state:', cart);  
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const handleQuantityChange = (itemId, change) => {
@@ -38,43 +37,12 @@ const CartDrawer = () => {
     });
   };
 
-  const handlePlaceOrder = async () => {
-    const User = localStorage.getItem("user");
-    const userInfo = User ? JSON.parse(User) : null;
-    const orderData = {
-      // userId: userInfo.userId,
-      // userName:userInfo.userName,
-      userId: "111111",
-      userName:"lucas",
-      cart: cart,
-      total: total,
-    };
-    console.log("orderData:", orderData);
-    console.log("userId:", userInfo.userId);
-
-    try {
-      const response = await axios.post(
-        'https://pxgboy2hi7zpzhyitpghh6iy4u0iyyno.lambda-url.ap-northeast-1.on.aws/',
-        orderData, 
-        {
-          headers: {
-            'Content-Type': 'application/json', 
-          },
-        }
-      );      
-      console.log("Order placed successfully:", response.data);
-      const data = response.data;
-      if (data.resultInfo.code == "SUCCESS") {
-        console.log(data.data.url);
-        router.push(data.data.url);
-      }
-    } catch (error) {
-      console.error("Error placing order:", error);
+  const bind = useDrag(({ direction: [xDir] }) => {
+    if (xDir < 0) {
+      console.log("cart drawer Swiped Left: Returning to Shop");
+      router.push("/shop");
     }
-  };
-
-
-
+  });
 
 
   return (
@@ -85,9 +53,9 @@ const CartDrawer = () => {
       onClose={() => setIsCartOpen(false)}
       PaperProps={{
         sx: { width: '30%', maxWidth: '360px', minWidth: '280px' }
-      }}
-    >
-      <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+      }}>
+    
+      <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }} {...bind()}>
         <Typography variant="h6" gutterBottom>カート</Typography>
         <List sx={{ flexGrow: 1, overflow: 'auto' }}>
           {cart.map((item) => (

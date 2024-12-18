@@ -19,6 +19,7 @@ import { useAuth } from "../context/AuthContext";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import { getPrefectureById } from "../data/addressData";
 import { useMessage } from "../context/MessageContext";
+import { useDrag } from "@use-gesture/react"; 
 
 const AddressList = () => {
   const [addressList, setAddressList] = useState([]);
@@ -37,6 +38,13 @@ const AddressList = () => {
     setSelectedAddressId(null);
     setDialogOpen(false);
   };
+
+  const bind = useDrag(({ direction: [xDir] }) => {
+      if (xDir < 0) {
+        console.log("Swiped Left: addresslist Returning to checkout");
+        router.push("/checkout");
+      }
+    });
 
   // Send a request to get a list of addresses
   const fetchAddressList = async () => {
@@ -137,7 +145,7 @@ const AddressList = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
+    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }} {...bind()}>
       <Typography variant="h6" sx={{ mb: 3 }}>
         住所リスト
       </Typography>
