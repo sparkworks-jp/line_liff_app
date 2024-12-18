@@ -15,7 +15,6 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../context/MessageContext";
 import { prefecture, getPrefectureById } from "../data/addressData";
-import { useDrag } from "@use-gesture/react"; 
 
 const AddressPage = () => {
   const [editAddress, setEditAddress] = useState({
@@ -39,26 +38,6 @@ const AddressPage = () => {
   const { fetchWithToken } = useAuth();
   const { showMessage } = useMessage();
 
-  let swipeTimeout = null;
-
-  const bind = useDrag(({ direction: [xDir], movement: [xMovement], event }, touches) => {
-    const SWIPE_THRESHOLD = 50;
-    if (touches > 1) return;
-    if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
-      console.log("editing");
-      return;
-    }
-    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
-      if (swipeTimeout) return;
-      swipeTimeout = setTimeout(() => {
-        console.log("Swiped Left: Returning to address list");
-        router.push("/addressList");
-        swipeTimeout = null;
-      }, 300); 
-    }
-  });
-  
-  
 
   const fetchAddressDeatil = async (address_id) => {
     try {
@@ -285,7 +264,7 @@ const AddressPage = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }} {...bind()}>
+    <Box sx={{ maxWidth: "800px", margin: "auto", padding: 3 }}>
       <Typography variant="h6" sx={{ mb: 3 }}>
         住所管理
       </Typography>

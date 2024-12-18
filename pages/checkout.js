@@ -53,10 +53,10 @@ const CheckoutPage = () => {
 
   let swipeTimeout = null;
 
-  const bind = useDrag(({ direction: [xDir], movement: [xMovement] } , touches) => {
+  const bind = useDrag(({ direction: [xDir], movement: [xMovement], velocity } , touches) => {
     const SWIPE_THRESHOLD = 50;
     if (touches > 1) return; 
-    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
+    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.3) {
       if (swipeTimeout) return;
       swipeTimeout = setTimeout(() => {
         console.log("Swiped Left: checkout Returning to shop");
