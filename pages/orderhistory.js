@@ -133,7 +133,8 @@ export default function OrderHistoryPage() {
       const now = new Date();
       console.log("now", now);
 
-      if (now >= deadline) {
+      if (now >= deadline ) {
+        handleCancelOrder(orderId);
         return null;
       }
 

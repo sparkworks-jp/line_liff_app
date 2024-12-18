@@ -54,9 +54,8 @@ const CheckoutPage = () => {
   let swipeTimeout = null;
 
   const bind = useDrag(
-    ({ direction: [xDir], movement: [xMovement], velocity, event }) => {
+    ({ direction: [xDir], movement: [xMovement], velocity }) => {
       const SWIPE_THRESHOLD = 50; 
-      if (event.touches && event.touches.length > 1) return; 
   
       if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD && velocity > 0.1) {
         if (swipeTimeout) clearTimeout(swipeTimeout);
