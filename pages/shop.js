@@ -19,6 +19,7 @@ export default function Shop() {
         setLoading(false); 
       } catch (err) {
         setError('shop info error'); 
+        console.log(err);
         setLoading(false);
       }
     };
