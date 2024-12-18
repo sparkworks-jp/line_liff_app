@@ -129,7 +129,8 @@ export function AuthProvider({ children, liff }) {
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
-          'Authorization': `Bearer ${currentToken}`
+          'Authorization': `Bearer ${currentToken}`,
+          "ngrok-skip-browser-warning": "true",
         }
       });
 
