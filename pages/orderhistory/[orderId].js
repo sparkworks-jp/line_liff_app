@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { useDrag } from "@use-gesture/react"; 
 import {
   Typography,
   Box,
@@ -37,7 +38,14 @@ const OrderDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-    const { showMessage } = useMessage();
+  const { showMessage } = useMessage();
+
+  const bind = useDrag(({ direction: [xDir] }) => {
+    if (xDir < 0) {
+      console.log("Swiped Left: Returning to OrderHistoryPage");
+      router.push("/orderhistory");
+    }
+  });
 
   useEffect(() => {
     if (router.isReady) {
@@ -163,7 +171,7 @@ const OrderDetailPage = () => {
     ORDER_STATUS_MAP[orderData.orderStatus] || "不明なステータス";
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="md" {...bind()}>
       <Typography variant="h4" gutterBottom sx={{ marginTop: "20px" }}>
         注文詳細
       </Typography>
