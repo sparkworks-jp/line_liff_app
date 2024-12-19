@@ -27,15 +27,10 @@ export default function Shop() {
     fetchProducts(); 
   }, []); 
 
-  // if (loading) {
-  //   return <div>loading...</div>; 
-  // }
 
   if (error) {
     return <div>{error}</div>; 
   }
-
-
 
   return (
     <div className={styles.container}>

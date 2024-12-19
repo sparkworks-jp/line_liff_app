@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid2";
 import {
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
   Dialog,
   DialogContent,
   IconButton,
@@ -87,86 +83,7 @@ const ProductDetailDialog = ({ product, open, onClose }) => {
           </IconButton>
         </Box>
 
-        {/* product detail */}
-        {/* <Card
-          sx={{
-            maxWidth: "100%",
-            margin: 0,
-            mt: 3,
-            boxShadow: "none",
-            border: "1px solid #e0e0e0",
-          }}
-        >
-          <Box
-            sx={{
-              position: "relative",
-            }}
-          >
-            <CardMedia
-              component="img"
-              height="300"
-              image={product.image}
-              alt={product.name}
-              sx={{
-                borderRadius: "8px",
-              }}
-            />
-
-            {isFullscreen && (
-              <IconButton
-                onClick={toggleFullscreen}
-                sx={{
-                  width: 20,
-                  height: 20,
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                  backgroundColor: "rgba(255, 255, 255, 0.8)",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 1)",
-                  },
-                }}
-              >
-                <FullscreenExitIcon />
-              </IconButton>
-            )}
-          </Box>
-          <CardContent>
-            <Typography gutterBottom variant="h4" component="div">
-              {product.product_name}
-            </Typography>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              ¥{product.price}
-            </Typography>
-            <Grid container spacing={1}>
-              {product.des_images &&
-                product.des_images.map((imgSrc, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={index}>
-                    <CardMedia
-                      component="img"
-                      image={imgSrc}
-                      alt={`Product image ${index + 1}`}
-                      sx={{
-                        width: "100%",
-                        height: "auto",
-                        borderRadius: 1,
-                        boxShadow: 1,
-                      }}
-                    />
-                  </Grid>
-                ))}
-            </Grid>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              {product.description}
-            </Typography>
-
-            <Grid container justifyContent="center" spacing={2}>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                アレルギー情報：{product.allergens}
-              </Typography>
-            </Grid>
-          </CardContent>
-        </Card> */}
+        
       </DialogContent>
     </Dialog>
   );

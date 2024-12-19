@@ -49,10 +49,6 @@ function MyApp({ Component, pageProps }) {
     initializeLiff();
   }, []);
 
-  // LIFF初期化中は読み込み画面を表示
-  if (loading) {
-    return <div>アプリ初期化中...</div>;
-  }
 
   return (
     <ThemeProvider theme={theme}>

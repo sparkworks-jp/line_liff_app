@@ -179,7 +179,7 @@ const AddressPage = () => {
 
     // prepare to save address
     const addressData = {
-      address_id: editAddress.address_id, // if update,use the existed address id
+      address_id: editAddress.address_id, 
       first_name: editAddress.first_name,
       last_name: editAddress.last_name,
       first_name_katakana: editAddress.first_name_katakana,

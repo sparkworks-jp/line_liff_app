@@ -66,7 +66,6 @@ export const CartProvider = ({ children }) => {
 
         newCart[existingItemIndex] = {
           ...newCart[existingItemIndex],
-          // quantity: product.quantity,
           quantity: newCart[existingItemIndex].quantity + product.quantity, 
           flavorOptions: product.flavorOptions
         };
