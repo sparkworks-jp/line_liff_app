@@ -17,6 +17,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useMessage } from "../context/MessageContext";
 import Countdown from "react-countdown";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import styles from "../styles/OrderHistory.module.css";
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -24,6 +25,7 @@ export default function OrderHistoryPage() {
   const router = useRouter();
   const { showMessage } = useMessage();
 
+  // 初回レンダリング時に注文データを取得
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -40,9 +42,13 @@ export default function OrderHistoryPage() {
 
     fetchOrders();
   }, [fetchWithToken]);
+
+  // 注文をクリックしたときに詳細ページへ遷移
   const handleOrderClick = (orderId) => {
     router.push(`/orderhistory/${orderId}`);
   };
+
+  // 注文を削除する処理
   const handleDelete = async (orderId) => {
     try {
       const response = await fetchWithToken(
@@ -51,7 +57,6 @@ export default function OrderHistoryPage() {
           method: "DELETE",
         }
       );
-
       if (response.status === "success") {
         setOrders(orders.filter((order) => order.id !== orderId));
         showMessage("注文が削除されました。", "success");
@@ -64,6 +69,7 @@ export default function OrderHistoryPage() {
     }
   };
 
+  // 注文をキャンセルする処理
   const handleCancelOrder = async (orderId) => {
     try {
       const response = await fetchWithToken(
@@ -89,6 +95,8 @@ export default function OrderHistoryPage() {
       console.error("Error canceling order:", error);
     }
   };
+
+  // 注文状態のテキストを取得
   const getStatusText = (status) => {
     switch (status) {
       case 1:
@@ -105,61 +113,48 @@ export default function OrderHistoryPage() {
         return "不明な状態";
     }
   };
-  const getStatusColor = (status) => {
+
+  // 注文状態クラス名を取得
+  const getStatusClass = (status) => {
     switch (status) {
       case 1:
-        return "#f57c00";
+        return styles["status--pending"];
       case 2:
-        return "#388e3c";
+        return styles["status--paid"];
       case 3:
-        return "#0288d1";
+        return styles["status--shipped"];
       case 4:
-        return "#4caf50";
+        return styles["status--completed"];
       case 5:
-        return "#d32f2f";
+        return styles["status--cancelled"];
       default:
-        return "#9e9e9e";
+        return "";
     }
   };
+
+  // タイマー
   const getCancelTimer = (date, status, orderId) => {
+    // 支払い待ちの状態のみ表示する
     if (status === 1) {
       const deadline = new Date(date);
       deadline.setHours(
         deadline.getHours() +
           parseInt(process.env.NEXT_PUBLIC_PAYMENT_TIMEOUT_HOURS, 10)
       );
-
       console.log("Deadline:", deadline);
       const now = new Date();
       console.log("now", now);
 
-      if (now >= deadline ) {
+      //注文時間＞締め切り時間（環境変数に定義する）の場合、注文をキャンセする（再決済できなくなる）　  
+      if (now > deadline) {
         handleCancelOrder(orderId);
+        // タイマーを表示しない
         return null;
       }
 
       return (
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          sx={{
-            backgroundColor: "#fff8e1",
-            border: "1px solid #ffd54f",
-            borderRadius: "8px",
-            padding: "4px 8px",
-            color: "#f57c00",
-            fontSize: "0.9rem",
-            fontWeight: 600,
-          }}
-        >
-          <AccessTimeIcon
-            sx={{
-              fontSize: "1.2rem",
-              marginRight: "4px",
-              color: "#ffa000",
-            }}
-          />
+        <Box className={styles.timer}>
+          <AccessTimeIcon className={styles.timerIcon} />
           <Countdown
             date={deadline}
             renderer={({ hours, minutes, seconds }) => (
@@ -179,42 +174,29 @@ export default function OrderHistoryPage() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5 }}>
+    <Container maxWidth="md" className={styles.container}>
       <List>
+        {/* 注文アイテム */}
         {orders.map((order) => (
           <React.Fragment key={order.id}>
             <ListItem
-              alignItems="center"
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
+              className={styles.listItem}
               onClick={() => handleOrderClick(order.id)}
             >
               <ListItemText
                 primary={
                   <Grid container alignItems="center" spacing={1}>
                     <Grid item xs={6}>
-                      <Typography
-                        component="span"
-                        variant="body1"
-                        sx={{ fontSize: "1rem" }}
-                      >
+                      <Typography component="span" variant="body1">
                         注文日: {order.date}
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
                       <Typography
                         component="span"
-                        variant="body2"
-                        sx={{
-                          padding: "2px 4px",
-                          borderRadius: "4px",
-                          fontSize: "0.85rem",
-                          backgroundColor: getStatusColor(order.status),
-                          color: "#fff",
-                        }}
+                        className={`${styles.status} ${getStatusClass(
+                          order.status
+                        )}`}
                       >
                         {getStatusText(order.status)}
                       </Typography>
@@ -223,18 +205,12 @@ export default function OrderHistoryPage() {
                 }
                 secondary={
                   <>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{ mt: 1 }}
-                    >
+                    <Box display="flex" justifyContent="space-between" mt={1}>
                       <Box>
+                        {/* 注文アイテムのリンク */}
                         <Link
                           component="span"
-                          variant="body2"
-                          color="primary"
-                          underline="none"
+                          className={styles.link}
                           onClick={() => handleOrderClick(order.id)}
                         >
                           {order.items.length > 15
@@ -267,12 +243,9 @@ export default function OrderHistoryPage() {
                     e.stopPropagation();
                     handleDelete(order.id);
                   }}
-                  sx={{
-                    backgroundColor: "#fef2f2",
-                    color: "#d32f2f",
-                  }}
+                  className={styles.deleteButton}
                 >
-                  <DeleteIcon sx={{ fontSize: "1.2rem" }} />{" "}
+                  <DeleteIcon className={styles.deleteIcon}/>
                 </IconButton>
               )}
             </ListItem>
