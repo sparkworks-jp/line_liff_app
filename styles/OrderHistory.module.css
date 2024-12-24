@@ -1,4 +1,6 @@
 /* OrderHistory.module.css */
+
+/* order history page */
 .container {
     margin-top: 1rem;
   }
@@ -76,5 +78,23 @@
   
   .deleteButton:hover {
     background-color: #f8d7da;
+  }
+
+  .orderTotal {
+    margin-left: "1px";
+    font-size: "0.9rem";
+    font-weight: "bold"
+  }
+
+  /* order detail page */
+
+  .orderDetailTotal {
+    color: #ffa000;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .orderDetailBox {
+    align-items: center;
+    margin-top: 3px;
   }
   

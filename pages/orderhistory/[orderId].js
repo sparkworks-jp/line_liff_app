@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useDrag } from "@use-gesture/react"; 
+import { useDrag } from "@use-gesture/react";
 import {
   Typography,
   Box,
@@ -12,7 +12,7 @@ import {
   Divider,
   Container,
   Button,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -21,14 +21,9 @@ import { useAuth } from "../../context/AuthContext";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
 import { getPrefectureById } from "../../data/addressData";
 import { useMessage } from "../../context/MessageContext";
-
-const ORDER_STATUS_MAP = {
-  1: "支払い待ち",
-  2: "支払い済み",
-  3: "発送済み",
-  4: "完了",
-  5: "キャンセル",
-};
+import { ORDER_STATUS_MAP } from "../../data/constants";
+import orderStyles from "../../styles/OrderHistory.module.css";
+import commonStyles from "../../styles/common.module.css";
 
 const OrderDetailPage = () => {
   const router = useRouter();
@@ -40,30 +35,40 @@ const OrderDetailPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { showMessage } = useMessage();
 
+  // スワイプ動作を制御するタイマー
   let swipeTimeout = null;
 
-  const bind = useDrag(({ direction: [xDir], movement: [xMovement], touches }) => {
-    const SWIPE_THRESHOLD = 50; 
-  
-    if (touches > 1) return;
-  
-    if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
-      if (swipeTimeout) return; 
-  
-      swipeTimeout = setTimeout(() => {
-        console.log("Swiped Left: Returning to OrderHistoryPage");
-        router.push("/orderhistory");
-        swipeTimeout = null; 
-    }, 300); 
-  }
-});
+  // 左スワイプで注文履歴ページに戻る
+  const bind = useDrag(
+    ({ direction: [xDir], movement: [xMovement], touches }) => {
+      // スワイプの閾値
+      const SWIPE_THRESHOLD = 50;
 
+      // マルチタッチの場合は無視
+      if (touches > 1) return;
+
+      if (xDir < 0 && Math.abs(xMovement) > SWIPE_THRESHOLD) {
+        // タイマー中は再度発動させない
+        if (swipeTimeout) return;
+
+        swipeTimeout = setTimeout(() => {
+          console.log("Swiped Left: Returning to OrderHistoryPage");
+          // 注文履歴ページに戻る
+          router.push("/orderhistory");
+          // タイマーをリセット
+          swipeTimeout = null;
+        }, 300);
+      }
+    }
+  );
+  // ルーター準備完了時に注文IDを設定
   useEffect(() => {
     if (router.isReady) {
       setOrderId(router.query.orderId);
     }
   }, [router.isReady]);
 
+  // 注文詳細データを取得
   useEffect(() => {
     fetchOrderDetail();
   }, [orderId, fetchWithToken]);
@@ -76,6 +81,7 @@ const OrderDetailPage = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_API}/api/order/${orderId}/`
       );
       const orderData = response.data;
+      // 住所データから都道府県名を取得しフォーマット
       const prefectureMatch = orderData.address.match(/^(\d{1,2})/);
       if (prefectureMatch) {
         const prefectureId = prefectureMatch[1];
@@ -87,17 +93,20 @@ const OrderDetailPage = () => {
             .trim()}`;
         }
       }
-
+      // 注文データを状態にセット
       setOrderData(orderData);
+      // エラーをリセット
       setError(null);
     } catch (error) {
       console.error("Error fetching order details:", error);
       setError("注文詳細の取得に失敗しました");
     } finally {
+      // ローディングを終了
       setLoading(false);
     }
   };
 
+  // 再決済処理
   const handlePayment = async () => {
     try {
       const paymentResponse = await fetchWithToken(
@@ -109,6 +118,7 @@ const OrderDetailPage = () => {
       );
       if (paymentResponse.status === "success") {
         console.log("Payment post success:", paymentResponse.data);
+        // 支払いリンクにリダイレクト
         router.push(paymentResponse.data.payment_link);
       } else {
         throw new Error("再決済処理に失敗しました");
@@ -119,10 +129,12 @@ const OrderDetailPage = () => {
     }
   };
 
+  // キャンセルダイアログを開く
   const handleCancelClick = () => {
     setDialogOpen(true);
   };
 
+  // 注文キャンセルの確認処理
   const handleConfirmCancel = async () => {
     try {
       const response = await fetchWithToken(
@@ -137,6 +149,7 @@ const OrderDetailPage = () => {
 
       if (response.status === "success") {
         showMessage("注文がキャンセルされました！", "success");
+        // データをリロード
         fetchOrderDetail();
       } else {
         throw new Error("Failed to cancel order");
@@ -145,23 +158,24 @@ const OrderDetailPage = () => {
       console.error("Error canceling order:", error);
       showMessage("注文キャンセルが失敗しました！", "error");
     } finally {
+      // ダイアログを閉じる
       setDialogOpen(false);
     }
   };
 
- 
-
   if (loading) {
+    // ローディング中の表示
     return (
       <Container
         maxWidth="md"
-        sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+        className={`${commonStyles.container} ${commonStyles.mt20}`}
       >
         <CircularProgress />
       </Container>
     );
   }
 
+  // エラー発生時の表示
   if (error) {
     return (
       <Container maxWidth="md">
@@ -170,23 +184,24 @@ const OrderDetailPage = () => {
     );
   }
 
+  // 注文データが存在しない場合の表示
   if (!orderData) {
     return (
       <Container maxWidth="md">
-        <Typography>注文データが見つかりません</Typography>
+        <Typography>該当する注文データが見つかりません</Typography>
       </Container>
     );
   }
+  // キャンセルボタンの表示条件
   const shouldShowCancelButton = orderData.orderStatus == 1;
-  const orderStatusText =
-    ORDER_STATUS_MAP[orderData.orderStatus] || "不明なステータス";
+  const orderStatusText = ORDER_STATUS_MAP[orderData.orderStatus] || "";
 
   return (
     <Container maxWidth="md" {...bind()}>
-      <Typography variant="h4" gutterBottom sx={{ marginTop: "20px" }}>
+      <Typography variant="h4" gutterBottom className={commonStyles.mt20}>
         注文詳細
       </Typography>
-      <Box sx={{ mb: 2 }}>
+      <Box className={commonStyles.mb10}>
         <Typography variant="subtitle1" color="text.secondary">
           注文番号　: {orderId}
         </Typography>
@@ -206,7 +221,7 @@ const OrderDetailPage = () => {
           住所　　　: {orderData.address}
         </Typography>
       </Box>
-
+      {/* キャンセルボタン */}
       {shouldShowCancelButton && (
         <Stack direction="row" spacing={2}>
           <Button
@@ -218,7 +233,7 @@ const OrderDetailPage = () => {
           >
             注文キャンセル
           </Button>
-
+          {/* 再決済ボタン */}
           <Button
             size="small"
             variant="outlined"
@@ -230,6 +245,7 @@ const OrderDetailPage = () => {
           </Button>
         </Stack>
       )}
+      {/* キャンセル確認ダイアログ */}
       <ConfirmationDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -258,9 +274,9 @@ const OrderDetailPage = () => {
         ))}
       </List>
 
-      <Box sx={{ mt: 2 }}>
+      <Box className={commonStyles.mt20}>
         {/* 割引金額行 */}
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box className={commonStyles.box}>
           <Typography variant="subtitle1" color="text.secondary">
             割引金額:
           </Typography>
@@ -268,7 +284,7 @@ const OrderDetailPage = () => {
             {orderData.discount}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box className={commonStyles.box}>
           <Typography variant="subtitle1" color="text.secondary">
             配送料:
           </Typography>
@@ -278,24 +294,13 @@ const OrderDetailPage = () => {
         </Box>
 
         {/* 合計支払金額行 */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mt: 1,
-          }}
-        >
+        <Box className={`${commonStyles.box} ${orderStyles.orderDetailBox} `}>
           <Typography variant="subtitle1" color="text.secondary">
             合計支払金額:
           </Typography>
           <Typography
             variant="subtitle1"
-            sx={{
-              color: "orange",
-              fontWeight: "bold",
-              fontSize: "2rem",
-            }}
+            className={orderStyles.orderDetailTotal}
           >
             {orderData.finalAmount}
           </Typography>

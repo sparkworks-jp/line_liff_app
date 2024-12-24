@@ -1,0 +1,16 @@
+.mt20 {
+    margin-top: 20px;
+}
+
+.mb10 {
+    margin-bottom: 10px;
+}
+
+.box {
+    display: flex;
+    justify-content: space-between;
+}
+.container {
+    display: flex;
+    justify-content: center;
+}

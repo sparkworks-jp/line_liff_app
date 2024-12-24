@@ -13,11 +13,12 @@ import {
 import Grid from "@mui/material/Grid2";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useMessage } from "../context/MessageContext";
 import Countdown from "react-countdown";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import styles from "../styles/OrderHistory.module.css";
+import DeleteIcon from "@mui/icons-material/Delete";
+import orderStyles from "../styles/OrderHistory.module.css";
+import { ORDER_STATUS_MAP } from "../data/constants";
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -96,37 +97,19 @@ export default function OrderHistoryPage() {
     }
   };
 
-  // 注文状態のテキストを取得
-  const getStatusText = (status) => {
-    switch (status) {
-      case 1:
-        return "支払い待ち";
-      case 2:
-        return "支払い済み";
-      case 3:
-        return "発送済み";
-      case 4:
-        return "完了";
-      case 5:
-        return "キャンセル";
-      default:
-        return "不明な状態";
-    }
-  };
-
   // 注文状態クラス名を取得
   const getStatusClass = (status) => {
     switch (status) {
       case 1:
-        return styles["status--pending"];
+        return orderStyles["status--pending"];
       case 2:
-        return styles["status--paid"];
+        return orderStyles["status--paid"];
       case 3:
-        return styles["status--shipped"];
+        return orderStyles["status--shipped"];
       case 4:
-        return styles["status--completed"];
+        return orderStyles["status--completed"];
       case 5:
-        return styles["status--cancelled"];
+        return orderStyles["status--cancelled"];
       default:
         return "";
     }
@@ -145,7 +128,7 @@ export default function OrderHistoryPage() {
       const now = new Date();
       console.log("now", now);
 
-      //注文時間＞締め切り時間（環境変数に定義する）の場合、注文をキャンセする（再決済できなくなる）　  
+      //注文時間＞締め切り時間（環境変数に定義する）の場合、注文をキャンセする（再決済できなくなる）
       if (now > deadline) {
         handleCancelOrder(orderId);
         // タイマーを表示しない
@@ -153,8 +136,8 @@ export default function OrderHistoryPage() {
       }
 
       return (
-        <Box className={styles.timer}>
-          <AccessTimeIcon className={styles.timerIcon} />
+        <Box className={orderStyles.timer}>
+          <AccessTimeIcon className={orderStyles.timerIcon} />
           <Countdown
             date={deadline}
             renderer={({ hours, minutes, seconds }) => (
@@ -174,13 +157,13 @@ export default function OrderHistoryPage() {
   };
 
   return (
-    <Container maxWidth="md" className={styles.container}>
+    <Container maxWidth="md" className={orderStyles.container}>
       <List>
         {/* 注文アイテム */}
         {orders.map((order) => (
           <React.Fragment key={order.id}>
             <ListItem
-              className={styles.listItem}
+              className={orderStyles.listItem}
               onClick={() => handleOrderClick(order.id)}
             >
               <ListItemText
@@ -194,11 +177,11 @@ export default function OrderHistoryPage() {
                     <Grid item xs={6}>
                       <Typography
                         component="span"
-                        className={`${styles.status} ${getStatusClass(
+                        className={`${orderStyles.status} ${getStatusClass(
                           order.status
                         )}`}
                       >
-                        {getStatusText(order.status)}
+                        {ORDER_STATUS_MAP[order.status]}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -210,7 +193,7 @@ export default function OrderHistoryPage() {
                         {/* 注文アイテムのリンク */}
                         <Link
                           component="span"
-                          className={styles.link}
+                          className={orderStyles.link}
                           onClick={() => handleOrderClick(order.id)}
                         >
                           {order.items.length > 15
@@ -219,11 +202,7 @@ export default function OrderHistoryPage() {
                         </Link>
                         <Typography
                           component="span"
-                          sx={{
-                            marginLeft: "1px",
-                            fontSize: "0.9rem",
-                            fontWeight: "bold",
-                          }}
+                          className={orderStyles.orderTotal}
                         >
                           {` — 合計: ${order.total}`}
                         </Typography>
@@ -243,9 +222,9 @@ export default function OrderHistoryPage() {
                     e.stopPropagation();
                     handleDelete(order.id);
                   }}
-                  className={styles.deleteButton}
+                  className={orderStyles.deleteButton}
                 >
-                  <DeleteIcon className={styles.deleteIcon}/>
+                  <DeleteIcon className={orderStyles.deleteIcon} />
                 </IconButton>
               )}
             </ListItem>
